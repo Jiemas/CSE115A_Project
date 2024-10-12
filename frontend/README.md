@@ -1,6 +1,6 @@
-# Deep Space Network (DSN) Application Dashboard
+# Rapid Review
 
-Welcome to behind the scenes of the DSN Application Dashboard! This frontend
+Welcome to the frontend of Rapid Review! This frontend
 application is built with [React](https://reactjs.org/) and
 [MUI](https://mui.com/).
 

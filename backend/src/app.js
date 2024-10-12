@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const express = require('express');
 const yaml = require('js-yaml');
 const swaggerUi = require('swagger-ui-express');
@@ -39,7 +37,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(3010, () => {
-  console.log(`Server Running on port 3010`);
-  console.log('API Testing UI: http://localhost:3010/v0/api-docs/');  
-});
+module.exports = app;

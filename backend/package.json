@@ -25,7 +25,7 @@
     ]
   },
   "scripts": {
-    "start": "nodemon src/app.js",
+    "start": "nodemon src/server.js",
     "test": "jest --testTimeout=10000 --runInBand --coverage --verbose --forceExit --detectOpenHandles"
   }
 }

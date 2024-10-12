@@ -1,20 +1,16 @@
 {
   "name": "cse115a-rapidreview-backend",
-  "version": "3.0.0",
+  "version": "1.0.0",
   "description": "CSE115A Rapid Review Project - Backend",
-  "author": "David Harrison <dcharris@ucsc.edu>",
+  "author": "Jiemas Rubio <jsrubio@ucsc.edu>",
   "license": "UNLICENSED",
   "repository": "none",
   "devDependencies": {
-    "eslint": "8.57.0",
-    "eslint-config-google": "*",
     "jest": "*",
     "nodemon": "*",
     "supertest": "*"
   },
   "dependencies": {
-    "bcrypt": "*",
-    "bcryptjs": "^2.4.3",
     "body-parser": "*",
     "cors": "*",
     "dotenv": "*",
@@ -36,27 +32,9 @@
       "**/?(*.)+(spec|test).[jt]s?(x)"
     ]
   },
-  "eslintConfig": {
-    "extends": [
-      "google"
-    ],
-    "parserOptions": {
-      "ecmaVersion": 15
-    },
-    "rules": {
-      "indent": [
-        "warn",
-        2
-      ]
-    },
-    "ignorePatterns": [
-      "coverage/**"
-    ]
-  },
   "scripts": {
-    "start": "nodemon src/server.js",
-    "test": "jest --testTimeout=10000 --runInBand --coverage --verbose --forceExit --detectOpenHandles",
-    "lint": "eslint . --no-inline-config --max-warnings 0"
+    "start": "nodemon src/app.js",
+    "test": "jest --testTimeout=10000 --runInBand --coverage --verbose --forceExit --detectOpenHandles"
   }
 }
 

@@ -1,0 +1,37 @@
+@font-face {
+    font-family: 'Merriweather';
+    src: url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap');
+  }
+  
+  html {
+    height: 100%;
+    font-family: 'Merriweather', serif;
+  }
+  
+  body {
+    margin: 0;
+    height: 100%;
+    font-family: 'Merriweather', serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: white;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
+  
+  div#root {
+    height: 100%;
+  }
+  
+  code {
+    font-family: 'Source Code Pro', Menlo, Monaco, Consolas, 'Courier New',
+      monospace;
+  }
+  
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }

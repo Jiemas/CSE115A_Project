@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const express = require('express');
-const cors = require('cors');
 const yaml = require('js-yaml');
 const swaggerUi = require('swagger-ui-express');
 const fs = require('fs');
@@ -10,7 +9,6 @@ const OpenApiValidator = require('express-openapi-validator');
 const set = require('./set')
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 

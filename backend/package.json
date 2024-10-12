@@ -27,5 +27,6 @@
   "scripts": {
     "start": "nodemon src/server.js",
     "test": "jest --testTimeout=10000 --runInBand --coverage --verbose --forceExit --detectOpenHandles"
-  }
+  },
+  "packageManager": "pnpm@7.30.0+sha512.e9251dad6499e2abd0e2e05583bb269da6d528e16b4fb0e04b3d8d7d5886e789d18a2e0e0c1dfde6a987a6b062bf95817650bf8d96019fdf5f49f9b320c23759"
 }

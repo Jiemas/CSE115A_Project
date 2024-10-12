@@ -28,6 +28,7 @@ app.use(
 );
 
 // Your Express routes go here
+app.get('/v0/set', set.getAll);
 
 app.use((err, req, res, next) => {
   res.status(err.status).json({

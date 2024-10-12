@@ -7,6 +7,7 @@ const swaggerUi = require('swagger-ui-express');
 const fs = require('fs');
 const path = require('path');
 const OpenApiValidator = require('express-openapi-validator');
+const set = require('./set')
 
 const app = express();
 app.use(cors());

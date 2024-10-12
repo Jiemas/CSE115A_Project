@@ -29,4 +29,3 @@
     "test": "jest --testTimeout=10000 --runInBand --coverage --verbose --forceExit --detectOpenHandles"
   }
 }
-

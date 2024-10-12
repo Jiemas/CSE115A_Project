@@ -1,12 +1,12 @@
 # CSE115A Rapid Review Backend
 
 Set-Up/Installation
-1. Download npm version 10.7.0
-2. Through npm, download node version 20.15.0
-3. In this directory, run `npm install`
+1. Download pnpm version 7.30.0
+2. Download node version 18.12.0
+3. In this directory, run `pnpm install`
 4. You are good to go!
 
-To start the local server: `npm start`
+To start the local server: `pnpm start`
 
-To execute tests: `npm test`
+To execute tests: `pnpm test`
 

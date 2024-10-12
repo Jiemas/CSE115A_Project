@@ -10,4 +10,3 @@ To start the local server: `npm start`
 
 To execute tests: `npm test`
 
-To run the linter against the code: `npm run lint`

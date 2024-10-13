@@ -28,7 +28,7 @@ export const NavigationBar: React.FC = () => {
     <FilterListIcon />,
     <AccountCircleIcon />,
   ];
-  const pageLabels = ['Add Item', 'Filter', 'Account Info'];
+  const pageLabels = ['Add Set', 'Search', 'Account Info'];
 
   const adminOptions = [true, false, false];
 
@@ -89,7 +89,7 @@ export const NavigationBar: React.FC = () => {
             borderRadius: '4px',
           }}
         >
-          <Typography variant="h5">DSN App Dashboard</Typography>
+          <Typography variant="h5">Rapid Review</Typography>
         </ButtonBase>
         <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
           <IconButton

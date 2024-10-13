@@ -30,7 +30,8 @@ app.use(
 // Your Express routes go here
 app.get('/v0/set', set.getAll);
 app.put('/v0/set', set.add);
-app.put('/v0/set/:name', set.update)
+app.put('/v0/set/:id', set.update)
+app.delete('/v0/set/:id', set.delete)
 
 app.use((err, req, res, next) => {
   res.status(err.status).json({

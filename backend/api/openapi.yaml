@@ -41,13 +41,17 @@ paths:
       responses:
         201:
           description: Set added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/keyString'
         default:
           description: Unexpected Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'            
-  /set/{name}:
+  /set/{id}:
     put:
       description: Updates specified set with new values
       requestBody:
@@ -56,17 +60,37 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Set'
+              $ref: '#/components/schemas/noKeySet'
       parameters:
-        - name: name
+        - name: id
           in: path
-          description: name of the set
+          description: id of the set
           required: True
           schema:
             type: string
       responses:
         201:
           description: Set updated
+        404:
+          description: Set not found
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
+    delete:
+      description: Deletes specified set
+      parameters:
+        - name: id
+          in: path
+          description: id of the set
+          required: True
+          schema:
+            type: string
+      responses:
+        200:
+          description: Set deleted
         404:
           description: Set not found
         default:
@@ -98,6 +122,27 @@ components:
 
     Set:
       type: object
+      maxProperties: 5
+      properties:
+        card_num:
+          type: integer
+        description:
+          type: string
+        name:
+          type: string
+        owner:
+          type: string
+        key:
+          type: string
+      required:
+        - card_num
+        - description
+        - name
+        - owner
+        - key
+    
+    noKeySet:
+      type: object
       maxProperties: 4
       properties:
         card_num:
@@ -107,6 +152,8 @@ components:
         name:
           type: string
         owner:
+          type: string
+        key:
           type: string
       required:
         - card_num
@@ -129,4 +176,5 @@ components:
         - name
         - owner
         
-        
+    keyString:
+      type: string

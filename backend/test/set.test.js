@@ -19,7 +19,6 @@ afterAll((done) => {
   server.close(done);
 });
 
-/*
 test('GET, expect 200', async () => {
   await request.get('/v0/set')
     .expect(200);
@@ -60,6 +59,13 @@ test('GET, expect data\'s body element to have owner property', async () => {
     });
 });
 
+test('GET, expect data\'s body element to have key property', async () => {
+  await request.get('/v0/set')
+    .then((data) => {
+      expect(data.body[0].key).toBeTruthy();
+    });
+});
+
 test('PUT new, expect 415, no body', async () => {
   await request.put('/v0/set')
     .expect(415)
@@ -77,15 +83,23 @@ test('PUT new, expect 400, invalid body object', async () => {
     .expect(400)
 });
 
+let key = 0
 // TODO When adding login, 'global' needs to be variable
 test('PUT new, expect 201, valid request', async () => {
   await request.put('/v0/set')
     .send({description: 'this is a test', name: 'third_test', owner: 'global'})
     .expect(201)
+    .then((data) => {
+        key = data.body;
+    })
+});
+
+test('PUT new, returns string key', async () => {
+  expect(typeof(key)).toBe(typeof('test'));
 });
 
 test('PUT new, after valid request, GET contains set', async () => {
-  sleep(500).then(async () => {
+  await sleep(100).then(async () => {
     await request.get('/v0/set')
     .then((data) => {
       flag = false;
@@ -101,12 +115,13 @@ test('PUT new, after valid request, GET contains set', async () => {
 
 // TODO When adding login, 'global' needs to be variable
 test('PUT new, expect 409, set with duplicate name', async () => {
-  sleep(500).then(async () => {
+  await sleep(100).then(async () => {
     await request.put('/v0/set')
     .send({description: 'this should not work', name: 'third_test', owner: 'global'})
     .expect(409)
   })
 });
+
 
 test('PUT update, expect 415, no body, unknown set', async () => {
   await request.put('/v0/set/random')
@@ -120,20 +135,19 @@ test('PUT update, expect 404, body, unknown set', async () => {
 });
 
 test('PUT update, expect 201, body, known set', async () => {
-  await request.put('/v0/set/test_set')
+  await request.put('/v0/set/bd24a693-5256-4414-9321-c4a3480ad96g')
     .send({card_num: 1, description: 'description of the test set', name: 'fourth_set', owner: 'global'})
     .expect(201);
 });
 
 
 test('PUT update, after valid request, GET contains updated set', async () => {
-  sleep(500).then(async () => {
+  await sleep(500).then(async () => {
     await request.get('/v0/set')
       .then((data) => {
         flag = false;
-        console.log(data.body)
         for (const obj of data.body) {
-          if (obj.name == 'fourth_test') {
+          if (obj.name == 'fourth_set') {
             flag = true;  
           }
         }
@@ -143,13 +157,40 @@ test('PUT update, after valid request, GET contains updated set', async () => {
 });
 
 test('PUT update, cleaning up from last test', async () => {
-  await request.put('/v0/set/fourth_set')
-    .send({card_num: 0, description: 'description of the test set', name: 'test_set', owner: 'global'})
+  await request.put('/v0/set/bd24a693-5256-4414-9321-c4a3480ad96g')
+    .send({card_num: 0, description: 'do not delete, part of tests', name: 'test_set', owner: 'global'})
     .expect(201);
 });
-*/
 
-test('PUT update, expect 400, no name', async () => {
+test('Delete, expect 405, no name', async () => {
   await request.delete('/v0/set')
-    .expect(400)
+    .expect(405)
+});
+
+test('Delete, expect 404, random name', async () => {
+  await request.delete('/v0/set/random')
+    .expect(404)
+});
+
+// FIXME CHANGE KEY ONCE ALL TESTS WORK
+test('Delete, expect 200, valid request', async () => {
+  await request.delete('/v0/set/' + key)
+    .expect(200)
+});
+
+test('Delete, after valid request, GET does not contain set', async () => {
+  await sleep(500).then(async () => {
+    await request.get('/v0/set')
+      .then((data) => {
+        flag = false
+        console.log(data.body)
+        for (const obj of data.body) {
+          if (obj.name == 'third_test') {
+            flag = true;  
+          }
+        }
+        console.log(flag)
+        expect(flag).toBeFalsy()
+    });
+  })
 });

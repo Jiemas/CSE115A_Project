@@ -13,58 +13,101 @@ servers:
   - url: http://localhost:3010/v0
 
 paths:
-  /login:
-    post:
-      description: Login
-      requestBody:
-        description: Email and password
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Credentials'
+  /set:
+    get:
+      description: Returns all sets as array of strings
       responses:
         200:
-          description: Credentials Correct
+          description: Sets Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        401:
-          description: Invalid email or password
+                $ref: '#/components/schemas/setArray'
         default:
           description: Unexpected Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+    put:
+      description: Adds a new set to the table
+      requestBody:
+        description: New set as object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/newSet'
+      responses:
+        201:
+          description: Set added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/keyString'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'            
+  /set/{id}:
+    put:
+      description: Updates specified set with new values
+      requestBody:
+        description: New data as set object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/noKeySet'
+      parameters:
+        - name: id
+          in: path
+          description: id of the set
+          required: True
+          schema:
+            type: string
+      responses:
+        201:
+          description: Set updated
+        404:
+          description: Set not found
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
+    delete:
+      description: Deletes specified set
+      parameters:
+        - name: id
+          in: path
+          description: id of the set
+          required: True
+          schema:
+            type: string
+      responses:
+        200:
+          description: Set deleted
+        404:
+          description: Set not found
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
+          
 
 components:
   schemas:
-    Credentials:
-      type: object
-      maxProperties: 2
-      properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-      required:
-        - email
-        - password
 
-    User:
-      type: object
-      maxProperties: 2
-      properties:
-        name:
-          type: string
-        accessToken:
-          type: string
-      required:
-        - name
-        - accessToken
+    setArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Set'
 
     Error:
       required:
@@ -77,3 +120,61 @@ components:
         message:
           type: string
 
+    Set:
+      type: object
+      maxProperties: 5
+      properties:
+        card_num:
+          type: integer
+        description:
+          type: string
+        name:
+          type: string
+        owner:
+          type: string
+        key:
+          type: string
+      required:
+        - card_num
+        - description
+        - name
+        - owner
+        - key
+    
+    noKeySet:
+      type: object
+      maxProperties: 4
+      properties:
+        card_num:
+          type: integer
+        description:
+          type: string
+        name:
+          type: string
+        owner:
+          type: string
+        key:
+          type: string
+      required:
+        - card_num
+        - description
+        - name
+        - owner
+    
+    newSet:
+      type: object
+      maxProperties: 3
+      properties:
+        description:
+          type: string
+        name:
+          type: string
+        owner:
+          type: string
+      required:
+        - description
+        - name
+        - owner
+        
+    keyString:
+      type: string

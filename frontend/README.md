@@ -26,7 +26,7 @@ _Note: This website is a work in progress. The content is not final._
 Please install/update the following software before moving on:
 
 - [Git](https://git-scm.com/)
-- [Node.js v18 (LTS)](https://nodejs.org/)
+- [Node.js v18.12.0 (LTS)](https://nodejs.org/)
 - [VS Code](https://code.visualstudio.com/) with the following extensions
   - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
   - [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
@@ -35,7 +35,7 @@ Please install/update the following software before moving on:
 
 - Clone this repository
 
-- Install/update [pnpm](https://pnpm.io/) v7 (Faster, more disk space efficient
+- Install/update [pnpm](https://pnpm.io/) v7.30.0 (Faster, more disk space efficient
   package manager than `npm`).
 
 - Run `pnpm install` in the cloned repo to install project dependencies.

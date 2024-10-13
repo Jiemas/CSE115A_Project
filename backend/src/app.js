@@ -1,11 +1,10 @@
-require('dotenv').config();
-
 const express = require('express');
 const yaml = require('js-yaml');
 const swaggerUi = require('swagger-ui-express');
 const fs = require('fs');
 const path = require('path');
 const OpenApiValidator = require('express-openapi-validator');
+const set = require('./set')
 
 const app = express();
 app.use(express.json());
@@ -29,6 +28,10 @@ app.use(
 );
 
 // Your Express routes go here
+app.get('/v0/set', set.getAll);
+app.put('/v0/set', set.add);
+app.put('/v0/set/:id', set.update)
+app.delete('/v0/set/:id', set.delete)
 
 app.use((err, req, res, next) => {
   res.status(err.status).json({
@@ -38,7 +41,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(3010, () => {
-  console.log(`Server Running on port 3010`);
-  console.log('API Testing UI: http://localhost:3010/v0/api-docs/');  
-});
+module.exports = app;

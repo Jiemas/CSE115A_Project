@@ -13,30 +13,77 @@ servers:
   - url: http://localhost:3010/v0
 
 paths:
-    /set:
-      get:
-        description: Returns all sets as array of strings
-        responses:
-          200:
-            description: Sets Response
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/stringArray'
-          default:
-            description: Unexpected Error
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
+  /set:
+    get:
+      description: Returns all sets as array of strings
+      responses:
+        200:
+          description: Sets Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/setArray'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      description: Adds a new set to the table
+      requestBody:
+        description: New set as object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/newSet'
+      responses:
+        201:
+          description: Set added
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'            
+  /set/{name}:
+    put:
+      description: Updates specified set with new values
+      requestBody:
+        description: New data as set object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Set'
+      parameters:
+        - name: name
+          in: path
+          description: name of the set
+          required: True
+          schema:
+            type: string
+      responses:
+        201:
+          description: Set updated
+        404:
+          description: Set not found
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
+          
 
 components:
   schemas:
 
-    stringArray:
+    setArray:
       type: array
       items:
-        type: string
+        $ref: '#/components/schemas/Set'
 
     Error:
       required:
@@ -49,3 +96,37 @@ components:
         message:
           type: string
 
+    Set:
+      type: object
+      maxProperties: 4
+      properties:
+        card_num:
+          type: integer
+        description:
+          type: string
+        name:
+          type: string
+        owner:
+          type: string
+      required:
+        - card_num
+        - description
+        - name
+        - owner
+    
+    newSet:
+      type: object
+      maxProperties: 3
+      properties:
+        description:
+          type: string
+        name:
+          type: string
+        owner:
+          type: string
+      required:
+        - description
+        - name
+        - owner
+        
+        

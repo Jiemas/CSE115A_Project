@@ -16,7 +16,8 @@
     "express": "*",
     "express-openapi-validator": "*",
     "js-yaml": "*",
-    "swagger-ui-express": "*"
+    "swagger-ui-express": "*",
+    "openai": "*"
   },
   "jest": {
     "testTimeout": 60000,

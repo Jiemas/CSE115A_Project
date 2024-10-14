@@ -4,7 +4,9 @@ const swaggerUi = require('swagger-ui-express');
 const fs = require('fs');
 const path = require('path');
 const OpenApiValidator = require('express-openapi-validator');
-const set = require('./set')
+
+const set = require('./set');
+const llm = require('./llm');
 
 const app = express();
 app.use(express.json());
@@ -30,8 +32,9 @@ app.use(
 // Your Express routes go here
 app.get('/v0/set', set.getAll);
 app.put('/v0/set', set.add);
-app.put('/v0/set/:id', set.update)
-app.delete('/v0/set/:id', set.delete)
+app.put('/v0/set/:id', set.update);
+app.delete('/v0/set/:id', set.delete);
+app.get('/v0/llm', llm.llm_test);
 
 app.use((err, req, res, next) => {
   res.status(err.status).json({

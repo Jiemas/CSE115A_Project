@@ -99,7 +99,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error' 
-          
+  /llm:
+    get:
+      description: Testing for llm
+      responses:
+        200:
+          description: Test Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/keyString'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:

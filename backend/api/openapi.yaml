@@ -99,6 +99,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error' 
+  /card/{set_id}:
+    put:
+      description: Adds a new card to the table
+      requestBody:
+        description: New card as object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/newCard'
+      parameters:
+        - name: set_id
+          in: path
+          description: id of the set card will be added into
+          required: True
+          schema:
+            type: string
+      responses:
+        201:
+          description: Card added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/keyString'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
   /llm:
     get:
       description: Testing for llm
@@ -190,6 +220,21 @@ components:
         - description
         - name
         - owner
-        
+
+    newCard:
+      type: object
+      maxProperties: 3
+      properties:
+        front:
+          type: string
+        back:
+          type: string
+        starred:
+          type: boolean
+      required:
+        - front
+        - back
+        - starred
+
     keyString:
       type: string

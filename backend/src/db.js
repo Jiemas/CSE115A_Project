@@ -37,3 +37,17 @@ exports.deleteSet = async (id) => {
     await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/set/' + id + '.json',
         {method: 'DELETE'});
 }
+
+exports.getCard_front = async (front, set_id) => {
+    const answer = await fetch(
+        'https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id + '.json',
+        {method: 'GET'});
+    const json = await answer.json();
+    return Object.entries(json).map((elem) => elem[1]).find((elem) => elem.front == front);
+}
+
+exports.addCard = async (new_obj, set_id) => {
+    await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id +'.json',
+        {method: 'PATCH',
+        body: JSON.stringify(new_obj), headers: {'Content-Type': 'application/json'}})
+}

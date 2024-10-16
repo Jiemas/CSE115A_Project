@@ -124,6 +124,11 @@ test('PUT new, expect 409, set with duplicate name', async () => {
   })
 });
 
+test('PUT new, there should be set entry in cards table', async () => {
+  await request.get('/v0/card/' + key)
+    .expect(200);
+});
+
 // TODO Add a test that PUT new also creates the appropriate initial set data in the card table
 
 test('PUT update, expect 415, no body, unknown set', async () => {
@@ -194,6 +199,11 @@ test('Delete, after valid request, GET does not contain set', async () => {
         expect(flag).toBeFalsy()
     });
   })
+});
+
+test('Delete, there should be no set entry in cards table', async () => {
+  await request.get('/v0/card/' + key)
+    .expect(404);
 });
 
 // TODO Add a test that DELETE also deletes the appropriate set data in the card table

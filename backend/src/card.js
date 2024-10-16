@@ -23,5 +23,17 @@ exports.add = async (req, res) => {
     new_obj[req.body.key] = req.body;
     db.addCard(new_obj, set_id);
     res.status(201).json(req.body.key);
-
 }
+
+exports.getAll = async (req, res) => {
+    set_id = req.params.set_id;
+
+    // Check provided set id exists
+    set = await db.getSet_id(set_id);
+    if (set == null) {
+        res.status(404).send();
+        return;
+    }
+    cards = await db.getAllCards(set_id);
+    res.status(200).json(cards);
+};

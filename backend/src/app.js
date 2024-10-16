@@ -7,7 +7,9 @@ const OpenApiValidator = require('express-openapi-validator');
 
 const set = require('./set');
 const card = require('./card');
-const llm = require('./llm');
+
+// Testing
+// const llm = require('./llm');
 
 const app = express();
 app.use(express.json());
@@ -39,9 +41,10 @@ app.delete('/v0/set/:id', set.delete); // Delete
 
 // CRUD Operations on Cards
 app.put('/v0/card/:set_id', card.add); // Create
+app.get('/v0/card/:set_id', card.getAll); // Read
 
 // Testing
-app.get('/v0/llm', llm.llm_test);
+// app.get('/v0/llm', llm.llm_test);
 
 app.use((err, req, res, next) => {
   res.status(err.status).json({

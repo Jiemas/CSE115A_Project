@@ -67,3 +67,11 @@ exports.addCard = async (new_obj, set_id) => {
         {method: 'PATCH',
         body: JSON.stringify(new_obj), headers: {'Content-Type': 'application/json'}})
 }
+
+exports.getAllCards = async (set_id) => {
+    const answer = await fetch(
+        'https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id + '.json',
+        {method: 'GET'});
+    const json = await answer.json();
+    return Object.entries(json).map((elem) => elem[1]);
+};

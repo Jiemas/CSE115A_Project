@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 
 exports.getAllSets = async () => {
     const answer = await fetch(
@@ -26,15 +27,30 @@ exports.getSet_id = async (id) => {
     return Object.entries(duplicate).map((elem) => elem[1]);
 }
 
-exports.addSet = async (new_obj) => {
+exports.addSet = async (new_obj, set_id) => {
     await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/set.json',
         {method: 'PATCH',
-        body: JSON.stringify(new_obj), headers: {'Content-Type': 'application/json'}})
+        body: JSON.stringify(new_obj), headers: {'Content-Type': 'application/json'}});
+
+    if (set_id == null) {
+        return;
+    }
+
+    first_card_id = crypto.randomUUID();
+    card_obj = {};
+    card_obj[first_card_id] = {back: 'Put definition here', front: 'Put term here', key: first_card_id, starred: false};
+    set_obj = {};
+    set_obj[set_id] = card_obj;
+    const answer = await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card.json',
+        {method: 'PATCH',
+        body: JSON.stringify(set_obj), headers: {'Content-Type': 'application/json'}});
 }
 
 exports.deleteSet = async (id) => {
     // curl -X DELETE 'https://rapid-review-4255a-default-rtdb.firebaseio.com/set/fourth_set.json'
     await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/set/' + id + '.json',
+        {method: 'DELETE'});
+    await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + id + '.json',
         {method: 'DELETE'});
 }
 

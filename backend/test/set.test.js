@@ -207,3 +207,25 @@ test('Delete, there should be no set entry in cards table', async () => {
 });
 
 // TODO Add a test that DELETE also deletes the appropriate set data in the card table
+
+// Add test that imports a set of cards
+
+test('Import, expect 201, valid body', async () => {
+  await request(app)
+    .post('/v0/import')
+    .send([
+      {
+        "front": "string",
+        "back": "string",
+        "starred": true,
+        "key": "string"
+      }
+    ])
+    .expect(201);
+});
+
+test('Import, expect 415, no body', async () => {
+  await request(app)
+    .post('/v0/import')
+    .expect(415);
+});

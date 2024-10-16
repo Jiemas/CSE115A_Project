@@ -99,7 +99,74 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error' 
-          
+  /card/{set_id}:
+    put:
+      description: Adds a new card to the table
+      requestBody:
+        description: New card as object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/newCard'
+      parameters:
+        - name: set_id
+          in: path
+          description: id of the set card will be added into
+          required: True
+          schema:
+            type: string
+      responses:
+        201:
+          description: Card added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/keyString'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+    get:
+      description: Returns all cards in specified set
+      parameters:
+        - name: set_id
+          in: path
+          description: id of the set from which cards will be retrieved
+          required: True
+          schema:
+            type: string
+      responses:
+        200:
+          description: Cards response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/cardArray'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'   
+  /llm:
+    get:
+      description: Testing for llm
+      responses:
+        200:
+          description: Test Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/keyString'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
@@ -108,6 +175,11 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Set'
+
+    cardArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Card'
 
     Error:
       required:
@@ -175,6 +247,39 @@ components:
         - description
         - name
         - owner
-        
+
+    Card:
+      type: object
+      maxProperties: 4
+      properties:
+        front:
+          type: string
+        back:
+          type: string
+        starred:
+          type: boolean
+        key:
+          type: string
+      required:
+        - front
+        - back
+        - starred
+        - key
+
+    newCard:
+      type: object
+      maxProperties: 3
+      properties:
+        front:
+          type: string
+        back:
+          type: string
+        starred:
+          type: boolean
+      required:
+        - front
+        - back
+        - starred
+
     keyString:
       type: string

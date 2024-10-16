@@ -1,5 +1,6 @@
 const supertest = require('supertest');
 const http = require('http');
+require('dotenv').config();
 const app = require('../src/app');
 
 let server;
@@ -18,6 +19,7 @@ beforeAll(() => {
 afterAll((done) => {
   server.close(done);
 });
+
 
 test('GET, expect 200', async () => {
   await request.get('/v0/set')
@@ -122,6 +124,12 @@ test('PUT new, expect 409, set with duplicate name', async () => {
   })
 });
 
+test('PUT new, there should be set entry in cards table', async () => {
+  await request.get('/v0/card/' + key)
+    .expect(200);
+});
+
+// TODO Add a test that PUT new also creates the appropriate initial set data in the card table
 
 test('PUT update, expect 415, no body, unknown set', async () => {
   await request.put('/v0/set/random')
@@ -139,7 +147,6 @@ test('PUT update, expect 201, body, known set', async () => {
     .send({card_num: 1, description: 'description of the test set', name: 'fourth_set', owner: 'global'})
     .expect(201);
 });
-
 
 test('PUT update, after valid request, GET contains updated set', async () => {
   await sleep(500).then(async () => {
@@ -172,7 +179,6 @@ test('Delete, expect 404, random name', async () => {
     .expect(404)
 });
 
-// FIXME CHANGE KEY ONCE ALL TESTS WORK
 test('Delete, expect 200, valid request', async () => {
   await request.delete('/v0/set/' + key)
     .expect(200)
@@ -194,3 +200,10 @@ test('Delete, after valid request, GET does not contain set', async () => {
     });
   })
 });
+
+test('Delete, there should be no set entry in cards table', async () => {
+  await request.get('/v0/card/' + key)
+    .expect(404);
+});
+
+// TODO Add a test that DELETE also deletes the appropriate set data in the card table

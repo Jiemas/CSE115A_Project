@@ -19,11 +19,11 @@ exports.add = async (req, res) => {
         return;
     }
 
-    req.body.card_num = 0;
+    req.body.card_num = 1;
     req.body.key = crypto.randomUUID()
     new_obj = {};
     new_obj[req.body.key] = req.body;
-    db.addSet(new_obj);
+    db.addSet(new_obj, req.body.key);
     res.status(201).json(req.body.key);
 }
 
@@ -37,7 +37,7 @@ exports.update = async (req, res) => {
     new_obj = {};
     new_obj[id] = req.body;
     req.body.key = id;
-    db.addSet(new_obj);
+    db.addSet(new_obj, null);
     res.status(201).send();
 }
 

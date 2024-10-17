@@ -36,6 +36,10 @@ export const CreateSetPage: React.FC = () => {
     setTerms(updatedTerms);
   };
 
+  const handleImportSet = () => {
+    console.log('Import Set button clicked'); 
+  };
+
   return (
     <Box
       sx={{
@@ -93,14 +97,22 @@ export const CreateSetPage: React.FC = () => {
       >
         Add Another Term
       </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleCreateSet}
-        sx={{ marginTop: 2 }}
-      >
-        Create Set
-      </Button>
+      <Box sx={{ display: 'flex', gap: 1, marginTop: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleCreateSet}
+        >
+          Create Set
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleImportSet}
+        >
+          Import Set
+        </Button>
+      </Box>
     </Box>
   );
 };

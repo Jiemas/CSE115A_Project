@@ -11,6 +11,7 @@
     "supertest": "*"
   },
   "dependencies": {
+    "cors": "*",
     "body-parser": "*",
     "dotenv": "*",
     "express": "*",

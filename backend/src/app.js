@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const yaml = require('js-yaml');
 const swaggerUi = require('swagger-ui-express');
 const fs = require('fs');
@@ -12,6 +13,7 @@ const card = require('./card');
 // const llm = require('./llm');
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 

@@ -44,7 +44,7 @@ app.put('/v0/card/:set_id', card.add); // Create
 app.get('/v0/card/:set_id', card.getAll); // Read
 
 // Import new set of flashcards
-app.post('/v0/import/:set_id', card.import); // Import
+app.post('/v0/import', card.import); // Import
 
 // Testing
 // app.get('/v0/llm', llm.llm_test);

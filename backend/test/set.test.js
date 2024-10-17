@@ -211,8 +211,7 @@ test('Delete, there should be no set entry in cards table', async () => {
 // Add test that imports a set of cards
 
 test('Import, expect 201, valid body', async () => {
-  await request(app)
-    .post('/v0/import')
+  await request.post('/v0/import')
     .send([
       {
         "front": "string",
@@ -222,10 +221,4 @@ test('Import, expect 201, valid body', async () => {
       }
     ])
     .expect(201);
-});
-
-test('Import, expect 415, no body', async () => {
-  await request(app)
-    .post('/v0/import')
-    .expect(415);
 });

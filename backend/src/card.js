@@ -60,10 +60,12 @@ exports.import = async (req, res) => {
     }
 
     new_obj = {};
+    // Go through each card and add a key to it 
     for (let card of req.body) {
         card.key = crypto.randomUUID();
         new_obj[card.key] = card;
     }
+    // 
     db.addCard(new_obj, set_id);
     res.status(201).send();
 }

@@ -168,16 +168,25 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 # Test for import
-  /import:
+  /import/{set_id}:
     post:
       description: Imports a set of cards
+      parameters:
+        - name: set_id
+          in: path
+          description: ID of the set to import cards into
+          required: true
+          schema:
+            type: string
       requestBody:
         description: Set of cards as array of objects
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/cardArray'
+              type: array
+              items:
+                $ref: '#/components/schemas/newCard'
       responses:
         201:
           description: Cards imported

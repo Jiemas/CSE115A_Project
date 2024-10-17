@@ -13,8 +13,7 @@ import {
   ListItemText,
   ListItemIcon,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import AddCardIcon from '@mui/icons-material/AddCard';
+import MenuIcon from '@mui/icons-material/Menu'; 
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useAuth, UserRole } from '../../auth/AuthContext';
@@ -23,12 +22,11 @@ export const NavigationBar: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = user && user.role === UserRole.Admin;
 
-  const pageIcons = [
-    <AddCardIcon />,
+  const pageIcons = [ 
     <FilterListIcon />,
     <AccountCircleIcon />,
   ];
-  const pageLabels = ['Add Set', 'Search', 'Account Info'];
+  const pageLabels = ['Search', 'Account Info'];
 
   const adminOptions = [true, false, false];
 

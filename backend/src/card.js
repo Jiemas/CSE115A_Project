@@ -37,3 +37,33 @@ exports.getAll = async (req, res) => {
     cards = await db.getAllCards(set_id);
     res.status(200).json(cards);
 };
+
+// --- my edits: update/delete card ---
+// req = request, res = response
+
+//exports.update = async (req, res) => {
+
+//}
+
+exports.delete = async (req, res) => {
+    set_id = req.params.set_id;
+    card_id = req.params.card_id;
+
+    // check if set id is valid
+    duplicate = await getSet_id(set_id);
+    if (duplicate == null) {
+        res.status(404).send(); // not a valid set id
+        return;
+    }
+
+    // how to check if the card id is valid in the set?
+    dupe = await getCard_id(card_id);
+    if (dupe == null) {
+        res.status(404).send(); // card id not valid in set
+        return;
+    }
+    db.deleteCard(set_id, card_id);
+
+    res.status(200).send(); // delete successful
+
+}

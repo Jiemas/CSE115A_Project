@@ -62,6 +62,19 @@ exports.getCard_front = async (front, set_id) => {
     return Object.entries(json).map((elem) => elem[1]).find((elem) => elem.front == front);
 }
 
+// --- my edit -----
+exports.getCard_id = async (card_id) => {
+    const answer = await fetch(
+        'https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + card_id + '.json',
+        {method: 'GET'});
+    const duplicate = await answer.json();
+    if (duplicate == null) {
+        return null;
+    }
+    return Object.entries(duplicate).map((elem) => elem[1]);    // not sure about this line
+}
+// ----------------
+
 exports.addCard = async (new_obj, set_id) => {
     await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id +'.json',
         {method: 'PATCH',
@@ -75,3 +88,11 @@ exports.getAllCards = async (set_id) => {
     const json = await answer.json();
     return Object.entries(json).map((elem) => elem[1]);
 };
+
+// --- MY EDITS: delete card ---
+exports.deleteCard = async (card_id, set_id) => {
+    // not sure if this is how to delete one specific card, taken from deleteSet
+    await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id + '/' + card_id + '.json',
+        {method: 'DELETE'});
+}
+// ------------------------------

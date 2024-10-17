@@ -211,14 +211,19 @@ test('Delete, there should be no set entry in cards table', async () => {
 // Add test that imports a set of cards
 
 test('Import, expect 201, valid body', async () => {
-  await request.post('/v0/import')
-    .send([
+  const response = await request.post('/v0/import')
+  .send([  // Outer array
+    [      // Inner array representing a set of cards
       {
         "front": "string",
         "back": "string",
         "starred": true,
         "key": "string"
       }
-    ])
-    .expect(201);
+      // You can add more card objects here if needed
+    ]
+  ]);
+  //console.log('Response status:', response.status);
+  //console.log(response.body); // Log the response body
+  expect(response.status).toBe(201);
 });

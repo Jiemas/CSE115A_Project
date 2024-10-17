@@ -150,7 +150,34 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'   
+                $ref: '#/components/schemas/Error'  
+    delete:
+      description: Deletes a specified card in a set
+      parameters:
+       - name: card_id
+         in: query 
+         description: id of the card of which to be removed
+         required: True
+         schema:
+          type: string
+       - name: set_id
+         in: path 
+         description: id of the set of which the card to be removed is in
+         required: True
+         schema:
+          type: string
+      responses:
+        200:
+          description: Card deleted
+        404:
+          description: Card not found
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
+
   /llm:
     get:
       description: Testing for llm

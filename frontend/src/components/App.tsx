@@ -4,6 +4,7 @@ import { Home } from './home-page/HomePage';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../auth/AuthContext';
 import { LoginPage } from './LoginPage';
+import { CreateSetPage } from './CreateSetPage';
 
 export const App: React.FC = ({}) => {
   const theme = createTheme({
@@ -24,6 +25,7 @@ export const App: React.FC = ({}) => {
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/home" element={<Home />} />
+            <Route path="/create-set" element={<CreateSetPage />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

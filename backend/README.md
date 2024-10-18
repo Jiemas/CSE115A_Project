@@ -10,3 +10,4 @@ To start the local server: `pnpm start`
 
 To execute tests: `pnpm test`
 
+To run lint code checking: `pnpm lint`

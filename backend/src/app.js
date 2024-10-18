@@ -42,8 +42,8 @@ app.put('/v0/set/:id', set.update); // Update
 app.delete('/v0/set/:id', set.delete); // Delete
 
 // CRUD Operations on Cards
-app.put('/v0/card/:set_id', card.add); // Create
-app.get('/v0/card/:set_id', card.getAll); // Read
+app.put('/v0/card/:setId', card.add); // Create
+app.get('/v0/card/:setId', card.getAll); // Read
 
 // Testing
 // app.get('/v0/llm', llm.llm_test);

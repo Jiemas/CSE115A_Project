@@ -57,7 +57,7 @@ exports.delete = async (req, res) => {
     }
 
     // how to check if the card id is valid in the set?
-    dupe = await getCard_id(card_id);
+    dupe = await getCard_id(set_id, card_id);
     if (dupe == null) {
         res.status(404).send(); // card id not valid in set
         return;

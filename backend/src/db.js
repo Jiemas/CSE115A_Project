@@ -63,11 +63,11 @@ exports.getCard_front = async (front, set_id) => {
 }
 
 // --- my edit -----
-exports.getCard_id = async (card_id) => {
+exports.getCard_id = async (set_id, card_id) => {
     const answer = await fetch(
-        'https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + card_id + '.json',
+        `https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${set_id}/` + card_id + '.json',
         {method: 'GET'});
-    const duplicate = await answer.json();
+    const duplicate = await answer.json();  // {{set_id1, (set_obj1)}, {set_id2, (set_obj2), ...}
     if (duplicate == null) {
         return null;
     }
@@ -90,7 +90,7 @@ exports.getAllCards = async (set_id) => {
 };
 
 // --- MY EDITS: delete card ---
-exports.deleteCard = async (card_id, set_id) => {
+exports.deleteCard = async (set_id, card_id) => {
     // not sure if this is how to delete one specific card, taken from deleteSet
     await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id + '/' + card_id + '.json',
         {method: 'DELETE'});

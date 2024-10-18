@@ -99,6 +99,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error' 
+  /card:
+    get:
+      description: Returns card info?
+      responses:
+          200:
+            description: Card Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Card'
+          default:
+            description: Unexpected Error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
   /card/{set_id}:
     put:
       description: Adds a new card to the table
@@ -135,6 +151,12 @@ paths:
         - name: set_id
           in: path
           description: id of the set from which cards will be retrieved
+          required: True
+          schema:
+            type: string
+        - name: card_id
+          in: query
+          description: id of the card to be added
           required: True
           schema:
             type: string

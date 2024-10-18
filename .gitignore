@@ -1,0 +1,11 @@
+# Ignore node_modules folder
+node_modules/
+
+# Ignore Coverage folder
+coverage/
+
+# Other common ignores
+dist/
+build/
+.env
+.DS_Store

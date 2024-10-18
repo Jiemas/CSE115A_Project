@@ -37,3 +37,30 @@ exports.getAll = async (req, res) => {
     cards = await db.getAllCards(set_id);
     res.status(200).json(cards);
 };
+
+exports.delete = async (req, res) => {
+    const set_id = req.params.set_id;
+    const card_id = req.query.card_id;
+
+    if (!card_id) {
+        return res.status(400).json({ error: 'card_id query parameter is required'});
+    }
+
+    // Check that the set is valid
+    const set = await db.getSet_id(set_id);
+    if (set == null) {
+        res.status(404).send({error: 'Set not found'});
+        return;
+    }
+
+    // Check that the card is valid
+    card = await db.getCard_id(set_id, card_id);
+    if (card == null) {
+        res.status(404).send({error: 'Card not found'});
+        return;
+    }
+
+    db.deleteCard(set_id, card_id);
+    // Delete Successful
+    res.status(200).send(); 
+}

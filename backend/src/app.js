@@ -42,7 +42,7 @@ app.delete('/v0/set/:id', set.delete); // Delete
 // CRUD Operations on Cards
 app.put('/v0/card/:set_id', card.add); // Create
 app.get('/v0/card/:set_id', card.getAll); // Read
-
+app.delete('/v0/card/:set_id', card.delete) // Delete
 // Testing
 // app.get('/v0/llm', llm.llm_test);
 

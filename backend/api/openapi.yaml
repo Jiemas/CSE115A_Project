@@ -150,7 +150,35 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'   
+                $ref: '#/components/schemas/Error' 
+    delete: 
+      description: Deletes all cards in specified set
+      parameters:  
+        - name: card_id
+          in: query
+          description: id of the card which will be deleted
+          required: True
+          schema:
+            type: string
+        - name: set_id
+          in: path
+          description: id of the set from which cards will be deleted
+          required: True
+          schema:
+            type: string
+      responses:
+        200:
+          description: Cards response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/cardArray'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
   /llm:
     get:
       description: Testing for llm

@@ -62,6 +62,18 @@ exports.getCard_front = async (front, set_id) => {
     return Object.entries(json).map((elem) => elem[1]).find((elem) => elem.front == front);
 }
 
+exports.getCard_id = async (set_id, card_id) => {
+    const answer = await fetch(
+        `https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${set_id}/${card_id}` + '.json',
+        {method: 'GET'});
+
+    const card = await answer.json();
+    if (card == null) {
+        return null;
+    }
+    return Object.entries(card).map((elem) => elem[1]);
+}
+
 exports.addCard = async (new_obj, set_id) => {
     await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id +'.json',
         {method: 'PATCH',
@@ -75,18 +87,6 @@ exports.getAllCards = async (set_id) => {
     const json = await answer.json();
     return Object.entries(json).map((elem) => elem[1]);
 };
-
-exports.getCard_id = async (set_id, card_id) => {
-    const answer = await fetch(
-        `https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${set_id}/${card_id}` + '.json',
-        {method: 'GET'});
-
-    const card = await answer.json();
-    if (card == null) {
-        return null;
-    }
-    return Object.entries(card).map((elem) => elem[1]);
-}
 
 exports.deleteCard = async (set_id, card_id) => {
     await fetch(`https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${set_id}/${card_id}` + '.json',

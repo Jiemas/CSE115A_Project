@@ -42,8 +42,8 @@ exports.delete = async (req, res) => {
     const set_id = req.params.set_id;
     const card_id = req.query.card_id;
 
-    if (!card_id) {
-        return res.status(400).json({ error: 'card_id query parameter is required'});
+    if (card_id == null) {
+        return res.status(400).json({error: 'card_id query parameter is required'});
     }
 
     // Check that the set is valid

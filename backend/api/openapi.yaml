@@ -154,21 +154,27 @@ paths:
     delete: 
       description: Deletes all cards in specified set
       parameters:  
-        - name: card_id
-          in: query
-          description: id of the card which will be deleted
-          required: True
-          schema:
-            type: string
         - name: set_id
           in: path
           description: id of the set from which cards will be deleted
           required: True
           schema:
             type: string
+        - name: card_id
+          in: query
+          description: id of the card which will be deleted
+          required: True
+          schema:
+            type: string
       responses:
-        200:
-          description: Cards response
+        200: #TODO: Decide whether we need schema for the card delete responses.
+          description: Card deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/cardArray'
+        404:
+          description: Card not found
           content:
             application/json:
               schema:

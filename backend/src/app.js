@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const yaml = require('js-yaml');
 const swaggerUi = require('swagger-ui-express');
 const fs = require('fs');
@@ -12,6 +13,7 @@ const card = require('./card');
 // const llm = require('./llm');
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
@@ -40,8 +42,8 @@ app.put('/v0/set/:id', set.update); // Update
 app.delete('/v0/set/:id', set.delete); // Delete
 
 // CRUD Operations on Cards
-app.put('/v0/card/:set_id', card.add); // Create
-app.get('/v0/card/:set_id', card.getAll); // Read
+app.put('/v0/card/:setId', card.add); // Create
+app.get('/v0/card/:setId', card.getAll); // Read
 
 // Testing
 // app.get('/v0/llm', llm.llm_test);

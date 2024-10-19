@@ -43,7 +43,7 @@ app.delete('/v0/set/:id', set.delete); // Delete
 app.put('/v0/card/:set_id', card.add); // Create
 app.get('/v0/card/:set_id', card.getAll); // Read
 // ---my edits----
-// app.put('/v0/card/:set_id', card.update); // Update
+app.post('/v0/card/:set_id', card.update); // Update
 app.delete('/v0/card/:set_id', card.delete); // Delete
 // ----------------
 

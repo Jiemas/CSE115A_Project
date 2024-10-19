@@ -99,23 +99,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error' 
-  /card:
-    get:
-      description: Returns card info?
-      responses:
-          200:
-            description: Card Response
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Card'
-          default:
-            description: Unexpected Error
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-  /card/{set_id}:
+  /card/{set_id}:  
     put:
       description: Adds a new card to the table
       requestBody:
@@ -156,7 +140,7 @@ paths:
             type: string
         - name: card_id
           in: query
-          description: id of the card to be added
+          description: id of the card to be retrieved
           required: True
           schema:
             type: string
@@ -172,24 +156,62 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'  
+                $ref: '#/components/schemas/Error'
+    # ------------  
+    post:
+      description: Updates card in the specified set
+      # needs a request body so we can change the card's data
+      requestBody:
+        description: Editing existing front and/or back of a card
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Card'
+      parameters:
+        - name: set_id
+          in: path
+          description: id of the set card to be updated
+          required: True
+          schema:
+            type: string
+        - name: card_id
+          in: query
+          description: id of the card to be updated
+          required: True
+          schema:
+            type: string
+      responses:
+        201:
+          description: Card updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
+    # ------------ 
     delete:
       description: Deletes a specified card in a set
       parameters:
-       - name: card_id
-         in: query 
-         description: id of the card of which to be removed
-         required: True
-         schema:
-          type: string
        - name: set_id
          in: path 
          description: id of the set of which the card to be removed is in
          required: True
          schema:
           type: string
+       - name: card_id
+         in: query 
+         description: id of the card of which to be removed
+         required: True
+         schema:
+          type: string
       responses:
-        200:
+        200: # TODO: decide whether we need schemas for delete 200 and 400 responses
           description: Card deleted
         404:
           description: Card not found
@@ -198,7 +220,45 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error' 
+                $ref: '#/components/schemas/Error'
+  # --- SCRAP THIS ONE ITS WRONG (my initial draft of card update) -- 
+  # /card/update/{set_id}:
+  #   put:
+  #     description: Updates a card in an existing set
+  #     requestBody:
+  #       description: Existing set and card object
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/cardArray'
+  #     parameters:
+  #       - name: set_id
+  #         in: path
+  #         description: set id that the card belongs in
+  #         required: True
+  #         schema:
+  #           type: string
+  #       - name: card_id
+  #         in: query
+  #         description: id of the card to be updated
+  #         required: True
+  #         schema:
+  #           type: string
+  #     responses:
+  #       201:
+  #         description: Card updated
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/keyString'
+  #       default:
+  #         description: Unexpected Error
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/Error'
+  # --------------------------
 
   /llm:
     get:

@@ -67,11 +67,14 @@ exports.getCard_id = async (set_id, card_id) => {
     const answer = await fetch(
         `https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${set_id}/` + card_id + '.json',
         {method: 'GET'});
-    const duplicate = await answer.json();  // {{set_id1, (set_obj1)}, {set_id2, (set_obj2), ...}
+    // {{set_id1, (set_obj1)}, {set_id2, (set_obj2), ...}
+    const duplicate = await answer.json(); 
     if (duplicate == null) {
         return null;
     }
-    return Object.entries(duplicate).map((elem) => elem[1]);    // not sure about this line
+
+    // console.log("return value of getCard_id:" , Object.entries(duplicate).map((elem) => elem[1]));
+    return Object.entries(duplicate).map((elem) => elem[1]);
 }
 // ----------------
 
@@ -89,10 +92,23 @@ exports.getAllCards = async (set_id) => {
     return Object.entries(json).map((elem) => elem[1]);
 };
 
-// --- MY EDITS: delete card ---
+// --- MY EDITS: delete card + update card ---
 exports.deleteCard = async (set_id, card_id) => {
     // not sure if this is how to delete one specific card, taken from deleteSet
     await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id + '/' + card_id + '.json',
         {method: 'DELETE'});
 }
+
+exports.updateCard = async (card_body, set_id, card_id) => {
+    await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id + '/' + card_id + '.json',
+        {method: 'PUT',
+        body: JSON.stringify(card_body),headers: {'Content-Type': 'application/json'}
+        });   // chat got my back for this PUT line
+}
+
+// ^reference from addSet:
+// await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id +'.json',
+//     {method: 'PATCH',
+//     body: JSON.stringify(new_obj), headers: {'Content-Type': 'application/json'}})
+// }
 // ------------------------------

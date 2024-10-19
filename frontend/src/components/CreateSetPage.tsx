@@ -76,7 +76,7 @@ export const CreateSetPage: React.FC = () => {
     delete updated_set.key;
     updated_set.name = setName;
     updated_set.description = setDescription;
-    updated_set.card_num = terms.length;
+    updated_set.card_num = terms.filter((term) => term.delete < 2 || !term.delete).length;
     console.log(updated_set);
     await fetch(`http://localhost:3010/v0/set/${setKey}`, 
       {

@@ -99,7 +99,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error' 
-  /card/{set_id}:
+  /card/{setId}:
     put:
       description: Adds a new card to the table
       requestBody:
@@ -110,7 +110,7 @@ paths:
             schema:
               $ref: '#/components/schemas/newCard'
       parameters:
-        - name: set_id
+        - name: setId
           in: path
           description: id of the set card will be added into
           required: True
@@ -132,7 +132,7 @@ paths:
     get:
       description: Returns all cards in specified set
       parameters:
-        - name: set_id
+        - name: setId
           in: path
           description: id of the set from which cards will be retrieved
           required: True
@@ -151,6 +151,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'   
+    delete: 
+      description: Deletes all cards in specified set
+      parameters:  
+        - name: setId
+          in: path
+          description: id of the set from which cards will be deleted
+          required: True
+          schema:
+            type: string
+        - name: cardId
+          in: query
+          description: id of the card which will be deleted
+          required: True
+          schema:
+            type: string
+      responses:
+        200: #TODO: Decide whether we need schema for the card delete responses.
+          description: Card deleted
+          # content:
+            # application/json:
+              # schema:
+                # $ref: '#/components/schemas/cardArray'
+        404:
+          description: Card not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/cardArray'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
   /llm:
     get:
       description: Testing for llm

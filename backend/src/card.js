@@ -37,3 +37,32 @@ exports.getAll = async (req, res) => {
   cards = await db.getAllCards(setId);
   res.status(200).json(cards);
 };
+
+exports.delete = async (req, res) => {
+  const setId = req.params.setId;
+  const cardId = req.query.cardId;
+
+  /* Not required because of the OpenAPI File
+  if (cardId == null) {
+      return res.status(400).json({error: 'cardId query parameter is required'});
+  }
+  */
+
+  // Check that the set is valid
+  const set = await db.getSet_id(setId);
+  if (set == null) {
+      res.status(404).send({error: 'Set not found'});
+      return;
+  }
+
+  // Check that the card is valid
+  card = await db.getCard_id(setId, cardId);
+  if (card == null) {
+      res.status(404).send({error: 'Card not found'});
+      return;
+  }
+
+  db.deleteCard(setId, cardId);
+  // Delete Successful
+  res.status(200).send(); 
+}

@@ -107,7 +107,7 @@ test('PUT new, returns string key', async () => {
 });
 
 test('PUT new, after valid request, GET contains set', async () => {
-  await sleep(100).then(async () => {
+  await sleep(200).then(async () => {
     await request.get('/v0/set')
       .then((data) => {
         flag = false;

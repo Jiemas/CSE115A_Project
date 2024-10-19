@@ -21,7 +21,7 @@ export const CreateSetPage: React.FC = () => {
   const [error, setError] = useState('');
 
   React.useEffect(() => {
-    if (set.name) {
+    if (set.name && !setDeleted) {
       fetch(`http://localhost:3010/v0/card/${set.key}`, {method: 'get'})
         .then((res) => {
           return res.json();

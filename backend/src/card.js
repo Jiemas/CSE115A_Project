@@ -35,6 +35,9 @@ exports.getAll = async (req, res) => {
     return;
   }
   cards = await db.getAllCards(setId);
+  if (!cards) {
+    res.status(500);
+  }
   res.status(200).json(cards);
 };
 

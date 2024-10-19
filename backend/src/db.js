@@ -96,6 +96,9 @@ exports.getAllCards = async (setId) => {
     `https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}.json`,
     {method: 'GET'});
   const json = await answer.json();
+  if (!json) {
+    return json;
+  }
   return Object.entries(json).map((elem) => elem[1]);
 };
 

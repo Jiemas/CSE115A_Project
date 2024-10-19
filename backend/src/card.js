@@ -61,18 +61,14 @@ exports.update = async (req, res) => {
         return;
     }
 
-    // card_obj = {};
-    // card_obj[card_id] = req.body;
-    // console.log("req.body: ", req.body);
+    //card_obj = {};
+    //card_obj[card_id] = req.body;
+    //console.log("card_obj: ", card_obj);
 
-    // req.body.key = card_id;
-    // console.log("req.body.key: ", req.body.key);
-    // console.log("card_obj: ", card_obj);
-
-    // don't need those^^^ not supposed to create a new obj for the card,
-    // just grabbing the body from the request line 
-    // (which should be the data to be updated on the card, see PUT curl command example)
-
+    //console.log("req.body: ", req.body);
+    req.body.key = card_id;
+    //console.log("req.body.key: ", req.body.key);
+   
     db.updateCard(req.body, set_id, card_id); // don't think we need a new_obj for this
     res.status(201).send();
 }

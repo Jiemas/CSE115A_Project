@@ -167,7 +167,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Card'
+              $ref: '#/components/schemas/noKeyCard' #?
       parameters:
         - name: set_id
           in: path
@@ -375,6 +375,25 @@ components:
         - starred
         - key
 
+    # adding this for card update, this is so we can only edit the front, back, or starred
+    # but still have a key property to save the existing card id
+    noKeyCard:
+      type: object
+      maxProperties: 3
+      properties:
+        front:
+          type: string
+        back:
+          type: string
+        starred:
+          type: boolean
+        key: 
+          type: string
+      required:
+        - front
+        - back
+        - starred
+
     newCard:
       type: object
       maxProperties: 3
@@ -392,3 +411,4 @@ components:
 
     keyString:
       type: string
+

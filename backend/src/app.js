@@ -45,6 +45,9 @@ app.delete('/v0/set/:id', set.delete); // Delete
 app.put('/v0/card/:setId', card.add); // Create
 app.get('/v0/card/:setId', card.getAll); // Read
 
+// Import new set of flashcards
+app.post('/v0/import', set.import); // Import
+
 // Testing
 // app.get('/v0/llm', llm.llm_test);
 

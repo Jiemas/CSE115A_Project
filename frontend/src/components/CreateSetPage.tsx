@@ -124,15 +124,9 @@ export const CreateSetPage: React.FC = () => {
     setTerms(updatedTerms);
   };
 
-  const handleDeleteSet = () => {
-    if (confirmDelete) {
-      console.log('Deleting set');
-      fetch(`http://localhost:3010/v0/set/${set.key}`, {method: 'delete'});
-    }
-    else {
-      setConfirmDelete(true);
-    }
-  }
+  const handleImportSet = () => {
+    console.log('Import Set button clicked'); 
+  };
 
   return (
     <Box
@@ -210,36 +204,32 @@ export const CreateSetPage: React.FC = () => {
           </Button>
         </Box>
       ))}
-      {set.name ? 
-        <>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleAddTerm}
-            sx={{ marginTop: 1 }}
-          >
-            Add Another Term
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleUpdateSet}
-            sx={{ marginTop: 2 }}
-          >
-            Update Set
-          </Button>
-        </>
-      : '' }
-      {set.name ? 
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleAddTerm}
+        sx={{ marginTop: 1 }}
+      >
+        Add Another Term
+      </Button>
+      <Box sx={{ display: 'flex', gap: 1, marginTop: 2 }}>
         <Button
           variant="contained"
           color="primary"
-          onClick={handleDeleteSet}
-          sx={{ marginTop: 2 }}
+          onClick={handleCreateSet}
         >
-          {confirmDelete ? 'Confirm Delete?' : 'Delete Set'}
+          Create Set
         </Button>
-      : ''}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleImportSet}
+        >
+          Import Set
+        </Button>
+      </Box>
+
     </Box>
   );
 };

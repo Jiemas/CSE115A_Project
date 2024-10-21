@@ -39,12 +39,42 @@ exports.update = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
-  id = req.params.id;
-  duplicate = await db.getSet_id(id);
-  if (duplicate == null) {
-    res.status(404).send();
-    return;
-  }
-  db.deleteSet(id);
-  res.status(200).send();
-};
+    id = req.params.id;
+    duplicate = await db.getSet_id(id);
+    if (duplicate == null) {
+        res.status(404).send();
+        return;
+    }
+    db.deleteSet(id);
+    res.status(200).send();
+}
+
+exports.import = async (req, res) => {
+    //console.log('Received import request:', req.body);
+    const cards = req.body;
+    if (!Array.isArray(cards) || cards.length === 0) {
+      //console.log('Invalid input received');
+      return res.status(400).json({ code: 400, message: 'Invalid input. Non-empty array of cards required.' });
+    }
+  
+    try {
+      const set_id = crypto.randomUUID();
+      //console.log('Generated set_id:', set_id);
+      const new_set = {};
+  
+      for (let card of cards) {
+        card.key = crypto.randomUUID();
+        card.set_id = set_id;
+        new_set[card.key] = card;
+        //console.log('Creating card:', card);
+        await db.addCard(card);
+      }
+  
+      //console.log('Adding new set:', new_set);
+      await db.addSet(new_set, set_id);
+      res.status(201).json({ code: 201, message: 'Cards imported successfully', data: new_set });
+    } catch (error) {
+      //console.error('Error importing set:', error);
+      res.status(500).json({ code: 500, message: 'Internal Server Error' });
+    }
+  };

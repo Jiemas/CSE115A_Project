@@ -168,6 +168,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /import:
+    post:
+      description: Imports a set of cards
+      requestBody:
+        description: Set of cards as array of objects
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/cardArray'
+      responses:
+        201:
+          description: Cards imported
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cards imported successfully
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   schemas:
 
@@ -283,3 +313,10 @@ components:
 
     keyString:
       type: string
+
+    
+
+    
+
+
+  

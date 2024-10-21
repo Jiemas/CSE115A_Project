@@ -124,7 +124,7 @@ test('PUT new, expect 409, card with duplicate front', async () => {
   });
 });
 
-test('PUT new, after valid request, GET contains set', async () => {
+test('PUT new, after valid request, GET contains card', async () => {
   await sleep(100).then(async () => {
     await request.get('/v0/card/' + setKey)
       .then((data) => {
@@ -135,6 +135,48 @@ test('PUT new, after valid request, GET contains set', async () => {
           }
         }
         expect(flag).toBeTruthy();
+      });
+  });
+});
+
+test('POST update, expect 201, body, known set', async () => {
+  await request.post(
+    `/v0/card/bd24a693-5256-4414-9321-c4a3480ad96g?cardId=${key}`)
+    .send({back: 'this should update', front: 'test card 1', starred: false})
+    .expect(201);
+});
+
+test('POST update, after valid request, GET contains updated set', async () => {
+  await sleep(500).then(async () => {
+    await request.get('/v0/card/' + setKey)
+      .then((data) => {
+        flag = false;
+        for (const obj of data.body) {
+          if (obj.front == 'test card 1') {
+            flag = true;
+          }
+        }
+        expect(flag).toBeTruthy();
+      });
+  });
+});
+
+test('Delete, expect 200, valid request', async () => {
+  await request.delete(`/v0/card/${setKey}?cardId=${key}`)
+    .expect(200);
+});
+
+test('Delete, after valid request, GET does not contains card', async () => {
+  await sleep(200).then(async () => {
+    await request.get('/v0/card/' + setKey)
+      .then((data) => {
+        flag = false;
+        for (const obj of data.body) {
+          if (obj.front == 'test card') {
+            flag = true;
+          }
+        }
+        expect(flag).toBeFalsy();
       });
   });
 });

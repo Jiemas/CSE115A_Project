@@ -99,7 +99,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error' 
-  /card/{set_id}:
+  /card/{setId}:
     put:
       description: Adds a new card to the table
       requestBody:
@@ -110,7 +110,7 @@ paths:
             schema:
               $ref: '#/components/schemas/newCard'
       parameters:
-        - name: set_id
+        - name: setId
           in: path
           description: id of the set card will be added into
           required: True
@@ -132,7 +132,7 @@ paths:
     get:
       description: Returns all cards in specified set
       parameters:
-        - name: set_id
+        - name: setId
           in: path
           description: id of the set from which cards will be retrieved
           required: True
@@ -151,6 +151,76 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'   
+    post:
+      description: Updates card in the specified set
+      # needs a request body so we can change the card's data
+      requestBody:
+        description: Editing existing front and/or back of a card
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/noKeyCard' #?
+      parameters:
+        - name: setId
+          in: path
+          description: id of the set card to be updated
+          required: True
+          schema:
+            type: string
+        - name: cardId
+          in: query
+          description: id of the card to be updated
+          required: True
+          schema:
+            type: string
+      responses:
+        201:
+          description: Card updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
+    delete: 
+      description: Deletes all cards in specified set
+      parameters:  
+        - name: setId
+          in: path
+          description: id of the set from which cards will be deleted
+          required: True
+          schema:
+            type: string
+        - name: cardId
+          in: query
+          description: id of the card which will be deleted
+          required: True
+          schema:
+            type: string
+      responses:
+        200: #TODO: Decide whether we need schema for the card delete responses.
+          description: Card deleted
+          # content:
+            # application/json:
+              # schema:
+                # $ref: '#/components/schemas/cardArray'
+        404:
+          description: Card not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/cardArray'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
   /llm:
     get:
       description: Testing for llm
@@ -265,6 +335,25 @@ components:
         - back
         - starred
         - key
+
+    # adding this for card update, this is so we can only edit the front, back, or starred
+    # but still have a key property to save the existing card id
+    noKeyCard:
+      type: object
+      maxProperties: 3
+      properties:
+        front:
+          type: string
+        back:
+          type: string
+        starred:
+          type: boolean
+        key: 
+          type: string
+      required:
+        - front
+        - back
+        - starred
 
     newCard:
       type: object

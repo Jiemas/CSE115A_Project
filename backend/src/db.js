@@ -102,7 +102,14 @@ exports.getAllCards = async (setId) => {
   return Object.entries(json).map((elem) => elem[1]);
 };
 
-exports.deleteCard = async (set_id, card_id) => {
-  await fetch(`https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${set_id}/${card_id}` + '.json',
+exports.updateCard = async (cardBody, setId, cardId) => {
+  await fetch(`https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}/${cardId}.json`,
+      {method: 'PUT',
+      body: JSON.stringify(cardBody), headers: {'Content-Type': 'application/json'}
+      });   // chat got my back for this PUT line
+}
+
+exports.deleteCard = async (setId, cardId) => {
+  await fetch(`https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}/${cardId}` + '.json',
       {method: 'DELETE'});
 }

@@ -41,6 +41,38 @@ exports.getAll = async (req, res) => {
   res.status(200).json(cards);
 };
 
+exports.update = async (req, res) => {
+  const setId = req.params.setId;
+  const cardId = req.query.cardId;
+
+  // check if the set id is valid
+  set = await db.getSet_id(setId);
+  if (set == null) {
+      // not a valid set id
+      res.status(404).send(); 
+      return;
+  }
+
+  // how to check if the card id is valid in the set?
+  card = await db.getCard_id(setId, cardId);
+  if (card == null) {
+      // card id not valid in set
+      res.status(404).send(); 
+      return;
+  }
+
+  //card_obj = {};
+  //card_obj[card_id] = req.body;
+  //console.log("card_obj: ", card_obj);
+
+  //console.log("req.body: ", req.body);
+  req.body.key = cardId;
+  //console.log("req.body.key: ", req.body.key);
+ 
+  db.updateCard(req.body, setId, cardId); // don't think we need a new_obj for this
+  res.status(201).send();
+}
+
 exports.delete = async (req, res) => {
   const setId = req.params.setId;
   const cardId = req.query.cardId;

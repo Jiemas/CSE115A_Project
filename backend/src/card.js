@@ -61,13 +61,14 @@ exports.update = async (req, res) => {
       return;
   }
 
-  //card_obj = {};
-  //card_obj[card_id] = req.body;
-  //console.log("card_obj: ", card_obj);
+  // Check duplicate front, duplicate backs shouldn't matter
+  duplicate = await db.getCard_front(req.body.front, setId);
+  if (duplicate) {
+    res.status(409).send();
+    return;
+  }
 
-  //console.log("req.body: ", req.body);
   req.body.key = cardId;
-  //console.log("req.body.key: ", req.body.key);
  
   db.updateCard(req.body, setId, cardId); // don't think we need a new_obj for this
   res.status(201).send();

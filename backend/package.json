@@ -13,14 +13,14 @@
     "supertest": "*"
   },
   "dependencies": {
-    "cors": "*",
     "body-parser": "*",
+    "cors": "^2.8.5",
     "dotenv": "*",
     "express": "*",
     "express-openapi-validator": "*",
     "js-yaml": "*",
-    "swagger-ui-express": "*",
-    "openai": "*"
+    "openai": "*",
+    "swagger-ui-express": "*"
   },
   "jest": {
     "testTimeout": 60000,

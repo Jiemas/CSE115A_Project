@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   body-parser: '*'
-  cors: '*'
+  cors: ^2.8.5
   dotenv: '*'
   eslint: 8.57.0
   eslint-config-google: '*'

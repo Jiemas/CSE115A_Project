@@ -140,7 +140,8 @@ test('PUT new, after valid request, GET contains card', async () => {
 });
 
 test('POST update, expect 201, body, known set', async () => {
-  await request.post(`/v0/card/bd24a693-5256-4414-9321-c4a3480ad96g?cardId=${key}`)
+  await request.post(
+    `/v0/card/bd24a693-5256-4414-9321-c4a3480ad96g?cardId=${key}`)
     .send({back: 'this should update', front: 'test card 1', starred: false})
     .expect(201);
 });

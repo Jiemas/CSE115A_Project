@@ -73,15 +73,15 @@ exports.getCard_front = async (front, setId) => {
 
 exports.getCard_id = async (setId, cardId) => {
   const answer = await fetch(
-      `https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}/${cardId}` + '.json',
-      {method: 'GET'});
+    `https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}/${cardId}` + '.json',
+    {method: 'GET'});
 
   const card = await answer.json();
   if (card == null) {
-      return null;
+    return null;
   }
   return Object.entries(card).map((elem) => elem[1]);
-}
+};
 
 exports.addCard = async (newObj, setId) => {
   await fetch(`https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}.json`,
@@ -104,12 +104,13 @@ exports.getAllCards = async (setId) => {
 
 exports.updateCard = async (cardBody, setId, cardId) => {
   await fetch(`https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}/${cardId}.json`,
-      {method: 'PUT',
-      body: JSON.stringify(cardBody), headers: {'Content-Type': 'application/json'}
-      });   // chat got my back for this PUT line
-}
+    {method: 'PUT',
+      body: JSON.stringify(cardBody),
+      headers: {'Content-Type': 'application/json'},
+    }); // chat got my back for this PUT line
+};
 
 exports.deleteCard = async (setId, cardId) => {
   await fetch(`https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}/${cardId}` + '.json',
-      {method: 'DELETE'});
-}
+    {method: 'DELETE'});
+};

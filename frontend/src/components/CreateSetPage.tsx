@@ -17,7 +17,8 @@ export const CreateSetPage: React.FC = () => {
   const [setName, setSetName] = useState(set.name);
   const [setDescription, setSetDescription] = useState(set.description);
   const [setCardNum, setSetCardNum] = useState(set.card_num);
-  const [terms, setTerms] = useState<{ front: string; back: string; starred: boolean; key: string; changed: boolean; delete: number }[]>([]); 
+  const [terms, setTerms] = useState<{ front: string; back: string; starred: boolean;
+    key: string; changed: boolean; delete: number; duplicate: boolean }[]>([]); 
   const [error, setError] = useState('');
 
   React.useEffect(() => {
@@ -41,10 +42,9 @@ export const CreateSetPage: React.FC = () => {
       return;
     } 
     if (!changed) {
-      console.log('nothing changed, no backend involved')
-      // navigate('/home'); // This is just stylistic choice
       return;
     }
+    setError('');
     // global will have to change from being hardcoded once login integration begins
     const new_set = {description: setDescription, name: setName, owner: 'global'};
     const answer = await fetch('http://localhost:3010/v0/set', 
@@ -66,10 +66,11 @@ export const CreateSetPage: React.FC = () => {
       return;
     } 
     if (!changed) {
-      console.log('nothing changed, no backend involved')
       // navigate('/home'); // This is just stylistic choice
       return;
     }
+
+    setError('');
 
     let setKey = set.key;
     const updated_set = JSON.parse(JSON.stringify(set));
@@ -77,7 +78,6 @@ export const CreateSetPage: React.FC = () => {
     updated_set.name = setName;
     updated_set.description = setDescription;
     updated_set.card_num = terms.filter((term) => term.delete < 2 || !term.delete).length;
-    console.log(updated_set);
     await fetch(`http://localhost:3010/v0/set/${setKey}`, 
       {
         method: 'put',
@@ -85,48 +85,72 @@ export const CreateSetPage: React.FC = () => {
         body: JSON.stringify(updated_set)
       }
     );
-    terms.map(async (term) => {
+    
+    let err409 = false
+    const term_fronts = {};
+    terms.map((term) => {
+      if (term_fronts[term.front] && term.delete < 2) {
+        term.duplicate = true;
+        setError('No duplicate cards allowed');
+        err409 = true;
+      } else {
+        term_fronts[term.front] = 1;
+      }
+    })
+
+    terms.map((term) => {
       if (term.changed) {
         if (term.delete < 2) {
           if (term.key) {
             const updatedCard = {front: term.front, back: term.back, starred: term.starred};
-            await fetch(`http://localhost:3010/v0/card/${setKey}?cardId=${term.key}`, 
+            fetch(`http://localhost:3010/v0/card/${setKey}?cardId=${term.key}`, 
               {
                 method: 'post',
                 headers: new Headers({'Content-Type': 'application/json'}),
                 body: JSON.stringify(updatedCard)
               }
             )
+              .then((answer) => {
+                if (!answer.ok) {
+                  setError('No duplicate cards allowed');
+                }
+              })
           } else {
             const newCard = {front: term.front, back: term.back, starred: term.starred};
-            const answer = await fetch(`http://localhost:3010/v0/card/${setKey}`, 
+            fetch(`http://localhost:3010/v0/card/${setKey}`, 
               {
                 method: 'put',
                 headers: new Headers({'Content-Type': 'application/json'}),
                 body: JSON.stringify(newCard)
               }
             )
-            answer.json()
-              .then((res) => {
-                term.key = res;
+              .then((answer) => {
+                if (!answer.ok) {
+                  setError('No duplicate cards allowed');
+                } else {
+                  answer.json()
+                    .then((res) => {
+                      term.key = res;
+                    })
+                }
               })
           }
         } else {
           if (term.key) {
-            console.log('deleting card from database');
             fetch(`http://localhost:3010/v0/card/${set.key}?cardId=${term.key}`, {method: 'delete'});
           }
         }
       }
     })
-    setChanged(false);
-    // navigate('/home')
+    if (!err409) {
+      setChanged(false);
+    }
   };
 
   const handleAddTerm = () => {
     setConfirmSetDelete(false);
     setChanged(true);
-    setTerms((prevTerms) => [...prevTerms, { front: '', back: '', starred: false, key: '', changed: true, delete: 0 }]);
+    setTerms((prevTerms) => [...prevTerms, { front: '', back: '', starred: false, key: '', changed: true, delete: 0, duplicate: false }]);
   };
 
   const handleTermChange = (index: number, field: 'front' | 'back', value: string) => {
@@ -141,7 +165,6 @@ export const CreateSetPage: React.FC = () => {
 
   const handleDeleteSet = () => {
     if (confirmSetDelete) {
-      console.log('Deleting set');
       fetch(`http://localhost:3010/v0/set/${set.key}`, {method: 'delete'});
       setSetDeleted(true);
     }
@@ -160,9 +183,7 @@ export const CreateSetPage: React.FC = () => {
       updatedTerms[index]['delete'] += 1;
       updatedTerms[index]['changed'] = true;
     }
-    console.log('delete clicked')
     setTerms(updatedTerms);
-    console.log(updatedTerms);
     // setTerms(updatedTerms);
   }
 
@@ -225,6 +246,8 @@ export const CreateSetPage: React.FC = () => {
             <TextField
               label={`Term ${index + 1}`}
               value={item.front}
+              error={item.duplicate}
+              color={item.duplicate ? 'warning' : 'primary'}
               onChange={(e) => handleTermChange(index, 'front', e.target.value)}
               fullWidth
               margin="normal"
@@ -263,7 +286,7 @@ export const CreateSetPage: React.FC = () => {
           </Button>
           <Button
             variant="contained"
-            color="success"
+            color={error ? 'error' : 'success'}
             onClick={handleUpdateSet}
             sx={{ marginTop: 2 }}
             disabled={!changed || setDeleted}

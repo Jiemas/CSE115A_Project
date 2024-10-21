@@ -63,7 +63,8 @@ exports.update = async (req, res) => {
 
   // Check duplicate front, duplicate backs shouldn't matter
   duplicate = await db.getCard_front(req.body.front, setId);
-  if (duplicate) {
+  console.log(duplicate);
+  if (duplicate && duplicate.key !== cardId) {
     res.status(409).send();
     return;
   }

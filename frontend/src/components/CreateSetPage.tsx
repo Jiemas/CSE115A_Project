@@ -89,8 +89,14 @@ export const CreateSetPage: React.FC = () => {
       if (term.changed) {
         if (term.delete < 2) {
           if (term.key) {
-            // Insert Update Endpoint Here
-            console.log('nothing here for now');
+            const updatedCard = {front: term.front, back: term.back, starred: term.starred};
+            await fetch(`http://localhost:3010/v0/card/${setKey}?cardId=${term.key}`, 
+              {
+                method: 'post',
+                headers: new Headers({'Content-Type': 'application/json'}),
+                body: JSON.stringify(updatedCard)
+              }
+            )
           } else {
             const newCard = {front: term.front, back: term.back, starred: term.starred};
             const answer = await fetch(`http://localhost:3010/v0/card/${setKey}`, 

@@ -50,7 +50,7 @@ exports.delete = async (req, res) => {
 };
 
 exports.import = async (req, res) => {
-  const set_id = req.params.id;
+  const set_id = req.params.setId;
   const cards = req.body;
 
   const newCards = {};
@@ -60,6 +60,8 @@ exports.import = async (req, res) => {
     card.starred = card.starred || false;
     newCards[card.key] = card;
   }
+
+  console.log('New Cards:', newCards); // Debugging log
 
   // Add new cards to the set
   await db.addCard(newCards, set_id);

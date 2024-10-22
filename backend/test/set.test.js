@@ -213,3 +213,20 @@ test('Delete, there should be no set entry in cards table', async () => {
   await request.get('/v0/card/' + key)
     .expect(404);
 });
+
+test('Import, expect 200, valid body', async () => {
+  const set_id = '55c59651-36f7-49d2-b87a-66fc3736a292'; // Use a valid set_id
+  const response = await request.post(`/v0/import/${set_id}`)
+    .send([
+      {
+        "front": "string",
+        "back": "string",
+        "starred": true
+      },
+      {
+        "front": "another front",
+        "back": "another back",
+        "starred": false
+      }
+    ]);
+});

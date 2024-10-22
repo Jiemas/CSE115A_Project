@@ -48,3 +48,22 @@ exports.delete = async (req, res) => {
   db.deleteSet(id);
   res.status(200).send();
 };
+
+exports.import = async (req, res) => {
+  const set_id = req.params.id;
+  const cards = req.body;
+
+  const newCards = {};
+  for (const card of cards) {
+    card.key = crypto.randomUUID();
+    card.set_id = set_id;
+    card.starred = card.starred || false;
+    newCards[card.key] = card;
+  }
+
+  // Add new cards to the set
+  await db.addCard(newCards, set_id);
+
+  //Update the set card count do later
+
+};

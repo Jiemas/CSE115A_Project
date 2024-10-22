@@ -47,6 +47,9 @@ app.get('/v0/card/:setId', card.getAll); // Read
 app.post('/v0/card/:setId', card.update); // Update
 app.delete('/v0/card/:setId', card.delete); // Delete
 
+// Import Cards
+app.post('/v0/import/:setId', set.import);
+
 // Testing
 // app.get('/v0/llm', llm.llm_test);
 

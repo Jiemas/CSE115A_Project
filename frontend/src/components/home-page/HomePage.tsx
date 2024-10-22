@@ -5,39 +5,6 @@ import { Box, Card, CardContent, Typography, Grid, Button, Stack } from '@mui/ma
 
 import {SetContext} from '../App';
 
-// hardcode fake data 
-/*
-const setArray = [
-  {
-    card_num: 50,
-    description: 'Algebra, Geometry, and more',
-    name: 'Math',
-    owner: 'User123',
-    key: 'set1',
-  },
-  {
-    card_num: 50,
-    description: 'Algebra, Geometry, and more',
-    name: 'Math',
-    owner: 'User123',
-    key: 'set1',
-  },
-  {
-    card_num: 50,
-    description: 'Algebra, Geometry, and more',
-    name: 'Math',
-    owner: 'User123',
-    key: 'set1',
-  },
-  {
-    card_num: 50,
-    description: 'Algebra, Geometry, and more',
-    name: 'Math',
-    owner: 'User123',
-    key: 'set1',
-  }
-];
-*/
 let setArray = [
   {
     card_num: 0,

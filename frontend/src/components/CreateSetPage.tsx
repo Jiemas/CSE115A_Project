@@ -7,8 +7,14 @@ import {SetContext} from './App';
 let terms_copy = [{front: '', back: '', starred: false, key: ''}];
 
 export const CreateSetPage: React.FC = () => {
+
+  const context = React.useContext(SetContext);
+  if (!context) {
+    throw new Error('CreateSetPage must be used within a SetProvider');
+  }
+  const { set, setSet } = context;
   const navigate = useNavigate();
-  const {set, setSet} = React.useContext(SetContext);
+  
 
   const [changed, setChanged] = useState(false);
   const [confirmSetDelete, setConfirmSetDelete] = useState(false);

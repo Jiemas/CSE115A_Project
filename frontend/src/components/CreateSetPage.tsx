@@ -52,7 +52,12 @@ export const CreateSetPage: React.FC = () => {
     }
     setError('');
     // global will have to change from being hardcoded once login integration begins
-    const new_set = {description: setDescription, name: setName, owner: 'global'};
+    const new_set: { description: string, name: string, owner: string, key?: string, card_num: number } = {
+      description: setDescription,
+      name: setName,
+      owner: 'global',
+      card_num: terms.length, 
+    };
     const answer = await fetch('http://localhost:3010/v0/set', 
       {
         method: 'put',
@@ -93,7 +98,7 @@ export const CreateSetPage: React.FC = () => {
     );
     
     let err409 = false
-    const term_fronts = {};
+    const term_fronts: { [key: string]: number } = {};
     terms.map((term) => {
       if (term_fronts[term.front] && term.delete < 2) {
         term.duplicate = true;

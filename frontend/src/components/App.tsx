@@ -11,7 +11,7 @@ interface SetItem {
   description: string;
   name: string;
   owner: string;
-  key: string;
+  key?: string;
 }
 
 interface SetContextType {

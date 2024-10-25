@@ -5,6 +5,9 @@ import { Box, Card, CardContent, Typography, Grid, Button, Stack } from '@mui/ma
 
 import {SetContext} from '../App';
 
+// const path = 'http://localhost:3001/v0';
+const path = 'https://cse115a-project.onrender.com/v0';
+
 // hardcode fake data 
 /*
 const setArray = [
@@ -66,7 +69,7 @@ export const Home: React.FC = () => {
   };
 
   React.useEffect(() => {
-    fetch('http://localhost:3010/v0/set', {method: 'get'})
+    fetch(`${path}/set`, {method: 'get'})
       .then((res) => {
         return res.json();
       })

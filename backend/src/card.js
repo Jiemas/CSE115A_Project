@@ -4,17 +4,17 @@ const crypto = require('crypto');
 // Called by PUT '/v0/card/:setId' (Create Card)
 exports.add = async (req, res) => {
   // Gets set id from request parameter
-  setId = req.params.setId;
+  const setId = req.params.setId;
 
   // Check provided set id exists
-  set = await db.getSet_id(setId);
+  const set = await db.getSet_id(setId);
   if (set == null) {
     res.status(404).send();
     return;
   }
 
   // Check duplicate front, duplicate backs shouldn't matter
-  duplicate = await db.getCard_front(req.body.front, setId);
+  const duplicate = await db.getCard_front(req.body.front, setId);
   if (duplicate) {
     res.status(409).send();
     return;
@@ -22,7 +22,7 @@ exports.add = async (req, res) => {
 
   // Sets up data for new card and adds it to db
   req.body.key = crypto.randomUUID();
-  newObj = {};
+  const newObj = {};
   newObj[req.body.key] = req.body;
   db.addCard(newObj, setId);
 
@@ -33,10 +33,10 @@ exports.add = async (req, res) => {
 // Called by GET '/v0/card/:setId' (Read Cards)
 exports.getAll = async (req, res) => {
   // Gets set id from request parameter
-  setId = req.params.setId;
+  const setId = req.params.setId;
 
   // Gets cards using setId
-  cards = await db.getAllCards(setId);
+  const cards = await db.getAllCards(setId);
 
   // If setId invalid, cards is null
   if (!cards) {
@@ -53,14 +53,14 @@ exports.update = async (req, res) => {
   const cardId = req.query.cardId;
 
   // Simultaneously checks validity of setId and cardId
-  card = await db.getCard_id(setId, cardId);
+  const card = await db.getCard_id(setId, cardId);
   if (card == null) {
     res.status(404).send();
     return;
   }
 
   // Check duplicate front, duplicate backs shouldn't matter
-  duplicate = await db.getCard_front(req.body.front, setId);
+  const duplicate = await db.getCard_front(req.body.front, setId);
   if (duplicate && duplicate.key !== cardId) {
     res.status(409).send();
     return;
@@ -79,7 +79,7 @@ exports.delete = async (req, res) => {
   const cardId = req.query.cardId;
 
   // Simultaneously checks validity of setId and cardId
-  card = await db.getCard_id(setId, cardId);
+  const card = await db.getCard_id(setId, cardId);
   if (card == null) {
     res.status(404).send();
     return;

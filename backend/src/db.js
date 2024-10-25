@@ -36,13 +36,13 @@ exports.addSet = async (newObj, setId) => {
     return;
   }
 
-  firstCardId = crypto.randomUUID();
-  cardObj = {};
+  const firstCardId = crypto.randomUUID();
+  const cardObj = {};
   cardObj[firstCardId] =
     {back: 'Put definition here', front: 'Put term here',
       key: firstCardId, starred: false,
     };
-  setObj = {};
+  const setObj = {};
   setObj[setId] = cardObj;
   await fetch(`${rootPath}/card.json`,
     {method: 'PATCH',

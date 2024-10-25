@@ -30,11 +30,13 @@
     "vite-tsconfig-paths": "^4.3.2",
     "@emotion/react" : "*",
     "@testing-library/dom" : "*",
-    "@babel/core" : "^7.13.0"
+    "@babel/core" : "^7.13.0",
+    "styled-components": "^5.3.10",
+    "react-is": "^16.8.0"
   },
   "scripts": {
     "dev": "vite",
-    "build": "pnpm install && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint \"./src/**/*.{ts,tsx}\" --fix && prettier --write \"./src/**/*.{ts,tsx,css}\""
   },

@@ -6,7 +6,8 @@ exports.getAllSets = async () => {
   const answer = await fetch(
     `${rootPath}/set.json?orderBy="owner"&equalTo="global"`, {method: 'GET'});
   const json = await answer.json();
-  return Object.entries(json).map((elem) => elem[1]);
+  return JSON.stringify(json) == JSON.stringify({}) ? null :
+    Object.entries(json).map((elem) => elem[1]);
 };
 
 exports.getSet_name = async (name) => {
@@ -103,5 +104,5 @@ exports.getUser = async (email) => {
     `${rootPath}/user.json?orderBy="email"&equalTo="${email}"`, {method: 'GET'});
   const json = await answer.json();
   return JSON.stringify(json) == JSON.stringify({}) ? null :
-    Object.entries(json).map((elem) => elem[1]);
+    Object.entries(json).map((elem) => elem[1])[0];
 }

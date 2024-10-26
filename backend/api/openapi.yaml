@@ -411,14 +411,11 @@ components:
 
     User:
       type: object
-      maxProperties: 2
+      maxProperties: 1
       properties:
-        name:
-          type: string
         accessToken:
           type: string
       required:
-        - name
         - accessToken
 
   securitySchemes:

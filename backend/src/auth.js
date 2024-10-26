@@ -5,16 +5,30 @@ const crypto = require('crypto');
 
 const db = require('./db');
 
+
 exports.login = async (req, res) => {
   // Check the given email corresponds to existing member
   // If not, return 401
-  console.log(crypto.randomUUID());
   const out = await db.getUser(req.body.email);
-  console.log(out);
   if (!out) {
     res.status(401).send();
     return;
   }
 
+  const saltRounds = 10;
+  const myPlaintextPassword = 'bacon';
+  const someOtherPlaintextPassword = 'not_bacon';
+  bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
+    console.log(hash);
+  });
+
+  /*
+  // Checks that provided password matches the encryped one in db
+  const [password, key, email] = out;
+  if (!bcrypt.compareSync(req.body.password, password)) {
+    res.status(401).send();
+    return;
+  }
+  */
   res.status(200).send();
 };

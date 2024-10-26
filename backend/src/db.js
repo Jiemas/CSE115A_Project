@@ -97,3 +97,7 @@ exports.deleteCard = async (setId, cardId) => {
   await fetch(`${rootPath}/card/${setId}/${cardId}` + '.json',
     {method: 'DELETE'});
 };
+
+exports.getUser = async (email) => {
+  return null;
+}

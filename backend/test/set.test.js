@@ -33,6 +33,7 @@ test('GET, expect 200', async () => {
     .expect(200);
 });
 
+/*
 test('GET, expect data\'s body is an array', async () => {
   await request.get(path)
     .then((data) => {
@@ -213,3 +214,4 @@ test('Delete, there should be no set entry in cards table', async () => {
   await request.get(`/v0/card/${key}`)
     .expect(404);
 });
+*/

@@ -26,14 +26,13 @@ afterAll((done) => {
 });
 
 setKey = 'bd24a693-5256-4414-9321-c4a3480ad96g';
-path = `/v0/card/${setKey}`
+path = `/v0/card/${setKey}`;
 
 test('GET, no set_id, expect 404', async () => {
   await request.get('/v0/card')
     .expect(404);
 });
 
-/*
 test('GET, random set_id, expect 404', async () => {
   await request.get('/v0/card/random')
     .expect(404);
@@ -210,4 +209,3 @@ test('Delete, after valid request, GET does not contains card', async () => {
       });
   });
 });
-*/

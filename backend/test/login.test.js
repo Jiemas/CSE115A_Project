@@ -5,19 +5,9 @@ const app = require('../src/app');
 
 let server;
 
-const path = '/v0/login'
-const uEmail = 'mail@email.com'
+const path = '/v0/login';
+const uEmail = 'mail@email.com';
 const uObj = {password: 'bacon', email: uEmail};
-
-// https://www.sitepoint.com/delay-sleep-pause-wait/
-/**
- *
- * @param {int} ms
- * @return {Object}
- */
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 beforeAll(() => {
   server = http.createServer(app);

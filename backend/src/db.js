@@ -6,6 +6,9 @@ exports.getAllSets = async () => {
   const answer = await fetch(
     `${rootPath}/set.json?orderBy="owner"&equalTo="global"`, {method: 'GET'});
   const json = await answer.json();
+
+  // When users create new account, they won't have any sets to their name
+  // Will need to add code to account for this scenario
   return JSON.stringify(json) == JSON.stringify({}) ? null :
     Object.entries(json).map((elem) => elem[1]);
 };
@@ -101,8 +104,10 @@ exports.deleteCard = async (setId, cardId) => {
 
 exports.getUser = async (email) => {
   const answer = await fetch(
-    `${rootPath}/user.json?orderBy="email"&equalTo="${email}"`, {method: 'GET'});
+    `${rootPath}/user.json?orderBy="email"&equalTo="${email}"`,
+    {method: 'GET'},
+  );
   const json = await answer.json();
   return JSON.stringify(json) == JSON.stringify({}) ? null :
     Object.entries(json).map((elem) => elem[1])[0];
-}
+};

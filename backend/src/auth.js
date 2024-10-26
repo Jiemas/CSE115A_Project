@@ -1,8 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const crypto = require('crypto');
-
 const db = require('./db');
 
 /*
@@ -36,7 +34,7 @@ exports.login = async (req, res) => {
   // Generates temporary access token and returns it in res
   const dbAccessTok = process.env.SECRET;
   const uAccessToken = jwt.sign(
-    {email: req.body.email, key: key},
+    {email: email, key: key},
     dbAccessTok, {
       expiresIn: '30m',
       algorithm: 'HS256'});

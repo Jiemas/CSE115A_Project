@@ -99,5 +99,9 @@ exports.deleteCard = async (setId, cardId) => {
 };
 
 exports.getUser = async (email) => {
-  return null;
+  const answer = await fetch(
+    `${rootPath}/user.json?orderBy="email"&equalTo="${email}"`, {method: 'GET'});
+  const json = await answer.json();
+  return JSON.stringify(json) == JSON.stringify({}) ? null :
+    Object.entries(json).map((elem) => elem[1]);
 }

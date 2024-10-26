@@ -10,7 +10,8 @@ info:
   title: CSE115A Rapid Review Backend
 
 servers:
-  - url: http://localhost:3010/v0
+  - url: http://localhost:3001/v0
+  - url: https://cse115a-project.onrender.com/v0
 
 paths:
   /set:

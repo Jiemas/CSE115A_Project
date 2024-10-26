@@ -219,14 +219,14 @@ test('Import, expect 200, valid body', async () => {
   const response = await request.post(`/v0/import/${set_id}`)
     .send([
       {
-        "front": "string",
-        "back": "string",
-        "starred": true
+        'front': 'string',
+        'back': 'string',
+        'starred': true,
       },
       {
-        "front": "another front",
-        "back": "another back",
-        "starred": false
-      }
+        'front': 'another front',
+        'back': 'another back',
+        'starred': false,
+      },
     ]);
 });

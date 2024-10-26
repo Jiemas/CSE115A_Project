@@ -66,6 +66,5 @@ exports.import = async (req, res) => {
   // Add new cards to the set
   await db.addCard(newCards, set_id);
 
-  //Update the set card count do later
-
+  // Update the set card count do later
 };

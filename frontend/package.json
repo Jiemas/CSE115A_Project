@@ -43,7 +43,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint \"./src/**/*.{ts,tsx}\" --fix && prettier --write \"./src/**/*.{ts,tsx,css}\"",
+    "lint": "eslint . --no-inline-config --max-warnings 0",
     "prepare": "husky install"
   },
   "browserslist": {

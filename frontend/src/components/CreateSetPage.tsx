@@ -93,7 +93,7 @@ export const CreateSetPage: React.FC = () => {
     );
     
     let err409 = false
-    const term_fronts = {};
+    const term_fronts: { [key: string]: number } = {};
     terms.map((term) => {
       if (term_fronts[term.front] && term.delete < 2) {
         term.duplicate = true;

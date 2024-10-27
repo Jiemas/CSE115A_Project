@@ -111,3 +111,14 @@ exports.getUser = async (email) => {
   return JSON.stringify(json) == JSON.stringify({}) ? null :
     Object.entries(json).map((elem) => elem[1])[0];
 };
+
+exports.addUser = async (user) => {
+  await fetch(`${rootPath}/user.json`,
+    {method: 'PATCH',
+      body: JSON.stringify(user),
+      headers: {'Content-Type': 'application/json'}});
+};
+
+exports.deleteUser = async (key) => {
+  await fetch(`${rootPath}/user/${key}.json`, {method: 'DELETE'});
+};

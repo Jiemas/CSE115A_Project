@@ -49,6 +49,10 @@ app.delete('/v0/card/:setId', card.delete); // Delete
 
 // Login
 app.post('/v0/login', auth.login);
+app.put('/v0/login', auth.createAccount);
+
+// Solely for test cleanup, currently no plans to have a delete user endpoint
+app.delete('/v0/login/:id', auth.delete);
 
 // Testing
 // app.get('/v0/llm', llm.llm_test);

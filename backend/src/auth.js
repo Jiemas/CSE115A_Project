@@ -1,19 +1,27 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-
+const crypto = require('crypto');
 const db = require('./db');
 
-/*
-const saltRounds = 10;
-const myPlaintextPassword = 'bacon';
-const someOtherPlaintextPassword = 'not_bacon';
-bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
-  console.log(hash);
-  bcrypt.compare(myPlaintextPassword, hash, function(err, result) {
-    console.log(result)
-});
-});
-*/
+exports.createAccount = async (req, res) => {
+  // Check the given email corresponds to existing member
+  // If it does, return 401
+  const out = await db.getUser(req.body.email);
+  if (out) {
+    res.status(401).send();
+    return;
+  }
+  const newObj = {};
+  req.body.key = crypto.randomUUID();
+
+  bcrypt.hash(req.body.password, 10, function(err, hash) {
+    req.body.password = hash;
+    newObj[req.body.key] = req.body;
+    db.addUser(newObj);
+  });
+
+  res.status(201).json(req.body.key);
+};
 
 exports.login = async (req, res) => {
   // Check the given email corresponds to existing member
@@ -39,4 +47,9 @@ exports.login = async (req, res) => {
       expiresIn: '30m',
       algorithm: 'HS256'});
   res.status(200).json({accessToken: uAccessToken});
+};
+
+exports.delete = async (req, res) => {
+  db.deleteUser(req.params.id);
+  res.status(200).send();
 };

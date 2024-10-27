@@ -2,12 +2,21 @@ const supertest = require('supertest');
 const http = require('http');
 require('dotenv').config();
 const app = require('../src/app');
-
 let server;
 
 const path = '/v0/login';
 const uEmail = 'mail@email.com';
 const uObj = {password: 'bacon', email: uEmail};
+
+// https://www.sitepoint.com/delay-sleep-pause-wait/
+/**
+ *
+ * @param {int} ms
+ * @return {Object}
+ */
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 beforeAll(() => {
   server = http.createServer(app);
@@ -84,4 +93,50 @@ test('login, body has accessToken', async () => {
     .then((data) => {
       expect(typeof(data.body.accessToken)).toBeDefined();
     });
+});
+
+test('create account, expect 415, no body', async () => {
+  await request.put(path)
+    .expect(415);
+});
+
+test('create account, expect 415, invalid body', async () => {
+  await request.put(path)
+    .send('wrong')
+    .expect(415);
+});
+
+test('create account, expect 400, invalid body object', async () => {
+  await request.put(path)
+    .send({random: 0})
+    .expect(400);
+});
+
+test('create account, expect 401, duplicate email', async () => {
+  await request.put(path)
+    .send({email: 'mail@email.com', password: 'not bacon'})
+    .expect(401);
+});
+
+let accountKey;
+test('create account, expect 201', async () => {
+  await request.put(path)
+    .send({email: 'jsrubio@email.com', password: 'not bacon'})
+    .expect(201)
+    .then((data) => {
+      accountKey = data.body;
+    });
+});
+
+test('after create account, login, expect 200 code', async () => {
+  await sleep(500).then(async () => {
+    await request.post(path)
+      .send({email: 'jsrubio@email.com', password: 'not bacon'})
+      .expect(200);
+  });
+});
+
+test('account database cleanup', async () => {
+  await request.delete(`${path}/${accountKey}`)
+    .expect(200);
 });

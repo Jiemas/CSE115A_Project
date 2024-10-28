@@ -5,42 +5,6 @@ import { Box, Card, CardContent, Typography, Grid, Button, Stack } from '@mui/ma
 
 import {SetContext} from '../App';
 
-// const path = 'http://localhost:3001/v0';
-const path = 'https://cse115a-project.onrender.com/v0';
-
-// hardcode fake data 
-/*
-const setArray = [
-  {
-    card_num: 50,
-    description: 'Algebra, Geometry, and more',
-    name: 'Math',
-    owner: 'User123',
-    key: 'set1',
-  },
-  {
-    card_num: 50,
-    description: 'Algebra, Geometry, and more',
-    name: 'Math',
-    owner: 'User123',
-    key: 'set1',
-  },
-  {
-    card_num: 50,
-    description: 'Algebra, Geometry, and more',
-    name: 'Math',
-    owner: 'User123',
-    key: 'set1',
-  },
-  {
-    card_num: 50,
-    description: 'Algebra, Geometry, and more',
-    name: 'Math',
-    owner: 'User123',
-    key: 'set1',
-  }
-];
-*/
 let setArray = [
   {
     card_num: 0,

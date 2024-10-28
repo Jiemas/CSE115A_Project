@@ -6,10 +6,30 @@ import { AuthProvider } from '../auth/AuthContext';
 import { LoginPage } from './LoginPage';
 import { CreateSetPage } from './CreateSetPage';
 
-export const SetContext = React.createContext(0);
+interface SetItem {
+  card_num: number;
+  description: string;
+  name: string;
+  owner: string;
+  key: string;
+}
+
+interface SetContextType {
+  set: SetItem;
+  setSet: React.Dispatch<React.SetStateAction<SetItem>>;
+}
+
+export const SetContext = React.createContext<SetContextType | undefined>(undefined);
+
 
 export const App: React.FC = ({}) => {
-  const [set, setSet] = React.useState('');
+  const [set, setSet] = React.useState<SetItem>({
+    card_num: 0,
+    description: '',
+    name: '',
+    owner: '',
+    key: '',
+  });
 
   const theme = createTheme({
     palette: {

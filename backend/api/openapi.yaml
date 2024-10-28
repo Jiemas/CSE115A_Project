@@ -10,7 +10,8 @@ info:
   title: CSE115A Rapid Review Backend
 
 servers:
-  - url: http://localhost:3010/v0
+  - url: http://localhost:3001/v0
+  - url: https://cse115a-project.onrender.com/v0
 
 paths:
   /set:
@@ -123,6 +124,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/keyString'
+        404:
+          description: Set not found
         default:
           description: Unexpected Error
           content:
@@ -145,6 +148,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/cardArray'
+        404:
+          description: Set not found
         default:
           description: Unexpected Error
           content:
@@ -160,7 +165,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/noKeyCard' #?
+              $ref: '#/components/schemas/noKeyCard'
       parameters:
         - name: setId
           in: path
@@ -181,6 +186,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Card'
+        404:
+          description: Set and/or card not found
         default:
           description: Unexpected Error
           content:
@@ -188,7 +195,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error' 
     delete: 
-      description: Deletes all cards in specified set
+      description: Deletes card in specified set
       parameters:  
         - name: setId
           in: path
@@ -203,18 +210,10 @@ paths:
           schema:
             type: string
       responses:
-        200: #TODO: Decide whether we need schema for the card delete responses.
+        200:
           description: Card deleted
-          # content:
-            # application/json:
-              # schema:
-                # $ref: '#/components/schemas/cardArray'
         404:
-          description: Card not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/cardArray'
+          description: Set and/or card not found
         default:
           description: Unexpected Error
           content:

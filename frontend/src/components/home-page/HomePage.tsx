@@ -33,7 +33,7 @@ export const Home: React.FC = () => {
   };
 
   React.useEffect(() => {
-    fetch('http://localhost:3010/v0/set', {method: 'get'})
+    fetch(`${path}/set`, {method: 'get'})
       .then((res) => {
         return res.json();
       })

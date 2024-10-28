@@ -16,6 +16,8 @@ servers:
 paths:
   /set:
     get:
+      security:
+        - bearerAuth: []
       description: Returns all sets as array of strings
       responses:
         200:

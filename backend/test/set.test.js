@@ -28,13 +28,33 @@ afterAll((done) => {
 setKey = 'bd24a693-5256-4414-9321-c4a3480ad96g';
 path = '/v0/set';
 
+test('GET, expect 401, no token provided', async () => {
+  await request.get(path)
+    .expect(401);
+});
+
+test('GET, expect 403, invalid token provided', async () => {
+  await request.get(path)
+    .set('Authorization', 'Bearer asiopgho')
+    .expect(403);
+});
+
+let accessToken;
+
 test('GET, expect 200', async () => {
-  await request.get('/v0/set')
-    .expect(200);
+  await request.post('/v0/login')
+    .send({password: 'bacon', email: 'mail@email.com'})
+    .then(async (data) => {
+      accessToken = data.body.accessToken;
+      await request.get(path)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+    });
 });
 
 test('GET, expect data\'s body is an array', async () => {
   await request.get(path)
+    .set('Authorization', `Bearer ${accessToken}`)
     .then((data) => {
       expect(Array.isArray(data.body)).toBeTruthy();
     });
@@ -42,6 +62,7 @@ test('GET, expect data\'s body is an array', async () => {
 
 test('GET, expect data\'s body element to have card_num property', async () => {
   await request.get(path)
+    .set('Authorization', `Bearer ${accessToken}`)
     .then((data) => {
       expect(typeof(data.body[0].card_num)).toBe(typeof(1));
     });
@@ -50,6 +71,7 @@ test('GET, expect data\'s body element to have card_num property', async () => {
 test('GET, expect data\'s body element to have description property',
   async () => {
     await request.get(path)
+      .set('Authorization', `Bearer ${accessToken}`)
       .then((data) => {
         expect(data.body[0].description).toBeTruthy();
       });
@@ -57,6 +79,7 @@ test('GET, expect data\'s body element to have description property',
 
 test('GET, expect data\'s body element to have name property', async () => {
   await request.get(path)
+    .set('Authorization', `Bearer ${accessToken}`)
     .then((data) => {
       expect(data.body[0].name).toBeTruthy();
     });
@@ -64,6 +87,7 @@ test('GET, expect data\'s body element to have name property', async () => {
 
 test('GET, expect data\'s body element to have owner property', async () => {
   await request.get(path)
+    .set('Authorization', `Bearer ${accessToken}`)
     .then((data) => {
       expect(data.body[0].owner).toBeTruthy();
     });
@@ -71,10 +95,13 @@ test('GET, expect data\'s body element to have owner property', async () => {
 
 test('GET, expect data\'s body element to have key property', async () => {
   await request.get(path)
+    .set('Authorization', `Bearer ${accessToken}`)
     .then((data) => {
       expect(data.body[0].key).toBeTruthy();
     });
 });
+
+
 
 test('PUT new, expect 415, no body', async () => {
   await request.put(path)
@@ -111,6 +138,7 @@ test('PUT new, returns string key', async () => {
 test('PUT new, after valid request, GET contains set', async () => {
   await sleep(400).then(async () => {
     await request.get(path)
+      .set('Authorization', `Bearer ${accessToken}`)
       .then((data) => {
         flag = false;
         for (const obj of data.body) {
@@ -160,6 +188,7 @@ test('PUT update, expect 201, body, known set', async () => {
 test('PUT update, after valid request, GET contains updated set', async () => {
   await sleep(500).then(async () => {
     await request.get(path)
+      .set('Authorization', `Bearer ${accessToken}`)
       .then((data) => {
         flag = false;
         for (const obj of data.body) {
@@ -197,6 +226,7 @@ test('Delete, expect 200, valid request', async () => {
 test('Delete, after valid request, GET does not contain set', async () => {
   await sleep(500).then(async () => {
     await request.get(path)
+      .set('Authorization', `Bearer ${accessToken}`)
       .then((data) => {
         flag = false;
         for (const obj of data.body) {

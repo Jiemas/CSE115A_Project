@@ -53,3 +53,19 @@ exports.delete = async (req, res) => {
   db.deleteUser(req.params.id);
   res.status(200).send();
 };
+
+exports.check = async (req, res, next) => {
+  // Set up variables
+  const authHeader = req.headers.authorization;
+  const dbAccessTok = process.env.SECRET;
+  const token = authHeader.split(' ')[1];
+
+  // Checks that the provided token is valid
+  jwt.verify(token, dbAccessTok, (err, user) => {
+    if (err) {
+      return res.sendStatus(403);
+    }
+    req.user = user;
+    next();
+  });
+};

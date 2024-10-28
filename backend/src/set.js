@@ -28,7 +28,8 @@ exports.add = async (req, res) => {
 exports.getAll = async (req, res) => {
   // When login is implemented, 'global' will have to become variable
   // Will then have to add cases where fetch returns nothing
-  const sets = await db.getAllSets();
+  console.log(req.user.key);
+  const sets = await db.getAllSets(req.user.key);
   res.status(200).json(sets);
 };
 

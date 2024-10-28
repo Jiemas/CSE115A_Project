@@ -2,9 +2,9 @@ const crypto = require('crypto');
 
 const rootPath = 'https://rapid-review-4255a-default-rtdb.firebaseio.com';
 
-exports.getAllSets = async () => {
+exports.getAllSets = async (userKey) => {
   const answer = await fetch(
-    `${rootPath}/set.json?orderBy="owner"&equalTo="global"`, {method: 'GET'});
+    `${rootPath}/set.json?orderBy="owner"&equalTo="${userKey}"`, {method: 'GET'});
   const json = await answer.json();
 
   // When users create new account, they won't have any sets to their name

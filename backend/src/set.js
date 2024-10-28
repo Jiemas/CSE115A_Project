@@ -15,6 +15,7 @@ exports.add = async (req, res) => {
 
   // Sets up data for new set and adds it to db
   req.body.card_num = 1;
+  req.body.owner = req.user.key;
   req.body.key = crypto.randomUUID();
   const newObj = {};
   newObj[req.body.key] = req.body;

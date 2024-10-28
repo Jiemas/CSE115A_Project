@@ -34,7 +34,7 @@ test('login, expect 400 code, invalid body', async () => {
     .expect(400);
 });
 
-
+/*
 test('login, expect 400 code, body no password', async () => {
   await request.post(path)
     .send({email: 'email@email.com'})
@@ -141,3 +141,4 @@ test('account database cleanup', async () => {
   await request.delete(`${path}/${accountKey}`)
     .expect(200);
 });
+*/

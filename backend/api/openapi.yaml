@@ -376,18 +376,15 @@ components:
     
     newSet:
       type: object
-      maxProperties: 3
+      maxProperties: 2
       properties:
         description:
           type: string
         name:
           type: string
-        owner:
-          type: string
       required:
         - description
         - name
-        - owner
 
     Card:
       type: object

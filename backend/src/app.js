@@ -36,7 +36,7 @@ app.use(
 );
 
 // CRUD Operations on Sets
-app.put('/v0/set', set.add); // Create
+app.put('/v0/set', auth.check, set.add); // Create
 app.get('/v0/set', auth.check, set.getAll); // Read
 app.put('/v0/set/:id', set.update); // Update
 app.delete('/v0/set/:id', set.delete); // Delete

@@ -42,10 +42,10 @@ app.put('/v0/set/:id', auth.check, set.update); // Update
 app.delete('/v0/set/:id', auth.check, set.delete); // Delete
 
 // CRUD Operations on Cards
-app.put('/v0/card/:setId', card.add); // Create
-app.get('/v0/card/:setId', card.getAll); // Read
-app.post('/v0/card/:setId', card.update); // Update
-app.delete('/v0/card/:setId', card.delete); // Delete
+app.put('/v0/card/:setId', auth.check, card.add); // Create
+app.get('/v0/card/:setId', auth.check, card.getAll); // Read
+app.post('/v0/card/:setId', auth.check, card.update); // Update
+app.delete('/v0/card/:setId', auth.check, card.delete); // Delete
 
 // Login
 app.post('/v0/login', auth.login);

@@ -110,6 +110,8 @@ paths:
                 $ref: '#/components/schemas/Error' 
   /card/{setId}:
     put:
+      security:
+        - bearerAuth: []
       description: Adds a new card to the table
       requestBody:
         description: New card as object
@@ -141,6 +143,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'     
     get:
+      security:
+        - bearerAuth: []
       description: Returns all cards in specified set
       parameters:
         - name: setId
@@ -165,6 +169,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'   
     post:
+      security:
+        - bearerAuth: []
       description: Updates card in the specified set
       # needs a request body so we can change the card's data
       requestBody:
@@ -203,6 +209,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error' 
     delete: 
+      security:
+        - bearerAuth: []
       description: Deletes card in specified set
       parameters:  
         - name: setId

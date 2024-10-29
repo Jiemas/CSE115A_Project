@@ -130,14 +130,14 @@ test('PUT new, expect 400, invalid body object', async () => {
 test('PUT new, expect 401, valid body, no token', async () => {
   await request.put(path)
     .send({description: 'this is a test', name: 'third_test'})
-    .expect(401)
+    .expect(401);
 });
 
 test('PUT new, expect 403, valid body, invalid token', async () => {
   await request.put(path)
     .set('Authorization', `Bearer random`)
     .send({description: 'this is a test', name: 'third_test'})
-    .expect(403)
+    .expect(403);
 });
 
 let key = 0;
@@ -203,23 +203,25 @@ test('PUT update, expect 403, valid body, invalid token', async () => {
     .set('Authorization', `Bearer random`)
     .send({card_num: 1, description: 'this should not work',
       name: 'third_test'})
-    .expect(403)
-});
-
-test('PUT update, expect 404, valid body, valid token, unknown set', async () => {
-  await request.put(`${path}/random`)
-    .set('Authorization', `Bearer ${accessToken}`)
-    .send({card_num: 1, description: 'this should not work',
-      name: 'third_test'})
-    .expect(404);
-});
-
-test('PUT update, expect 403, valid body, valid token, not owned set', async () => {
-  await request.put(`${path}/${otherSetKey}`)
-    .set('Authorization', `Bearer ${accessToken}`)
-    .send({card_num: 1, description: 'this should not work',
-      name: 'third_test'})
     .expect(403);
+});
+
+test('PUT update, expect 404, valid body, valid token, unknown set',
+  async () => {
+    await request.put(`${path}/random`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({card_num: 1, description: 'this should not work',
+        name: 'third_test'})
+      .expect(404);
+});
+
+test('PUT update, expect 403, valid body, valid token, not owned set',
+  async () => {
+    await request.put(`${path}/${otherSetKey}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({card_num: 1, description: 'this should not work',
+        name: 'third_test'})
+      .expect(403);
 });
 
 test('PUT update, expect 201, body, known set', async () => {

@@ -35,7 +35,22 @@ exports.getAll = async (req, res) => {
   // Gets set id from request parameter
   const setId = req.params.setId;
 
+  // Check that the set exists
+  const exists = await db.getSet_id(setId);
+  if (exists == null) {
+    res.status(404).send();
+    return;
+  }
+
+  // Check that the user owns the requested set
+  // to get all cards specific to the user
+  if (exists.owner != req.user.key) {
+    res.status(403).send();
+    return;
+  }
+
   // Gets cards using setId
+  // to grab from specific set not user.key, already know user owns it
   const cards = await db.getAllCards(setId);
 
   // If setId invalid, cards is null
@@ -52,7 +67,20 @@ exports.update = async (req, res) => {
   const setId = req.params.setId;
   const cardId = req.query.cardId;
 
-  // Simultaneously checks validity of setId and cardId
+  // Checks validity of setId
+  const exists = await db.getSet_id(setId);
+  if (exists == null) {
+    res.status(404).send();
+    return;
+  }
+
+  // If the user doesn't own the requested card
+  if (exists.owner != req.user.key) {
+    res.status(403).send();
+    return;
+  }
+
+  // Checks validity of cardId
   const card = await db.getCard_id(setId, cardId);
   if (card == null) {
     res.status(404).send();
@@ -66,10 +94,10 @@ exports.update = async (req, res) => {
     return;
   }
 
-  // Updates data of card
+  // Updates data of specified card
   req.body.key = cardId;
   db.updateCard(req.body, setId, cardId);
-  res.status(201).send();
+  res.status(201).send(req.body);
 };
 
 // Called by DELETE '/v0/card/:setId' (Delete Card)
@@ -78,7 +106,20 @@ exports.delete = async (req, res) => {
   const setId = req.params.setId;
   const cardId = req.query.cardId;
 
-  // Simultaneously checks validity of setId and cardId
+  // Checks validity of setId
+  const exists = await db.getSet_id(setId);
+  if (exists == null) {
+    res.status(404).send();
+    return;
+  }
+
+  // If the user doesn't own the requested card
+  if (exists.owner != req.user.key) {
+    res.status(403).send();
+    return;
+  }
+
+  // Checks validity of cardId
   const card = await db.getCard_id(setId, cardId);
   if (card == null) {
     res.status(404).send();

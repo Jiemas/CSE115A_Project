@@ -32,7 +32,7 @@ export const LoginPage: React.FC = () => {
     })
       .then((res) => {
         if (!res.ok) {
-          alert('Invalid email or password');
+          alert(create ? 'Unable to create account' : 'Invalid email or password');
           setLoading(false);
           throw res;
         }

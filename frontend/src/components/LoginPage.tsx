@@ -16,6 +16,9 @@ export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [create, setCreate] = useState(false);
+
   const navigate = useNavigate();
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -23,7 +26,7 @@ export const LoginPage: React.FC = () => {
     setLoading(true);
   
     fetch(`${path}/login`, {
-      method: 'POST',
+      method: create ? 'PUT' : 'POST',
       body: JSON.stringify({email: username, password: password}),
       headers: {'Content-Type': 'application/json'}
     })
@@ -38,10 +41,20 @@ export const LoginPage: React.FC = () => {
       .then(async (json) => {
         sessionStorage.setItem('accessToken', JSON.stringify(json.accessToken));
         setLoading(false);
-        navigate('/');
+        if (create) {
+          setCreate(false);
+          setUsername('');
+          setPassword('');
+        } else {
+          navigate('/');
+        }
       });
-
   };
+
+  const handleClickCreate = async () => {
+    console.log('create clicked');
+    setCreate(!create);
+  }
 
   return (
     <Stack alignItems="center">
@@ -55,7 +68,7 @@ export const LoginPage: React.FC = () => {
         }}
       >
         <Typography variant="h4" mb={1.5} textAlign={'center'}>
-          Log In
+          {create ? 'Create Account' : 'Log In'}
         </Typography>
         {loading && (
           <Stack
@@ -107,11 +120,20 @@ export const LoginPage: React.FC = () => {
                 sx={{ width: '30%' }}
                 color="primary"
               >
-                Login
+                {create ? 'Create' : 'Login'}
               </Button>
             </Stack>
           </Stack>
         </form>
+        <Button
+          type="submit"
+          disabled={loading ? true : false}
+          sx={{ width: '100%' }}
+          color="primary"
+          onClick={handleClickCreate}
+        >
+          {create ? 'Already Have Account' : 'Create Account'}
+        </Button>
       </Paper>
     </Stack>
   );

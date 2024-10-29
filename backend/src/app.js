@@ -39,7 +39,7 @@ app.use(
 app.put('/v0/set', auth.check, set.add); // Create
 app.get('/v0/set', auth.check, set.getAll); // Read
 app.put('/v0/set/:id', auth.check, set.update); // Update
-app.delete('/v0/set/:id', set.delete); // Delete
+app.delete('/v0/set/:id', auth.check, set.delete); // Delete
 
 // CRUD Operations on Cards
 app.put('/v0/card/:setId', card.add); // Create

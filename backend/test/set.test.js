@@ -26,6 +26,7 @@ afterAll((done) => {
 });
 
 setKey = 'bd24a693-5256-4414-9321-c4a3480ad96g';
+otherSetKey = '0293ada7-ca0b-4983-8baa-b07e1f50980f';
 path = '/v0/set';
 
 test('GET, expect 401, no token provided', async () => {
@@ -213,6 +214,14 @@ test('PUT update, expect 404, valid body, valid token, unknown set', async () =>
     .expect(404);
 });
 
+test('PUT update, expect 403, valid body, valid token, not owned set', async () => {
+  await request.put(`${path}/${otherSetKey}`)
+    .set('Authorization', `Bearer ${accessToken}`)
+    .send({card_num: 1, description: 'this should not work',
+      name: 'third_test'})
+    .expect(403);
+});
+
 test('PUT update, expect 201, body, known set', async () => {
   await request.put(`${path}/${setKey}`)
     .set('Authorization', `Bearer ${accessToken}`)
@@ -245,19 +254,37 @@ test('PUT update, cleaning up from last test', async () => {
     .expect(201);
 });
 
-/*
 test('Delete, expect 405, no name', async () => {
   await request.delete(path)
     .expect(405);
 });
 
-test('Delete, expect 404, random name', async () => {
+test('Delete, expect 401, random id, no token', async () => {
   await request.delete(`${path}/random`)
+    .expect(401);
+});
+
+test('Delete, expect 403, random id, invalid token', async () => {
+  await request.delete(`${path}/random`)
+    .set('Authorization', `Bearer random`)
+    .expect(403);
+});
+
+test('Delete, expect 404, random name, valid token', async () => {
+  await request.delete(`${path}/random`)
+    .set('Authorization', `Bearer ${accessToken}`)
     .expect(404);
+});
+
+test('Delete, expect 403, not owned id, valid token', async () => {
+  await request.delete(`${path}/${otherSetKey}`)
+    .set('Authorization', `Bearer ${accessToken}`)
+    .expect(403);
 });
 
 test('Delete, expect 200, valid request', async () => {
   await request.delete(`${path}/${key}`)
+    .set('Authorization', `Bearer ${accessToken}`)
     .expect(200);
 });
 
@@ -281,4 +308,3 @@ test('Delete, there should be no set entry in cards table', async () => {
   await request.get(`/v0/card/${key}`)
     .expect(404);
 });
-*/

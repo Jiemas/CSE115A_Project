@@ -87,6 +87,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error' 
     delete:
+      security:
+        - bearerAuth: []
       description: Deletes specified set
       parameters:
         - name: id

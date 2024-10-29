@@ -30,6 +30,9 @@ exports.getAll = async (req, res) => {
   // When login is implemented, 'global' will have to become variable
   // Will then have to add cases where fetch returns nothing
   const sets = await db.getAllSets(req.user.key);
+  if (!sets) {
+    res.status(404).send();
+  }
   res.status(200).json(sets);
 };
 
@@ -69,6 +72,12 @@ exports.delete = async (req, res) => {
   const exists = await db.getSet_id(id);
   if (exists == null) {
     res.status(404).send();
+    return;
+  }
+
+  // If user does not own the requested set, return 403
+  if (exists.owner !== req.user.key) {
+    res.status(403).send();
     return;
   }
 

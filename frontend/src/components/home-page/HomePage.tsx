@@ -5,8 +5,8 @@ import { Box, Card, CardContent, Typography, Grid, Button, Stack } from '@mui/ma
 
 import {SetContext} from '../App';
 
-// const path = 'http://localhost:3001/v0';
-const path = 'https://cse115a-project.onrender.com/v0';
+const path = 'http://localhost:3001/v0';
+// const path = 'https://cse115a-project.onrender.com/v0';
 
 // hardcode fake data 
 /*
@@ -69,6 +69,11 @@ export const Home: React.FC = () => {
   };
 
   React.useEffect(() => {
+    const accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+      navigate('/login');
+    }
+
     fetch(`${path}/set`, {method: 'get'})
       .then((res) => {
         return res.json();

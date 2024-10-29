@@ -1,53 +1,54 @@
 const crypto = require('crypto');
 
+const rootPath = 'https://rapid-review-4255a-default-rtdb.firebaseio.com';
+
 exports.getAllSets = async () => {
   const answer = await fetch(
-    'https://rapid-review-4255a-default-rtdb.firebaseio.com/set.json?orderBy="owner"&equalTo="global"',
-    {method: 'GET'});
+    `${rootPath}/set.json?orderBy="owner"&equalTo="global"`, {method: 'GET'});
   const json = await answer.json();
-  return Object.entries(json).map((elem) => elem[1]);
+
+  // When users create new account, they won't have any sets to their name
+  // Will need to add code to account for this scenario
+  return JSON.stringify(json) == JSON.stringify({}) ? null :
+    Object.entries(json).map((elem) => elem[1]);
 };
 
 exports.getSet_name = async (name) => {
   const answer = await fetch(
-    `https://rapid-review-4255a-default-rtdb.firebaseio.com/set.json?orderBy="name"&equalTo="${name}"`,
-    {method: 'GET'});
+    `${rootPath}/set.json?orderBy="name"&equalTo="${name}"`, {method: 'GET'});
   const duplicate = await answer.json();
   return Object.entries(duplicate).map((elem) => elem[1]);
 };
 
 exports.getSet_id = async (id) => {
-  const answer = await fetch(
-    `https://rapid-review-4255a-default-rtdb.firebaseio.com/set/${id}.json`,
+  const answer = await fetch(`${rootPath}/set/${id}.json`,
     {method: 'GET'});
   const duplicate = await answer.json();
-  if (duplicate == null) {
-    return null;
-  }
-  return Object.entries(duplicate).map((elem) => elem[1]);
+  return duplicate == null ? null :
+    Object.entries(duplicate).map((elem) => elem[1]);
 };
 
 exports.addSet = async (newObj, setId) => {
-  await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/set.json',
+  await fetch(`${rootPath}/set.json`,
     {method: 'PATCH',
       body: JSON.stringify(newObj),
       headers: {'Content-Type': 'application/json'}});
 
+  // addSet used to create new set and update set
+  // Only want to set up a new set in card object of db if creating new set
   if (setId == null) {
     return;
   }
 
-  firstCardId = crypto.randomUUID();
-  cardObj = {};
+  const firstCardId = crypto.randomUUID();
+  const cardObj = {};
   cardObj[firstCardId] =
-    {back: 'Put definition here',
-      front: 'Put term here',
-      key: firstCardId,
-      starred: false,
+    {back: 'Put definition here', front: 'Put term here',
+      key: firstCardId, starred: false,
     };
-  setObj = {};
+  const setObj = {};
   setObj[setId] = cardObj;
-  await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card.json',
+  await fetch(`${rootPath}/card.json`,
     {method: 'PATCH',
       body: JSON.stringify(setObj),
       headers: {'Content-Type': 'application/json'},
@@ -55,36 +56,26 @@ exports.addSet = async (newObj, setId) => {
 };
 
 exports.deleteSet = async (id) => {
-  // curl -X DELETE 'https://rapid-review-4255a-default-rtdb.firebaseio.com/set/fourth_set.json'
-  await fetch(`https://rapid-review-4255a-default-rtdb.firebaseio.com/set/${id}.json`,
-    {method: 'DELETE'});
-  await fetch(`https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${id}.json`,
-    {method: 'DELETE'});
+  await fetch(`${rootPath}/set/${id}.json`, {method: 'DELETE'});
+  await fetch(`${rootPath}/card/${id}.json`, {method: 'DELETE'});
 };
 
 exports.getCard_front = async (front, setId) => {
-  const answer = await fetch(
-    `https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}.json`,
-    {method: 'GET'});
+  const answer = await fetch(`${rootPath}/card/${setId}.json`, {method: 'GET'});
   const json = await answer.json();
   return Object.entries(json).map((elem) => elem[1])
     .find((elem) => elem.front == front);
 };
 
 exports.getCard_id = async (setId, cardId) => {
-  const answer = await fetch(
-    `https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}/${cardId}` + '.json',
+  const answer = await fetch(`${rootPath}/card/${setId}/${cardId}` + '.json',
     {method: 'GET'});
-
   const card = await answer.json();
-  if (card == null) {
-    return null;
-  }
-  return Object.entries(card).map((elem) => elem[1]);
+  return card == null ? null : Object.entries(card).map((elem) => elem[1]);
 };
 
 exports.addCard = async (newObj, setId) => {
-  await fetch(`https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}.json`,
+  await fetch(`${rootPath}/card/${setId}.json`,
     {method: 'PATCH',
       body: JSON.stringify(newObj),
       headers: {'Content-Type': 'application/json'},
@@ -92,25 +83,42 @@ exports.addCard = async (newObj, setId) => {
 };
 
 exports.getAllCards = async (setId) => {
-  const answer = await fetch(
-    `https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}.json`,
+  const answer = await fetch(`${rootPath}/card/${setId}.json`,
     {method: 'GET'});
   const json = await answer.json();
-  if (!json) {
-    return json;
-  }
-  return Object.entries(json).map((elem) => elem[1]);
+  return !json ? json : Object.entries(json).map((elem) => elem[1]);
 };
 
 exports.updateCard = async (cardBody, setId, cardId) => {
-  await fetch(`https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}/${cardId}.json`,
+  await fetch(`${rootPath}/card/${setId}/${cardId}.json`,
     {method: 'PUT',
       body: JSON.stringify(cardBody),
       headers: {'Content-Type': 'application/json'},
-    }); // chat got my back for this PUT line
+    });
 };
 
 exports.deleteCard = async (setId, cardId) => {
-  await fetch(`https://rapid-review-4255a-default-rtdb.firebaseio.com/card/${setId}/${cardId}` + '.json',
+  await fetch(`${rootPath}/card/${setId}/${cardId}` + '.json',
     {method: 'DELETE'});
+};
+
+exports.getUser = async (email) => {
+  const answer = await fetch(
+    `${rootPath}/user.json?orderBy="email"&equalTo="${email}"`,
+    {method: 'GET'},
+  );
+  const json = await answer.json();
+  return JSON.stringify(json) == JSON.stringify({}) ? null :
+    Object.entries(json).map((elem) => elem[1])[0];
+};
+
+exports.addUser = async (user) => {
+  await fetch(`${rootPath}/user.json`,
+    {method: 'PATCH',
+      body: JSON.stringify(user),
+      headers: {'Content-Type': 'application/json'}});
+};
+
+exports.deleteUser = async (key) => {
+  await fetch(`${rootPath}/user/${key}.json`, {method: 'DELETE'});
 };

@@ -11,3 +11,8 @@ To start the local server: `pnpm start`
 To execute tests: `pnpm test`
 
 To run lint code checking: `pnpm lint`
+
+NEW REQUIREMENT:
+- Create file `.env` in backend directory (this one)
+- In the first line put `SECRET=`
+- Contact Jiemas for the value to put after `=`

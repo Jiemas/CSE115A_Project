@@ -6,9 +6,18 @@ import {SetContext} from './App';
 
 let terms_copy = [{front: '', back: '', starred: false, key: ''}];
 
+// const path = 'http://localhost:3001/v0';
+const path = 'https://cse115a-project.onrender.com/v0';
+
 export const CreateSetPage: React.FC = () => {
+
+  const context = React.useContext(SetContext);
+  if (!context) {
+    throw new Error('CreateSetPage must be used within a SetProvider');
+  }
+  const { set, setSet } = context;
   const navigate = useNavigate();
-  const {set, setSet} = React.useContext(SetContext);
+  
 
   const [changed, setChanged] = useState(false);
   const [confirmSetDelete, setConfirmSetDelete] = useState(false);
@@ -23,7 +32,7 @@ export const CreateSetPage: React.FC = () => {
 
   React.useEffect(() => {
     if (set.name && !setDeleted) {
-      fetch(`http://localhost:3010/v0/card/${set.key}`, {method: 'get'})
+      fetch(`${path}/card/${set.key}`, {method: 'get'})
         .then((res) => {
           return res.json();
         })
@@ -47,7 +56,7 @@ export const CreateSetPage: React.FC = () => {
     setError('');
     // global will have to change from being hardcoded once login integration begins
     const new_set = {description: setDescription, name: setName, owner: 'global'};
-    const answer = await fetch('http://localhost:3010/v0/set', 
+    const answer = await fetch(`${path}/set`, 
       {
         method: 'put',
         headers: new Headers({'Content-Type': 'application/json'}),
@@ -78,7 +87,7 @@ export const CreateSetPage: React.FC = () => {
     updated_set.name = setName;
     updated_set.description = setDescription;
     updated_set.card_num = terms.filter((term) => term.delete < 2 || !term.delete).length;
-    await fetch(`http://localhost:3010/v0/set/${setKey}`, 
+    await fetch(`${path}/set/${setKey}`, 
       {
         method: 'put',
         headers: new Headers({'Content-Type': 'application/json'}),
@@ -87,7 +96,7 @@ export const CreateSetPage: React.FC = () => {
     );
     
     let err409 = false
-    const term_fronts = {};
+    const term_fronts: { [key: string]: number } = {};
     terms.map((term) => {
       if (term_fronts[term.front] && term.delete < 2) {
         term.duplicate = true;
@@ -103,7 +112,7 @@ export const CreateSetPage: React.FC = () => {
         if (term.delete < 2) {
           if (term.key) {
             const updatedCard = {front: term.front, back: term.back, starred: term.starred};
-            fetch(`http://localhost:3010/v0/card/${setKey}?cardId=${term.key}`, 
+            fetch(`${path}/card/${setKey}?cardId=${term.key}`, 
               {
                 method: 'post',
                 headers: new Headers({'Content-Type': 'application/json'}),
@@ -117,7 +126,7 @@ export const CreateSetPage: React.FC = () => {
               })
           } else {
             const newCard = {front: term.front, back: term.back, starred: term.starred};
-            fetch(`http://localhost:3010/v0/card/${setKey}`, 
+            fetch(`${path}/card/${setKey}`, 
               {
                 method: 'put',
                 headers: new Headers({'Content-Type': 'application/json'}),
@@ -137,7 +146,7 @@ export const CreateSetPage: React.FC = () => {
           }
         } else {
           if (term.key) {
-            fetch(`http://localhost:3010/v0/card/${set.key}?cardId=${term.key}`, {method: 'delete'});
+            fetch(`${path}/card/${set.key}?cardId=${term.key}`, {method: 'delete'});
           }
         }
       }
@@ -165,7 +174,7 @@ export const CreateSetPage: React.FC = () => {
 
   const handleDeleteSet = () => {
     if (confirmSetDelete) {
-      fetch(`http://localhost:3010/v0/set/${set.key}`, {method: 'delete'});
+      fetch(`${path}/set/${set.key}`, {method: 'delete'});
       setSetDeleted(true);
     }
     else {

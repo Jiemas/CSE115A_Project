@@ -10,7 +10,8 @@ info:
   title: CSE115A Rapid Review Backend
 
 servers:
-  - url: http://localhost:3010/v0
+  - url: http://localhost:3001/v0
+  - url: https://cse115a-project.onrender.com/v0
 
 paths:
   /set:
@@ -123,6 +124,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/keyString'
+        404:
+          description: Set not found
         default:
           description: Unexpected Error
           content:
@@ -145,6 +148,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/cardArray'
+        404:
+          description: Set not found
         default:
           description: Unexpected Error
           content:
@@ -160,7 +165,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/noKeyCard' #?
+              $ref: '#/components/schemas/noKeyCard'
       parameters:
         - name: setId
           in: path
@@ -181,6 +186,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Card'
+        404:
+          description: Set and/or card not found
         default:
           description: Unexpected Error
           content:
@@ -188,7 +195,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error' 
     delete: 
-      description: Deletes all cards in specified set
+      description: Deletes card in specified set
       parameters:  
         - name: setId
           in: path
@@ -203,24 +210,85 @@ paths:
           schema:
             type: string
       responses:
-        200: #TODO: Decide whether we need schema for the card delete responses.
+        200:
           description: Card deleted
-          # content:
-            # application/json:
-              # schema:
-                # $ref: '#/components/schemas/cardArray'
         404:
-          description: Card not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/cardArray'
+          description: Set and/or card not found
         default:
           description: Unexpected Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error' 
+  /login:
+    post:
+      description: Login
+      requestBody:
+        description: Email and password
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        200:
+          description: Credentials Correct
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          description: Invalid email or password
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      description: Adds a new account to database
+      requestBody:
+        description: New account as object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        201:
+          description: Account added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/keyString' # Purely for testing purposes
+        401:
+          description: Unauthorized
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /login/{id}:
+    delete:
+      description: FOR TESTING CLEANUP, deletes account
+      parameters:  
+        - name: id
+          in: path
+          description: id of the account that will be deleted
+          required: True
+          schema:
+            type: string
+      responses:
+        200:
+          description: Account deleted
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'   
+
   /llm:
     get:
       description: Testing for llm
@@ -270,7 +338,6 @@ paths:
 
 components:
   schemas:
-
     setArray:
       type: array
       items:
@@ -402,3 +469,31 @@ components:
 
     keyString:
       type: string
+
+    Credentials:
+      type: object
+      maxProperties: 2
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    User:
+      type: object
+      maxProperties: 1
+      properties:
+        accessToken:
+          type: string
+      required:
+        - accessToken
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

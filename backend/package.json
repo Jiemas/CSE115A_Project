@@ -13,12 +13,15 @@
     "supertest": "*"
   },
   "dependencies": {
+    "bcrypt": "*",
+    "bcryptjs": "^2.4.3",
     "body-parser": "*",
     "cors": "^2.8.5",
     "dotenv": "*",
     "express": "*",
     "express-openapi-validator": "*",
     "js-yaml": "*",
+    "jsonwebtoken": "*",
     "openai": "*",
     "swagger-ui-express": "*"
   },

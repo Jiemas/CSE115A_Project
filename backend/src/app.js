@@ -8,6 +8,7 @@ const OpenApiValidator = require('express-openapi-validator');
 
 const set = require('./set');
 const card = require('./card');
+const auth = require('./auth');
 
 // Testing
 // const llm = require('./llm');
@@ -34,7 +35,6 @@ app.use(
   }),
 );
 
-// Your Express routes go here
 // CRUD Operations on Sets
 app.put('/v0/set', set.add); // Create
 app.get('/v0/set', set.getAll); // Read
@@ -46,6 +46,13 @@ app.put('/v0/card/:setId', card.add); // Create
 app.get('/v0/card/:setId', card.getAll); // Read
 app.post('/v0/card/:setId', card.update); // Update
 app.delete('/v0/card/:setId', card.delete); // Delete
+
+// Login
+app.post('/v0/login', auth.login);
+app.put('/v0/login', auth.createAccount);
+
+// Solely for test cleanup, currently no plans to have a delete user endpoint
+app.delete('/v0/login/:id', auth.delete);
 
 // Import Cards
 app.post('/v0/import/:setId', set.import);

@@ -6,7 +6,11 @@ exports.getAllSets = async () => {
   const answer = await fetch(
     `${rootPath}/set.json?orderBy="owner"&equalTo="global"`, {method: 'GET'});
   const json = await answer.json();
-  return Object.entries(json).map((elem) => elem[1]);
+
+  // When users create new account, they won't have any sets to their name
+  // Will need to add code to account for this scenario
+  return JSON.stringify(json) == JSON.stringify({}) ? null :
+    Object.entries(json).map((elem) => elem[1]);
 };
 
 exports.getSet_name = async (name) => {
@@ -96,4 +100,25 @@ exports.updateCard = async (cardBody, setId, cardId) => {
 exports.deleteCard = async (setId, cardId) => {
   await fetch(`${rootPath}/card/${setId}/${cardId}` + '.json',
     {method: 'DELETE'});
+};
+
+exports.getUser = async (email) => {
+  const answer = await fetch(
+    `${rootPath}/user.json?orderBy="email"&equalTo="${email}"`,
+    {method: 'GET'},
+  );
+  const json = await answer.json();
+  return JSON.stringify(json) == JSON.stringify({}) ? null :
+    Object.entries(json).map((elem) => elem[1])[0];
+};
+
+exports.addUser = async (user) => {
+  await fetch(`${rootPath}/user.json`,
+    {method: 'PATCH',
+      body: JSON.stringify(user),
+      headers: {'Content-Type': 'application/json'}});
+};
+
+exports.deleteUser = async (key) => {
+  await fetch(`${rootPath}/user/${key}.json`, {method: 'DELETE'});
 };

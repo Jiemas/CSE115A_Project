@@ -220,6 +220,75 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error' 
+  /login:
+    post:
+      description: Login
+      requestBody:
+        description: Email and password
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        200:
+          description: Credentials Correct
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          description: Invalid email or password
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      description: Adds a new account to database
+      requestBody:
+        description: New account as object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        201:
+          description: Account added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/keyString' # Purely for testing purposes
+        401:
+          description: Unauthorized
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /login/{id}:
+    delete:
+      description: FOR TESTING CLEANUP, deletes account
+      parameters:  
+        - name: id
+          in: path
+          description: id of the account that will be deleted
+          required: True
+          schema:
+            type: string
+      responses:
+        200:
+          description: Account deleted
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'   
+
   /llm:
     get:
       description: Testing for llm
@@ -239,7 +308,6 @@ paths:
 
 components:
   schemas:
-
     setArray:
       type: array
       items:
@@ -371,3 +439,31 @@ components:
 
     keyString:
       type: string
+
+    Credentials:
+      type: object
+      maxProperties: 2
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    User:
+      type: object
+      maxProperties: 1
+      properties:
+        accessToken:
+          type: string
+      required:
+        - accessToken
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

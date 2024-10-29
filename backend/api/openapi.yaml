@@ -58,6 +58,8 @@ paths:
                 $ref: '#/components/schemas/Error'            
   /set/{id}:
     put:
+      security:
+        - bearerAuth: []
       description: Updates specified set with new values
       requestBody:
         description: New data as set object
@@ -356,7 +358,7 @@ components:
     
     noKeySet:
       type: object
-      maxProperties: 4
+      maxProperties: 3
       properties:
         card_num:
           type: integer
@@ -364,15 +366,12 @@ components:
           type: string
         name:
           type: string
-        owner:
-          type: string
         key:
           type: string
       required:
         - card_num
         - description
         - name
-        - owner
     
     newSet:
       type: object

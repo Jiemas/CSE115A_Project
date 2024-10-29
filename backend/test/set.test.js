@@ -28,7 +28,6 @@ afterAll((done) => {
 setKey = 'bd24a693-5256-4414-9321-c4a3480ad96g';
 path = '/v0/set';
 
-/*
 test('GET, expect 401, no token provided', async () => {
   await request.get(path)
     .expect(401);
@@ -40,7 +39,6 @@ test('GET, expect 403, invalid token provided', async () => {
     .expect(403);
 });
 
-*/
 let accessToken;
 
 test('GET, expect 200', async () => {
@@ -54,7 +52,6 @@ test('GET, expect 200', async () => {
     });
 });
 
-/*
 test('GET, expect data\'s body is an array', async () => {
   await request.get(path)
     .set('Authorization', `Bearer ${accessToken}`)
@@ -103,21 +100,19 @@ test('GET, expect data\'s body element to have key property', async () => {
       expect(data.body[0].key).toBeTruthy();
     });
 });
-*/
-
 
 test('PUT new, expect 401, no body, no token', async () => {
   await request.put(path)
     .expect(401);
 });
 
-test('PUT new, expect 401, no body, token', async () => {
+test('PUT new, expect 401, no body, random token', async () => {
   await request.put(path)
     .set('Authorization', `Bearer random`)
     .expect(415);
 });
 
-test('PUT new, expect 415, invalid body, token', async () => {
+test('PUT new, expect 415, invalid body, random token', async () => {
   await request.put(path)
     .set('Authorization', `Bearer random`)
     .send('wrong')
@@ -137,7 +132,7 @@ test('PUT new, expect 401, valid body, no token', async () => {
     .expect(401)
 });
 
-test('PUT new, expect 401, valid body, invalid token', async () => {
+test('PUT new, expect 403, valid body, invalid token', async () => {
   await request.put(path)
     .set('Authorization', `Bearer random`)
     .send({description: 'this is a test', name: 'third_test'})
@@ -191,23 +186,38 @@ test('PUT new, there should be set entry in cards table', async () => {
     .expect(200);
 });
 
-/*
+test('PUT new, expect 401, no body, no token', async () => {
+  await request.put(`${path}/random`)
+    .expect(401);
+});
+
 test('PUT update, expect 415, no body, unknown set', async () => {
   await request.put(`${path}/random`)
+    .set('Authorization', `Bearer random`)
     .expect(415);
 });
 
-test('PUT update, expect 404, body, unknown set', async () => {
+test('PUT update, expect 403, valid body, invalid token', async () => {
   await request.put(`${path}/random`)
+    .set('Authorization', `Bearer random`)
     .send({card_num: 1, description: 'this should not work',
-      name: 'third_test', owner: 'global'})
+      name: 'third_test'})
+    .expect(403)
+});
+
+test('PUT update, expect 404, valid body, valid token, unknown set', async () => {
+  await request.put(`${path}/random`)
+    .set('Authorization', `Bearer ${accessToken}`)
+    .send({card_num: 1, description: 'this should not work',
+      name: 'third_test'})
     .expect(404);
 });
 
 test('PUT update, expect 201, body, known set', async () => {
   await request.put(`${path}/${setKey}`)
+    .set('Authorization', `Bearer ${accessToken}`)
     .send({card_num: 1, description: 'description of the test set',
-      name: 'fourth_set', owner: 'global'})
+      name: 'fourth_set'})
     .expect(201);
 });
 
@@ -229,11 +239,13 @@ test('PUT update, after valid request, GET contains updated set', async () => {
 
 test('PUT update, cleaning up from last test', async () => {
   await request.put(`${path}/${setKey}`)
+    .set('Authorization', `Bearer ${accessToken}`)
     .send({card_num: 0, description: 'do not delete, part of tests',
-      name: 'test_set', owner: 'global'})
+      name: 'test_set'})
     .expect(201);
 });
 
+/*
 test('Delete, expect 405, no name', async () => {
   await request.delete(path)
     .expect(405);

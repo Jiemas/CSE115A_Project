@@ -24,8 +24,7 @@ exports.getSet_id = async (id) => {
   const answer = await fetch(`${rootPath}/set/${id}.json`,
     {method: 'GET'});
   const duplicate = await answer.json();
-  return duplicate == null ? null :
-    Object.entries(duplicate).map((elem) => elem[1]);
+  return duplicate;
 };
 
 exports.addSet = async (newObj, setId) => {

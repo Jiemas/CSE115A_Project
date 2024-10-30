@@ -26,7 +26,7 @@ afterAll((done) => {
 });
 
 setKey = 'bd24a693-5256-4414-9321-c4a3480ad96g';
-// otherSetKey = '0293ada7-ca0b-4983-8baa-b07e1f50980f';
+otherSetKey = '0293ada7-ca0b-4983-8baa-b07e1f50980f';
 path = `/v0/card/${setKey}`;
 
 test('GET, no set_id, expect 404', async () => {
@@ -56,7 +56,7 @@ test('GET, existing set_id, expect 200', async () => {
     });
 });
 
-// // it keeps returning 403 or 401, moved down here after logged in
+// // it keeps returning 403 or 401, moved down here to check after logged in
 test('GET, random set_id, expect 404', async () => {
   await request.get('/v0/card/random')
     .set('Authorization', `Bearer ${accessToken}`)
@@ -241,18 +241,20 @@ test('POST update, after valid request, GET contains updated set', async () => {
 
 test('Delete, expect 404, unknown set', async () => {
   await request.delete(`/v0/card/random?cardId=${key}`)
+    .set('Authorization', `Bearer ${accessToken}`)
     .expect(404);
 });
 
 test('Delete, expect 404, unknown card', async () => {
   await request.delete(`${path}?cardId=random`)
+    .set('Authorization', `Bearer ${accessToken}`)
     .expect(404);
 });
 
 test('Delete, expect 403, random id, invalid token', async () => {
   await request.delete(`${path}?cardId=random`)
     .set('Authorization', `Bearer random`)
-    .expect(404);
+    .expect(403);
 });
 
 test('Delete, expect 404, random id, valud token', async () => {

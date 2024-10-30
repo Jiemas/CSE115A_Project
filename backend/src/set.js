@@ -73,12 +73,26 @@ exports.import = async (req, res) => {
   const set_id = req.params.setId;
   const cards = req.body;
 
+  // Split the input into lines hardcode for now
+  const lines = cards.split('\n');
+
   const newCards = {};
-  for (const card of cards) {
-    card.key = crypto.randomUUID();
-    card.set_id = set_id;
-    card.starred = card.starred || false;
-    newCards[card.key] = card;
+  for (const line of lines) {
+    // Split the line into term and definition
+    const [term, definition] = line.split('\t');
+
+    // Check if term and definition are not empty
+    if (term && definition) {
+      //Create Card objects and add them to the newCards object
+      const card = {
+        key: crypto.randomUUID(),
+        set_id: set_id,
+        term: term.trim(),
+        definition: definition.trim(),
+        starred: false
+      };
+      newCards[card.key] = card;
+    }
   }
 
   console.log('New Cards:', newCards); // Debugging log
@@ -86,5 +100,6 @@ exports.import = async (req, res) => {
   // Add new cards to the set
   await db.addCard(newCards, set_id);
 
-  // Update the set card count do later
+  
+
 };

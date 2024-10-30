@@ -31,16 +31,21 @@ export const CreateSetPage: React.FC = () => {
   const [error, setError] = useState('');
 
   React.useEffect(() => {
+    const accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+      navigate('/login');
+    }
+
     if (set.name && !setDeleted) {
       fetch(`${path}/card/${set.key}`, {method: 'get'})
         .then((res) => {
           return res.json();
         })
-        .then((json) => {
+        .then(async (json) => {
           if (JSON.stringify(terms_copy) != JSON.stringify(json) && !changed) {
-            setTerms(json);
+            await setTerms(json);
             terms_copy = json;
-          }
+          } 
         })
     }
   });

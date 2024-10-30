@@ -36,6 +36,11 @@ export const Home: React.FC = () => {
   };
 
   React.useEffect(() => {
+    const accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+      navigate('/login');
+    }
+
     fetch(`${path}/set`, {method: 'get'})
       .then((res) => {
         return res.json();

@@ -6,8 +6,8 @@ import {SetContext} from './App';
 
 let terms_copy = [{front: '', back: '', starred: false, key: ''}];
 
-const path = 'http://localhost:3001/v0';
-// const path = 'https://cse115a-project.onrender.com/v0';
+// const path = 'http://localhost:3001/v0';
+const path = 'https://cse115a-project.onrender.com/v0';
 
 export const CreateSetPage: React.FC = () => {
   const navigate = useNavigate();

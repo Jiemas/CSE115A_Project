@@ -107,7 +107,6 @@ test('PUT new, expect 401, no body, no token', async () => {
     .expect(401);
 });
 
-// this said expect 401 but the return .expect was 415
 test('PUT new, expect 415, no body, random token', async () => {
   await request.put(path)
     .set('Authorization', `Bearer random`)
@@ -185,7 +184,7 @@ test('PUT new, expect 409, set with duplicate name', async () => {
 
 test('PUT new, there should be set entry in cards table', async () => {
   await request.get(`/v0/card/${key}`)
-    .set('Authorization', `Bearer ${accessToken}`) // tiff added this
+    .set('Authorization', `Bearer ${accessToken}`)
     .expect(200);
 });
 

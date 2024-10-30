@@ -26,8 +26,6 @@ afterAll((done) => {
 });
 
 setKey = 'bd24a693-5256-4414-9321-c4a3480ad96g';
-// '6a40e8b6-f72d-4cdc-a3c3-5e0e147a8922'; // tiff's own set, testing
-
 otherSetKey = '0293ada7-ca0b-4983-8baa-b07e1f50980f';
 path = `/v0/card/${setKey}`;
 
@@ -36,16 +34,8 @@ test('GET, no set_id, expect 404', async () => {
     .expect(404);
 });
 
-// it keeps returning 403 or 401, moved down to line 59
-// test('GET, random set_id, expect 404', async () => {
-//   await request.get('/v0/card/random')
-//     //.set('Authorization', `Bearer ${accessToken}`)
-//     .expect(404);
-// });
-
 let accessToken;
 
-// got 403 forbidden
 test('GET, existing set_id, expect 200', async () => {
   await request.post('/v0/login')
     .send({password: 'bacon', email: 'mail@email.com'})
@@ -57,14 +47,12 @@ test('GET, existing set_id, expect 200', async () => {
     });
 });
 
-// // it keeps returning 403 or 401, moved down here to check after logged in
 test('GET, random set_id, expect 404', async () => {
   await request.get('/v0/card/random')
     .set('Authorization', `Bearer ${accessToken}`)
     .expect(404);
 });
 
-// received false
 test('GET, expect data\'s body is an array', async () => {
   await request.get(path)
     .set('Authorization', `Bearer ${accessToken}`)
@@ -154,12 +142,11 @@ test('PUT new, expect 404, valid body object, unknown key', async () => {
 });
 
 let key = 0;
-// change the front to say test card_2 because there's already a card with
-// the front card saying 'test card' in the database.
+
 test('PUT new, expect 201, valid request', async () => {
   await request.put(path)
     .set('Authorization', `Bearer ${accessToken}`)
-    .send({front: 'test card_3', back: 'back description', starred: false})
+    .send({front: 'test card', back: 'back description', starred: false})
     .expect(201)
     .then((data) => {
       key = data.body;
@@ -266,7 +253,7 @@ test('Delete, expect 404, random id, valud token', async () => {
 
 
 test('Delete, expect 403, not owned set, valid token', async () => {
-  await request.delete(`${path}/${otherSetKey}`)
+  await request.delete(`/v0/card/${otherSetKey}?cardId=${key}`)
     .set('Authorization', `Bearer ${accessToken}`)
     .expect(403);
 });

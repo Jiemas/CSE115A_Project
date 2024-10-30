@@ -22,7 +22,7 @@ interface SetContextType {
 export const SetContext = React.createContext<SetContextType | undefined>(undefined);
 
 
-export const App: React.FC = ({}) => {
+  const App: React.FC = ({}) => {
   const [set, setSet] = React.useState<SetItem>({
     card_num: 0,
     description: '',
@@ -60,3 +60,5 @@ export const App: React.FC = ({}) => {
     </ThemeProvider>
   );
 };
+
+export default App;

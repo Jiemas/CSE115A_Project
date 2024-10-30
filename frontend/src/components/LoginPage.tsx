@@ -2,23 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   TextField,
-  Button,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
+  Button, 
   Typography,
   CircularProgress,
   Paper,
   Stack,
 } from '@mui/material';
-import { useAuth, UserRole } from '../auth/AuthContext';
+import { useAuth } from '../auth/AuthContext';
 
 export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState<UserRole | ''>('');
+  const [loading, setLoading] = useState(false); 
   const { setUser } = useAuth();
   const navigate = useNavigate();
 
@@ -34,14 +29,14 @@ export const LoginPage: React.FC = () => {
 
     // simple method to simulate network delay & route to homepage after log in
     setTimeout(async () => {
-      if (role !== '') {
-        await setUser({ id: '1', role });
+      if (username.trim() !== '') { // check if username is provided
+        await setUser({ id: '1' }); // default to 'user' if role is unselected
         setLoading(false);
         navigate('/home');
       } else {
         setLoading(false);
       }
-    }, 1300);
+    }, 1000);
   };
 
   return (
@@ -99,25 +94,12 @@ export const LoginPage: React.FC = () => {
               onChange={e => setPassword(e.target.value)}
               disabled={loading}
               //required
-            />
-            <FormControl sx={{ width: '30%' }} size="small">
-              <InputLabel required>User Role</InputLabel>
-              <Select
-                labelId="role-select-label"
-                id="role-select"
-                value={role}
-                label="User Role"
-                onChange={e => setRole(e.target.value as UserRole)}
-              >
-                <MenuItem value={UserRole.Admin}>Admin</MenuItem>
-                <MenuItem value={UserRole.Viewer}>Viewer</MenuItem>
-              </Select>
-            </FormControl>
+            /> 
             <Stack display="flex" justifyContent="center" alignItems="center">
               <Button
                 type="submit"
                 variant="contained"
-                disabled={!role || loading}
+                disabled={loading}
                 sx={{ width: '30%' }}
                 color="primary"
               >

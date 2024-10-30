@@ -13,7 +13,7 @@
     "supertest": "*"
   },
   "dependencies": {
-    "bcrypt": "*",
+    "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "*",
     "cors": "^2.8.5",

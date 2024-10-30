@@ -26,6 +26,8 @@ afterAll((done) => {
 });
 
 setKey = 'bd24a693-5256-4414-9321-c4a3480ad96g';
+// '6a40e8b6-f72d-4cdc-a3c3-5e0e147a8922'; // tiff's own set, testing
+
 otherSetKey = '0293ada7-ca0b-4983-8baa-b07e1f50980f';
 path = `/v0/card/${setKey}`;
 
@@ -40,7 +42,6 @@ test('GET, no set_id, expect 404', async () => {
 //     //.set('Authorization', `Bearer ${accessToken}`)
 //     .expect(404);
 // });
-
 
 let accessToken;
 
@@ -158,7 +159,7 @@ let key = 0;
 test('PUT new, expect 201, valid request', async () => {
   await request.put(path)
     .set('Authorization', `Bearer ${accessToken}`)
-    .send({front: 'test card_2', back: 'back description', starred: false})
+    .send({front: 'test card_3', back: 'back description', starred: false})
     .expect(201)
     .then((data) => {
       key = data.body;

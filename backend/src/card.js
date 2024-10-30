@@ -38,22 +38,21 @@ exports.getAll = async (req, res) => {
   // Check that the set exists
   const exists = await db.getSet_id(setId);
   if (exists == null) {
-    res.status(404).send('get all exists, 404');
+    res.status(404).send();
     return;
   }
-  // --- for some reason, this check breaks all the GET tests ---
-  // --- so idk if we have to do this check? ---
-  // --- maybe the exists.owner info didn't go through ---
-  //
-  // // Check that the user owns the requested set
-  // // to get all cards specific to the user
-  //
-  // if (exists.owner != req.user.key) {
-  //   res.status(403).send('exists owner != req key, 403');
-  //   return;
-  // }
-  //
-  // -----------------------------------------------------
+
+  // Check that the user owns the requested set
+  // to get all cards specific to the user
+
+  // console.log('exists.owner: ', exists.owner);
+  // console.log('req.user.key: ', req.user.key);
+  if (exists.owner != req.user.key) {
+    res.status(403).send();
+    return;
+  }
+  // console.log('after check if exists.owner = req.user.key');
+
 
   // Gets cards using setId
   // to grab from specific set not user.key, already know user owns it
@@ -80,15 +79,11 @@ exports.update = async (req, res) => {
     return;
   }
 
-  // // -- same thing here----
-  //
-  // // If the user doesn't own the requested card
-  // // if (exists.owner != req.user.key) {
-  //   res.status(403).send();
-  //   return;
-  // }
-  //
-  // // ----------------------
+  // If the user doesn't own the requested card
+  if (exists.owner != req.user.key) {
+    res.status(403).send('update: exists owner != req key, 403');
+    return;
+  }
 
   // Check duplicate front, duplicate backs shouldn't matter
   const duplicate = await db.getCard_front(req.body.front, setId);
@@ -124,15 +119,12 @@ exports.delete = async (req, res) => {
     return;
   }
 
-  // ---- same thing here -----
+
   // If the user doesn't own the requested card
-  //
-  // if (exists.owner != req.user.key) {
-  //   res.status(403).send();
-  //   return;
-  // }
-  //
-  // ---------------------------
+  if (exists.owner != req.user.key) {
+    res.status(403).send('delete: exists owner != req key, 403');
+    return;
+  }
 
   // Checks validity of cardId
   const card = await db.getCard_id(setId, cardId);

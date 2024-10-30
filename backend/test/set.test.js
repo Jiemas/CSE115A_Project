@@ -310,5 +310,6 @@ test('Delete, after valid request, GET does not contain set', async () => {
 
 test('Delete, there should be no set entry in cards table', async () => {
   await request.get(`/v0/card/${key}`)
+    .set('Authorization', `Bearer ${accessToken}`)
     .expect(404);
 });

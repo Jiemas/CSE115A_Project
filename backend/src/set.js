@@ -70,36 +70,35 @@ exports.delete = async (req, res) => {
 };
 
 exports.import = async (req, res) => {
-  const set_id = req.params.setId;
-  const cards = req.body;
+  try {
+    const set_id = req.params.setId;
+    const cards = req.body;
 
-  // Split the input into lines hardcode for now
-  const lines = cards.split('\n');
-
-  const newCards = {};
-  for (const line of lines) {
-    // Split the line into term and definition
-    const [term, definition] = line.split('\t');
-
-    // Check if term and definition are not empty
-    if (term && definition) {
-      //Create Card objects and add them to the newCards object
-      const card = {
-        key: crypto.randomUUID(),
-        set_id: set_id,
-        term: term.trim(),
-        definition: definition.trim(),
-        starred: false
-      };
-      newCards[card.key] = card;
+    const setExists = await db.getSet_id(set_id);
+    if (!setExists) {
+      return res.status(400).json({ message: 'Invalid set_id', status: 400 });
     }
+
+    const lines = cards.split('\n');
+    const newCards = {};
+
+    for (const line of lines) {
+      const [term, definition] = line.split('\t');
+      if (term && definition) {
+        const card = {
+          key: crypto.randomUUID(),
+          term: term.trim(),
+          definition: definition.trim(),
+          starred: false
+        };
+        newCards[card.key] = card;
+      }
+    }
+
+    await db.addCard(newCards, set_id);
+    res.status(200).json({ message: 'Cards imported successfully', count: Object.keys(newCards).length });
+  } catch (error) {
+    console.error('Error importing cards:', error);
+    res.status(500).json({ message: 'Failed to import cards', error: error.message });
   }
-
-  console.log('New Cards:', newCards); // Debugging log
-
-  // Add new cards to the set
-  await db.addCard(newCards, set_id);
-
-  
-
 };

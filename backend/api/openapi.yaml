@@ -312,9 +312,9 @@ paths:
         description: Array of cards to be imported
         required: true
         content:
-          application/json:
+          text/plain:
             schema:
-              $ref: '#/components/schemas/cardArray'
+              type: string
       parameters:
         - name: setId
           in: path
@@ -328,7 +328,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/keyString'
+                type: object
+                properties:
+                  message:
+                    type: string
+                  count:
+                    type: integer
         default:
           description: Unexpected Error
           content:

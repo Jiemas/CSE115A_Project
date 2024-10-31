@@ -47,6 +47,13 @@ test('GET, existing set_id, expect 200', async () => {
     });
 });
 
+test('GET, expect 403, valid body, valid token, not owned set',
+  async () => {
+    await request.get(`/v0/card/${otherSetKey}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(403);
+  });
+
 test('GET, random set_id, expect 404', async () => {
   await request.get('/v0/card/random')
     .set('Authorization', `Bearer ${accessToken}`)
@@ -203,6 +210,18 @@ test('POST update, expect 409, duplicate front', async () => {
     .send({back: 'this should update', front: 'do not delete', starred: false})
     .expect(409);
 });
+
+test('POST update, expect 403, valid body, valid token, not owned set',
+  async () => {
+    await request.post(
+      `/v0/card/${otherSetKey}?cardId=2f0a1e5b-0583-448e-b819-5b71c5fc676e`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({front: 'front description',
+        back: 'back description',
+        starred: false})
+      .expect(403);
+  });
+
 
 test('POST update, expect 201, body, known set', async () => {
   await request.post(`${path}?cardId=${key}`)

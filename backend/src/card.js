@@ -45,8 +45,6 @@ exports.getAll = async (req, res) => {
   // Check that the user owns the requested set
   // to get all cards specific to the user
 
-  // console.log('exists.owner: ', exists.owner);
-  // console.log('req.user.key: ', req.user.key);
   if (exists.owner != req.user.key) {
     res.status(403).send();
     return;
@@ -60,9 +58,10 @@ exports.getAll = async (req, res) => {
 
   // If setId invalid, cards is null
   if (cards == null) {
-    res.status(404).send('no cards from set, 404');
+    res.status(404).send();
     return;
   }
+
   res.status(200).json(cards);
 };
 
@@ -81,7 +80,7 @@ exports.update = async (req, res) => {
 
   // If the user doesn't own the requested card
   if (exists.owner != req.user.key) {
-    res.status(403).send('update: exists owner != req key, 403');
+    res.status(403).send();
     return;
   }
 

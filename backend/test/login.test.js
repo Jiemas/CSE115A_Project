@@ -128,12 +128,23 @@ test('create account, expect 201', async () => {
     });
 });
 
+let accessToken;
+
 test('after create account, login, expect 200 code', async () => {
   await sleep(500).then(async () => {
     await request.post(path)
       .send({email: 'jsrubio@email.com', password: 'not bacon'})
-      .expect(200);
+      .expect(200)
+      .then(async (data) => {
+        accessToken = data.body.accessToken;
+      });
   });
+});
+
+test('after create account, account has no sets', async () => {
+  await request.get('/v0/set')
+    .set('Authorization', `Bearer ${accessToken}`)
+    .expect(404);
 });
 
 test('account database cleanup', async () => {

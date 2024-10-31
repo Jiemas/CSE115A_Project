@@ -214,7 +214,7 @@ test('PUT update, expect 404, valid body, valid token, unknown set',
       .send({card_num: 1, description: 'this should not work',
         name: 'third_test'})
       .expect(404);
-});
+  });
 
 test('PUT update, expect 403, valid body, valid token, not owned set',
   async () => {
@@ -223,7 +223,7 @@ test('PUT update, expect 403, valid body, valid token, not owned set',
       .send({card_num: 1, description: 'this should not work',
         name: 'third_test'})
       .expect(403);
-});
+  });
 
 test('PUT update, expect 201, body, known set', async () => {
   await request.put(`${path}/${setKey}`)

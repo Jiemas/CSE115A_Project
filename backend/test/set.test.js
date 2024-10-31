@@ -2,6 +2,7 @@ const supertest = require('supertest');
 const http = require('http');
 require('dotenv').config();
 const app = require('../src/app');
+const db = require('../src/db');
 
 let server;
 
@@ -213,3 +214,34 @@ test('Delete, there should be no set entry in cards table', async () => {
   await request.get(`/v0/card/${key}`)
     .expect(404);
 });
+
+test('Import with tab delimiter and newline row delimiter, expect 200', async () => {
+  const validSetId = '55c59651-36f7-49d2-b87a-66fc3736a292';
+  const response = await request.post(`/v0/import/${validSetId}`)
+    .send('EnergyME\tthe ability to do work\n')
+    .set('Content-Type', 'text/plain');
+
+  expect(response.status).toBe(200);
+  expect(response.body.message).toBe('Cards imported successfully');
+  expect(response.body.count).toBe(1);
+}, 10000); // Increase timeout to 10 seconds
+
+test('Import with missing term or definition, expect 200 but no cards added', async () => {
+  const validSetId = '55c59651-36f7-49d2-b87a-66fc3736a292';
+  const response = await request.post(`/v0/import/${validSetId}`)
+    .send('Energy3\t\nPeristalsis\t')
+    .set('Content-Type', 'text/plain');
+
+  expect(response.status).toBe(200);
+  expect(response.body.message).toBe('Cards imported successfully');
+  expect(response.body.count).toBe(0);
+}, 10000);
+
+test('Import with invalid set_id, expect 500', async () => {
+  const invalid_set_id = 'invalid-set-id999';
+  const response = await request.post(`/v0/import/${invalid_set_id}`)
+    .send('EnergyFail\tthe ability to do work\n')
+    .set('Content-Type', 'text/plain');
+
+  expect(response.status).toBe(500);
+}, 10000);

@@ -31,14 +31,25 @@ export const CreateSetPage: React.FC = () => {
   const [error, setError] = useState('');
 
   React.useEffect(() => {
-    const accessToken = sessionStorage.getItem('accessToken');
+    let accessToken = sessionStorage.getItem('accessToken');
     if (!accessToken) {
       navigate('/login');
     }
-
+    accessToken = JSON.parse(accessToken);
     if (set.name && !setDeleted) {
-      fetch(`${path}/card/${set.key}`, {method: 'get'})
+      fetch(`${path}/card/${set.key}`, {
+        method: 'get',
+        headers: new Headers({
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        }),
+      })
         .then((res) => {
+          console.log(res.status);
+          if (res.status == 403 || res.status == 401) {
+            navigate('/login');
+            throw res;
+          }
           return res.json();
         })
         .then(async (json) => {
@@ -51,6 +62,12 @@ export const CreateSetPage: React.FC = () => {
   });
 
   const handleCreateSet = async () => {
+    let accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+      navigate('/login');
+    }
+    accessToken = JSON.parse(accessToken);
+
     if (!setName || !setDescription) {
       setError('Please fill out all fields');
       return;
@@ -59,12 +76,14 @@ export const CreateSetPage: React.FC = () => {
       return;
     }
     setError('');
-    // global will have to change from being hardcoded once login integration begins
-    const new_set = {description: setDescription, name: setName, owner: 'global'};
+    const new_set = {description: setDescription, name: setName};
     const answer = await fetch(`${path}/set`, 
       {
         method: 'put',
-        headers: new Headers({'Content-Type': 'application/json'}),
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        }),
         body: JSON.stringify(new_set)
       }
     )
@@ -74,13 +93,18 @@ export const CreateSetPage: React.FC = () => {
   }
 
   const handleUpdateSet = async () => { 
+    let accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+      navigate('/login');
+    }
+    accessToken = JSON.parse(accessToken);
+
     setConfirmSetDelete(false);
     if (!setName || !setDescription) {
       setError('Please fill out all fields');
       return;
     } 
     if (!changed) {
-      // navigate('/home'); // This is just stylistic choice
       return;
     }
 
@@ -89,13 +113,16 @@ export const CreateSetPage: React.FC = () => {
     let setKey = set.key;
     const updated_set = JSON.parse(JSON.stringify(set));
     delete updated_set.key;
+    delete updated_set.owner;
     updated_set.name = setName;
     updated_set.description = setDescription;
     updated_set.card_num = terms.filter((term) => term.delete < 2 || !term.delete).length;
     await fetch(`${path}/set/${setKey}`, 
       {
         method: 'put',
-        headers: new Headers({'Content-Type': 'application/json'}),
+        headers: new Headers({
+          'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}`,
+        }),
         body: JSON.stringify(updated_set)
       }
     );
@@ -120,7 +147,9 @@ export const CreateSetPage: React.FC = () => {
             fetch(`${path}/card/${setKey}?cardId=${term.key}`, 
               {
                 method: 'post',
-                headers: new Headers({'Content-Type': 'application/json'}),
+                headers: new Headers({
+                  'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}`,
+                }),
                 body: JSON.stringify(updatedCard)
               }
             )
@@ -134,7 +163,9 @@ export const CreateSetPage: React.FC = () => {
             fetch(`${path}/card/${setKey}`, 
               {
                 method: 'put',
-                headers: new Headers({'Content-Type': 'application/json'}),
+                headers: new Headers({
+                  'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}`,
+                }),
                 body: JSON.stringify(newCard)
               }
             )
@@ -151,7 +182,12 @@ export const CreateSetPage: React.FC = () => {
           }
         } else {
           if (term.key) {
-            fetch(`${path}/card/${set.key}?cardId=${term.key}`, {method: 'delete'});
+            fetch(`${path}/card/${set.key}?cardId=${term.key}`, {
+              method: 'delete',
+              headers: new Headers({
+                'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}`,
+              }),
+            });
           }
         }
       }
@@ -178,8 +214,18 @@ export const CreateSetPage: React.FC = () => {
   };
 
   const handleDeleteSet = () => {
+    let accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+      navigate('/login');
+    }
+    accessToken = JSON.parse(accessToken);
     if (confirmSetDelete) {
-      fetch(`${path}/set/${set.key}`, {method: 'delete'});
+      fetch(`${path}/set/${set.key}`, {
+        method: 'delete',
+        headers: new Headers({
+          'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}`,
+        }),
+      });
       setSetDeleted(true);
     }
     else {

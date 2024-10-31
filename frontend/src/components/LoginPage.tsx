@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   TextField,
+
   Button, 
   Typography,
   CircularProgress,
@@ -10,9 +11,14 @@ import {
 } from '@mui/material';
 import { useAuth } from '../auth/AuthContext';
 
+// const path = 'http://localhost:3001/v0';
+const path = 'https://cse115a-project.onrender.com/v0';
+
+
 export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
   const [loading, setLoading] = useState(false); 
   const { setUser } = useAuth();
   const navigate = useNavigate();
@@ -20,6 +26,7 @@ export const LoginPage: React.FC = () => {
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
+
     /* 
     Backend Task:
     Here, add code to connect to the backend and verify user credentials.
@@ -39,6 +46,10 @@ export const LoginPage: React.FC = () => {
     }, 1000);
   };
 
+  const handleClickCreate = async () => {
+    setCreate(!create);
+  }
+
   return (
     <Stack alignItems="center">
       <Paper
@@ -51,7 +62,7 @@ export const LoginPage: React.FC = () => {
         }}
       >
         <Typography variant="h4" mb={1.5} textAlign={'center'}>
-          Log In
+          {create ? 'Create Account' : 'Log In'}
         </Typography>
         {loading && (
           <Stack
@@ -78,7 +89,7 @@ export const LoginPage: React.FC = () => {
             alignItems="left"
           >
             <TextField
-              label="Username"
+              label="Email"
               variant="outlined"
               value={username}
               onChange={e => setUsername(e.target.value)}
@@ -103,11 +114,20 @@ export const LoginPage: React.FC = () => {
                 sx={{ width: '30%' }}
                 color="primary"
               >
-                Login
+                {create ? 'Create' : 'Login'}
               </Button>
             </Stack>
           </Stack>
         </form>
+        <Button
+          type="submit"
+          disabled={loading ? true : false}
+          sx={{ width: '100%' }}
+          color="primary"
+          onClick={handleClickCreate}
+        >
+          {create ? 'Already Have Account' : 'Create Account'}
+        </Button>
       </Paper>
     </Stack>
   );

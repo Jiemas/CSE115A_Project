@@ -49,8 +49,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --no-inline-config --max-warnings 0",
-    "prepare": "husky install"
+    "lint": "eslint . --no-inline-config --max-warnings 0"
   },
   "browserslist": {
     "production": [

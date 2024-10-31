@@ -8,6 +8,7 @@ const OpenApiValidator = require('express-openapi-validator');
 
 const set = require('./set');
 const card = require('./card');
+const auth = require('./auth');
 
 // Testing
 // const llm = require('./llm');

@@ -5,8 +5,8 @@ import { Box, Card, CardContent, Typography, Grid, Button, Stack } from '@mui/ma
 
 import {SetContext} from '../App';
 
-// const path = 'http://localhost:3001/v0';
-const path = 'https://cse115a-project.onrender.com/v0';
+const path = 'http://localhost:3001/v0';
+// const path = 'https://cse115a-project.onrender.com/v0';
 
 let setArray = [
   {
@@ -36,13 +36,24 @@ export const Home: React.FC = () => {
   };
 
   React.useEffect(() => {
-    const accessToken = sessionStorage.getItem('accessToken');
+    let accessToken = sessionStorage.getItem('accessToken');
     if (!accessToken) {
       navigate('/login');
     }
+    accessToken = JSON.parse(accessToken);
 
-    fetch(`${path}/set`, {method: 'get'})
+    fetch(`${path}/set`, {
+      method: 'get',
+      headers: new Headers({
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      }),
+    })
       .then((res) => {
+        if (res.status == 403 || res.status == 401) {
+          navigate('/login');
+          throw res;
+        }
         return res.json();
       })
       .then((json) => {
@@ -105,7 +116,7 @@ export const Home: React.FC = () => {
                     <Typography variant="h5">{set.name}</Typography>
                     <Typography variant="body2">{set.description}</Typography>
                     <Typography variant="body2" color="textSecondary">
-                      Cards: {set.card_num} | Owner: {set.owner}
+                      Cards: {set.card_num}
                     </Typography>
                   </CardContent>
                 </Card>

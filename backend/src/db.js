@@ -2,9 +2,10 @@ const crypto = require('crypto');
 
 const rootPath = 'https://rapid-review-4255a-default-rtdb.firebaseio.com';
 
-exports.getAllSets = async () => {
+exports.getAllSets = async (userKey) => {
   const answer = await fetch(
-    `${rootPath}/set.json?orderBy="owner"&equalTo="global"`, {method: 'GET'});
+    `${rootPath}/set.json?orderBy="owner"&equalTo="${userKey}"`,
+    {method: 'GET'});
   const json = await answer.json();
 
   // When users create new account, they won't have any sets to their name
@@ -24,8 +25,7 @@ exports.getSet_id = async (id) => {
   const answer = await fetch(`${rootPath}/set/${id}.json`,
     {method: 'GET'});
   const duplicate = await answer.json();
-  return duplicate == null ? null :
-    Object.entries(duplicate).map((elem) => elem[1]);
+  return duplicate;
 };
 
 exports.addSet = async (newObj, setId) => {
@@ -88,6 +88,7 @@ exports.getAllCards = async (setId) => {
   const json = await answer.json();
   return !json ? json : Object.entries(json).map((elem) => elem[1]);
 };
+
 
 exports.updateCard = async (cardBody, setId, cardId) => {
   await fetch(`${rootPath}/card/${setId}/${cardId}.json`,

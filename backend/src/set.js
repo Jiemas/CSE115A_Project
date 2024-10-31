@@ -15,6 +15,7 @@ exports.add = async (req, res) => {
 
   // Sets up data for new set and adds it to db
   req.body.card_num = 1;
+  req.body.owner = req.user.key;
   req.body.key = crypto.randomUUID();
   const newObj = {};
   newObj[req.body.key] = req.body;
@@ -28,7 +29,10 @@ exports.add = async (req, res) => {
 exports.getAll = async (req, res) => {
   // When login is implemented, 'global' will have to become variable
   // Will then have to add cases where fetch returns nothing
-  const sets = await db.getAllSets();
+  const sets = await db.getAllSets(req.user.key);
+  if (!sets) {
+    res.status(404).send();
+  }
   res.status(200).json(sets);
 };
 
@@ -44,10 +48,17 @@ exports.update = async (req, res) => {
     return;
   }
 
+  // If user does not own the requested set, return 403
+  if (exists.owner !== req.user.key) {
+    res.status(403).send();
+    return;
+  }
+
   // Updates specified set with new data
   const newObj = {};
   newObj[id] = req.body;
   req.body.key = id;
+  req.body.owner = exists.owner;
   db.addSet(newObj, null);
   res.status(201).send();
 };
@@ -61,6 +72,12 @@ exports.delete = async (req, res) => {
   const exists = await db.getSet_id(id);
   if (exists == null) {
     res.status(404).send();
+    return;
+  }
+
+  // If user does not own the requested set, return 403
+  if (exists.owner !== req.user.key) {
+    res.status(403).send();
     return;
   }
 

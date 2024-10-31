@@ -9,7 +9,7 @@ exports.add = async (req, res) => {
   // Check provided set id exists
   const set = await db.getSet_id(setId);
   if (set == null) {
-    res.status(404).send();
+    res.status(404).send('add card, set 404');
     return;
   }
 
@@ -35,14 +35,33 @@ exports.getAll = async (req, res) => {
   // Gets set id from request parameter
   const setId = req.params.setId;
 
-  // Gets cards using setId
-  const cards = await db.getAllCards(setId);
-
-  // If setId invalid, cards is null
-  if (!cards) {
+  // Check that the set exists
+  const exists = await db.getSet_id(setId);
+  if (exists == null) {
     res.status(404).send();
     return;
   }
+
+  // Check that the user owns the requested set
+  // to get all cards specific to the user
+
+  if (exists.owner != req.user.key) {
+    res.status(403).send();
+    return;
+  }
+  // console.log('after check if exists.owner = req.user.key');
+
+
+  // Gets cards using setId
+  // to grab from specific set not user.key, already know user owns it
+  const cards = await db.getAllCards(setId);
+
+  // If setId invalid, cards is null
+  if (cards == null) {
+    res.status(404).send();
+    return;
+  }
+
   res.status(200).json(cards);
 };
 
@@ -52,10 +71,16 @@ exports.update = async (req, res) => {
   const setId = req.params.setId;
   const cardId = req.query.cardId;
 
-  // Simultaneously checks validity of setId and cardId
-  const card = await db.getCard_id(setId, cardId);
-  if (card == null) {
+  // Checks validity of setId
+  const exists = await db.getSet_id(setId);
+  if (exists == null) {
     res.status(404).send();
+    return;
+  }
+
+  // If the user doesn't own the requested card
+  if (exists.owner != req.user.key) {
+    res.status(403).send();
     return;
   }
 
@@ -66,10 +91,18 @@ exports.update = async (req, res) => {
     return;
   }
 
-  // Updates data of card
+  // Checks validity of cardId
+  // was supposed to be above checking duplicate
+  const card = await db.getCard_id(setId, cardId);
+  if (card == null) {
+    res.status(404).send();
+    return;
+  }
+
+  // Updates data of specified card
   req.body.key = cardId;
   db.updateCard(req.body, setId, cardId);
-  res.status(201).send();
+  res.status(201).send(req.body);
 };
 
 // Called by DELETE '/v0/card/:setId' (Delete Card)
@@ -78,7 +111,21 @@ exports.delete = async (req, res) => {
   const setId = req.params.setId;
   const cardId = req.query.cardId;
 
-  // Simultaneously checks validity of setId and cardId
+  // Checks validity of setId
+  const exists = await db.getSet_id(setId);
+  if (exists == null) {
+    res.status(404).send();
+    return;
+  }
+
+
+  // If the user doesn't own the requested card
+  if (exists.owner != req.user.key) {
+    res.status(403).send('delete: exists owner != req key, 403');
+    return;
+  }
+
+  // Checks validity of cardId
   const card = await db.getCard_id(setId, cardId);
   if (card == null) {
     res.status(404).send();

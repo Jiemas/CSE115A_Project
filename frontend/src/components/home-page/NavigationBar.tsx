@@ -16,16 +16,20 @@ import {
 import MenuIcon from '@mui/icons-material/Menu'; 
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useNavigate } from 'react-router-dom';
 
 export const NavigationBar: React.FC = () => {
+
+  const navigate = useNavigate();
 
   const pageIcons = [ 
     <FilterListIcon />,
     <AccountCircleIcon />,
   ];
-  const pageLabels = ['Search', 'Account Info'];
+  const pageLabels = ['Logout'];
 
-  const adminOptions = [true, false, false];
+  const adminOptions = [false];
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
@@ -41,9 +45,14 @@ export const NavigationBar: React.FC = () => {
       setDrawerOpen(open);
     };
 
+  const handleLogout = () => {
+    sessionStorage.removeItem('accessToken');
+    navigate('/login');
+  };
+
   const handleClick = () => {
     console.log('Button Clicked.');
-  };
+  }
 
   const listMenuOptions = () => (
     <Box
@@ -105,18 +114,13 @@ export const NavigationBar: React.FC = () => {
             justifyContent: 'center',
           }}
         >
-          {pageIcons.map((icon, index) =>
-            !adminOptions[index] ? (
-              <Button
-                key={index}
-                onClick={handleClick}
-                startIcon={icon}
-                sx={{ color: 'white', marginRight: 2 }}
-              >
-                {pageLabels[index]}
-              </Button>
-            ) : null
-          )}
+          <Button
+            onClick={handleLogout}
+            sx={{ color: 'white', marginRight: 2 }}
+          >
+            Logout 
+            <LogoutIcon />
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>

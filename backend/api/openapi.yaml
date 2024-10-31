@@ -321,6 +321,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /import/{setId}:
+    post:
+      description: Imports a set of cards into the specified set
+      requestBody:
+        description: Array of cards to be imported
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      parameters:
+        - name: setId
+          in: path
+          description: id of the set to import cards into
+          required: True
+          schema:
+            type: string
+      responses:
+        200:
+          description: Cards imported
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  count:
+                    type: integer
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:

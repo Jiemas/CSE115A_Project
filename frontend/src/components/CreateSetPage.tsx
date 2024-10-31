@@ -31,11 +31,13 @@ export const CreateSetPage: React.FC = () => {
   const [error, setError] = useState('');
 
   React.useEffect(() => {
+
     let accessToken = sessionStorage.getItem('accessToken');
     if (!accessToken) {
       navigate('/login');
     }
     accessToken = JSON.parse(accessToken);
+
     if (set.name && !setDeleted) {
       fetch(`${path}/card/${set.key}`, {
         method: 'get',

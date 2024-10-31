@@ -85,3 +85,37 @@ exports.delete = async (req, res) => {
   db.deleteSet(id);
   res.status(200).send();
 };
+
+exports.import = async (req, res) => {
+  try {
+    const set_id = req.params.setId;
+    const cards = req.body;
+
+    const setExists = await db.getSet_id(set_id);
+    if (!setExists) {
+      return res.status(400).json({ message: 'Invalid set_id', status: 400 });
+    }
+
+    const lines = cards.split('\n');
+    const newCards = {};
+
+    for (const line of lines) {
+      const [term, definition] = line.split('\t');
+      if (term && definition) {
+        const card = {
+          key: crypto.randomUUID(),
+          term: term.trim(),
+          definition: definition.trim(),
+          starred: false
+        };
+        newCards[card.key] = card;
+      }
+    }
+
+    await db.addCard(newCards, set_id);
+    res.status(200).json({ message: 'Cards imported successfully', count: Object.keys(newCards).length });
+  } catch (error) {
+    console.error('Error importing cards:', error);
+    res.status(500).json({ message: 'Failed to import cards', error: error.message });
+  }
+};

@@ -16,6 +16,7 @@ const auth = require('./auth');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.text());
 app.use(express.urlencoded({extended: false}));
 
 const apiSpec = path.join(__dirname, '../api/openapi.yaml');
@@ -35,6 +36,7 @@ app.use(
   }),
 );
 
+// Your Express routes go here
 // CRUD Operations on Sets
 app.put('/v0/set', auth.check, set.add); // Create
 app.get('/v0/set', auth.check, set.getAll); // Read
@@ -47,12 +49,14 @@ app.get('/v0/card/:setId', auth.check, card.getAll); // Read
 app.post('/v0/card/:setId', auth.check, card.update); // Update
 app.delete('/v0/card/:setId', auth.check, card.delete); // Delete
 
-// Login
 app.post('/v0/login', auth.login);
 app.put('/v0/login', auth.createAccount);
 
 // Solely for test cleanup, currently no plans to have a delete user endpoint
 app.delete('/v0/login/:id', auth.delete);
+
+// Import Cards
+app.post('/v0/import/:setId', express.text(), set.import);
 
 // Testing
 // app.get('/v0/llm', llm.llm_test);

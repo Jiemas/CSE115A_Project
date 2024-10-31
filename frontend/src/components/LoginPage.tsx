@@ -2,53 +2,48 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   TextField,
-  Button,
+
+  Button, 
   Typography,
   CircularProgress,
   Paper,
   Stack,
 } from '@mui/material';
+import { useAuth } from '../auth/AuthContext';
 
 // const path = 'http://localhost:3001/v0';
 const path = 'https://cse115a-project.onrender.com/v0';
 
+
 export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const [create, setCreate] = useState(false);
-
+  const [loading, setLoading] = useState(false); 
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
-  
-    fetch(`${path}/login`, {
-      method: create ? 'PUT' : 'POST',
-      body: JSON.stringify({email: username, password: password}),
-      headers: {'Content-Type': 'application/json'}
-    })
-      .then((res) => {
-        if (!res.ok) {
-          alert(create ? 'Unable to create account' : 'Invalid email or password');
-          setLoading(false);
-          throw res;
-        }
-        return res.json();
-      })
-      .then(async (json) => {
-        sessionStorage.setItem('accessToken', JSON.stringify(json.accessToken));
+
+    /* 
+    Backend Task:
+    Here, add code to connect to the backend and verify user credentials.
+    (additionally need to add functionality to create new users, and 'forgot password'
+    -> will require full-stack implementation)
+    */
+
+    // simple method to simulate network delay & route to homepage after log in
+    setTimeout(async () => {
+      if (username.trim() !== '') { // check if username is provided
+        await setUser({ id: '1' }); // default to 'user' if role is unselected
         setLoading(false);
-        if (create) {
-          setCreate(false);
-          setUsername('');
-          setPassword('');
-        } else {
-          navigate('/');
-        }
-      });
+        navigate('/home');
+      } else {
+        setLoading(false);
+      }
+    }, 1000);
   };
 
   const handleClickCreate = async () => {
@@ -110,12 +105,12 @@ export const LoginPage: React.FC = () => {
               onChange={e => setPassword(e.target.value)}
               disabled={loading}
               //required
-            />
+            /> 
             <Stack display="flex" justifyContent="center" alignItems="center">
               <Button
                 type="submit"
                 variant="contained"
-                disabled={loading || !username || !password ? true : false}
+                disabled={loading}
                 sx={{ width: '30%' }}
                 color="primary"
               >

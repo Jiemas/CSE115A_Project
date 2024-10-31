@@ -16,11 +16,8 @@ import {
 import MenuIcon from '@mui/icons-material/Menu'; 
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { useAuth, UserRole } from '../../auth/AuthContext';
 
 export const NavigationBar: React.FC = () => {
-  const { user } = useAuth();
-  const isAdmin = user && user.role === UserRole.Admin;
 
   const pageIcons = [ 
     <FilterListIcon />,
@@ -56,7 +53,7 @@ export const NavigationBar: React.FC = () => {
     >
       <List>
         {pageIcons.map((icon, index) =>
-          isAdmin || !adminOptions[index] ? (
+          !adminOptions[index] ? (
             <ListItem button key={index}>
               <ListItemIcon sx={{ minWidth: 'auto', marginRight: '8px' }}>
                 {icon}
@@ -109,7 +106,7 @@ export const NavigationBar: React.FC = () => {
           }}
         >
           {pageIcons.map((icon, index) =>
-            isAdmin || !adminOptions[index] ? (
+            !adminOptions[index] ? (
               <Button
                 key={index}
                 onClick={handleClick}

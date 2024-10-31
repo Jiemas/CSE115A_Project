@@ -87,8 +87,8 @@ exports.import = async (req, res) => {
       if (term && definition) {
         const card = {
           key: crypto.randomUUID(),
-          term: term.trim(),
-          definition: definition.trim(),
+          front: term.trim(),
+          back: definition.trim(),
           starred: false
         };
         newCards[card.key] = card;

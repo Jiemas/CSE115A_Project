@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Divider } from '@mui/material';
+import { Box, Button, TextField, Typography, Divider} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import ImportModal from './ImportModal';
 
 import {SetContext} from './App';
 
@@ -30,6 +31,7 @@ export const CreateSetPage: React.FC = () => {
     key: string; changed: boolean; delete: number; duplicate: boolean }[]>([]); 
   const [error, setError] = useState('');
 
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   React.useEffect(() => {
 
     let accessToken = sessionStorage.getItem('accessToken');
@@ -62,6 +64,37 @@ export const CreateSetPage: React.FC = () => {
         })
     }
   });
+
+  const handleImport = async (text: string) => {
+    let accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+      navigate('/login');
+      return;
+    }
+    accessToken = JSON.parse(accessToken);
+  
+    try {
+      const response = await fetch(`${path}/import/${set.key}`, {
+        method: 'POST',
+        headers: new Headers({
+          'Content-Type': 'text/plain',
+          'Authorization': `Bearer ${accessToken}`,
+        }),
+        body: text,
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log('Import successful:', data);
+      // Handle successful import (e.g., update the UI, show a success message)
+    } catch (error) {
+      console.error('Import failed:', error);
+      // Handle import error (e.g., show an error message to the user)
+    }
+  };
 
   const handleCreateSet = async () => {
     let accessToken = sessionStorage.getItem('accessToken');
@@ -346,6 +379,22 @@ export const CreateSetPage: React.FC = () => {
           >
             Add Another Term
           </Button>
+          <div>
+            {/* Your existing create set form */}
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ marginTop: 1 }}
+              onClick={() => setIsImportModalOpen(true)}
+            >
+              Import Cards
+            </Button>
+            <ImportModal
+              isOpen={isImportModalOpen}
+              onClose={() => setIsImportModalOpen(false)}
+              onImport={handleImport}
+            />
+          </div>
           <Button
             variant="contained"
             color={error ? 'error' : 'success'}
@@ -357,6 +406,35 @@ export const CreateSetPage: React.FC = () => {
           </Button>
         </>
       : '' }
+      {/* <Modal open={importModalOpen} onClose={() => setImportModalOpen(false)}>
+        <div className="modal-content">
+          <h2>Import Cards</h2>
+          <TextField
+            label="Paste your cards here"
+            multiline
+            rows={10}
+            variant="outlined"
+            fullWidth
+            value={plaintext}
+            onChange={e => setPlaintext(e.target.value)}
+          />
+          <div className="modal-actions">
+            <Button
+              onClick={() => setImportModalOpen(false)}
+              style={{ marginRight: '10px' }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleImportSet}
+            >
+              Import
+            </Button>
+          </div>
+        </div>
+      </Modal> */}
       {set.name ? 
         <Button
           variant="contained"

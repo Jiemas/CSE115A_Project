@@ -91,14 +91,22 @@ exports.import = async (req, res) => {
     const set_id = req.params.setId;
     const cards = req.body;
 
+    // Check if the set exists
     const setExists = await db.getSet_id(set_id);
     if (!setExists) {
       return res.status(400).json({ message: 'Invalid set_id', status: 400 });
     }
 
+    // If the user doesnt have the correct authorization
+    if (exists.owner != req.user.key) {
+      res.status(403).send();
+      return;
+    }
+
     const lines = cards.split('\n');
     const newCards = {};
 
+    // Create a card for each line
     for (const line of lines) {
       const [term, definition] = line.split('\t');
       if (term && definition) {

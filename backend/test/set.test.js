@@ -315,7 +315,7 @@ test('Delete, there should be no set entry in cards table', async () => {
 });
 
 test('Import with tab delimiter and newline row delimiter, expect 200', async () => {
-  const validSetId = '55c59651-36f7-49d2-b87a-66fc3736a292';
+  const validSetId = '6c245052-b13e-4b5b-9fc1-e2d01cce9a21';
   const response = await request.post(`/v0/import/${validSetId}`)
     .send('EnergyME\tthe ability to do work\n')
     .set('Content-Type', 'text/plain');
@@ -326,7 +326,7 @@ test('Import with tab delimiter and newline row delimiter, expect 200', async ()
 }, 10000); // Increase timeout to 10 seconds
 
 test('Import with missing term or definition, expect 200 but no cards added', async () => {
-  const validSetId = '55c59651-36f7-49d2-b87a-66fc3736a292';
+  const validSetId = '6c245052-b13e-4b5b-9fc1-e2d01cce9a21';
   const response = await request.post(`/v0/import/${validSetId}`)
     .send('Energy3\t\nPeristalsis\t')
     .set('Content-Type', 'text/plain');

@@ -205,6 +205,17 @@ export const CreateSetPage: React.FC = () => {
     setTerms((prevTerms) => [...prevTerms, { front: '', back: '', starred: false, key: '', changed: true, delete: 0, duplicate: false }]);
   };
 
+  const handleQuizMe = () => {
+    setConfirmSetDelete(false);
+    
+    if (set && set.key) {
+      // const url = `/quiz/${set.key}`;
+      // console.log(url);
+      // Redirects to the quiz page for the specific set
+      navigate(`/quiz/${set.key}`);
+    }
+  };
+
   const handleTermChange = (index: number, field: 'front' | 'back', value: string) => {
     setConfirmSetDelete(false);
     setChanged(true);
@@ -345,6 +356,15 @@ export const CreateSetPage: React.FC = () => {
             disabled={setDeleted}
           >
             Add Another Term
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleQuizMe}
+            sx={{ marginTop: 1 }}
+            disabled={setDeleted}
+          >
+            Quiz Me
           </Button>
           <Button
             variant="contained"

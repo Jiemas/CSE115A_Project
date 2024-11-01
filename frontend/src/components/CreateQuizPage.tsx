@@ -70,6 +70,7 @@ export const CreateQuizPage: React.FC = () => {
 
   const handleNextTerm = () => {
     setIsAnswerCorrect(null);
+    //Currently just cycles infinitely
     setCurrentTermIndex((prevIndex) => (prevIndex + 1) % terms.length);
   };
 

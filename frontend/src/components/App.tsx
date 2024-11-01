@@ -4,6 +4,7 @@ import { Home } from './home-page/HomePage';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { LoginPage } from './LoginPage';
 import { CreateSetPage } from './CreateSetPage';
+import { CreateQuizPage } from './CreateQuizPage';
 
 interface SetItem {
   card_num: number;
@@ -51,6 +52,7 @@ export const SetContext = React.createContext<SetContextType | undefined>(undefi
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/create-set" element={<CreateSetPage />} />
+            <Route path="/quiz/" element={<CreateQuizPage />} />
           </Routes>
         </BrowserRouter>
       </SetContext.Provider>

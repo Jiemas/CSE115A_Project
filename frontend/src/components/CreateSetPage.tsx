@@ -207,13 +207,8 @@ export const CreateSetPage: React.FC = () => {
 
   const handleQuizMe = () => {
     setConfirmSetDelete(false);
-    
-    if (set && set.key) {
-      // const url = `/quiz/${set.key}`;
-      // console.log(url);
-      // Redirects to the quiz page for the specific set
-      navigate(`/quiz/${set.key}`);
-    }
+
+    navigate(`/quiz/`);
   };
 
   const handleTermChange = (index: number, field: 'front' | 'back', value: string) => {

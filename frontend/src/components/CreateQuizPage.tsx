@@ -1,21 +1,21 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Box, Button, Typography, TextField } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { SetContext } from './App';
 
 const path = 'https://cse115a-project.onrender.com/v0';
 
-const CreateQuizPage: React.FC = () => {
+export const CreateQuizPage: React.FC = () => {
   const context = useContext(SetContext);
   if (!context) {
     throw new Error('CreateQuizPage must be used within a SetProvider');
   }
-  
+
   const { set } = context;
   const navigate = useNavigate();
   const [terms, setTerms] = useState<{ front: string; back: string; key: string }[]>([]);
-  const [currentTermIndex, setCurrentTermIndex] = useState(0); // Track current term for quizzing
-  const [answer, setAnswer] = useState('');
+  const [currentTermIndex, setCurrentTermIndex] = useState(0);
+  const [choices, setChoices] = useState<string[]>([]); // Stores multiple-choice options
   const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -26,7 +26,6 @@ const CreateQuizPage: React.FC = () => {
     }
     accessToken = JSON.parse(accessToken);
 
-    // Fetch terms for the quiz
     if (set.key) {
       fetch(`${path}/card/${set.key}`, {
         method: 'get',
@@ -49,14 +48,28 @@ const CreateQuizPage: React.FC = () => {
     }
   }, [set, navigate]);
 
-  const handleCheckAnswer = () => {
+  // Generate answer choices when the current term changes
+  useEffect(() => {
+    if (terms.length > 0) {
+      // Generate choices with the correct answer and placeholders
+      const newChoices = [
+        terms[currentTermIndex].back, // Correct answer
+        'Wrong answer',
+        'Wrong answer',
+        'Wrong answer',
+      ].sort(() => Math.random() - 0.5); // Shuffle once when the term loads
+
+      setChoices(newChoices); // Set the shuffled choices once
+    }
+  }, [currentTermIndex, terms]);
+
+  const handleCheckAnswer = (selectedAnswer: string) => {
     const correctAnswer = terms[currentTermIndex].back;
-    setIsAnswerCorrect(answer.trim().toLowerCase() === correctAnswer.trim().toLowerCase());
+    setIsAnswerCorrect(selectedAnswer === correctAnswer);
   };
 
   const handleNextTerm = () => {
     setIsAnswerCorrect(null);
-    setAnswer('');
     setCurrentTermIndex((prevIndex) => (prevIndex + 1) % terms.length);
   };
 
@@ -70,16 +83,19 @@ const CreateQuizPage: React.FC = () => {
           <Typography variant="h6">
             Term: {terms[currentTermIndex].front}
           </Typography>
-          <TextField
-            label="Your Answer"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            fullWidth
-            margin="normal"
-          />
-          <Button variant="contained" color="primary" onClick={handleCheckAnswer} sx={{ marginTop: 2 }}>
-            Check Answer
-          </Button>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, marginTop: 2, width: '100%' }}>
+            {choices.map((choice, index) => (
+              <Button
+                key={index}
+                variant="contained"
+                color="primary"
+                onClick={() => handleCheckAnswer(choice)}
+                sx={{ width: '100%' }}
+              >
+                {choice}
+              </Button>
+            ))}
+          </Box>
           {isAnswerCorrect !== null && (
             <Typography variant="body1" color={isAnswerCorrect ? 'success.main' : 'error.main'} sx={{ marginTop: 2 }}>
               {isAnswerCorrect ? 'Correct!' : `Incorrect, the answer is "${terms[currentTermIndex].back}"`}
@@ -95,5 +111,3 @@ const CreateQuizPage: React.FC = () => {
     </Box>
   );
 };
-
-export default CreateQuizPage;

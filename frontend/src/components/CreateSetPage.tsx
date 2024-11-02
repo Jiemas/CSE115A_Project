@@ -308,11 +308,11 @@ export const CreateSetPage: React.FC = () => {
         }),
       });
       setSetDeleted(true);
-    } else {
-      setConfirmSetDelete(true);
       setTimeout(() => {
         navigate('/');
       }, 1300);
+    } else {
+      setConfirmSetDelete(true);
     }
   };
 

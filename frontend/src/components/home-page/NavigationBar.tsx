@@ -51,7 +51,7 @@ export const NavigationBar: React.FC = () => {
   };
 
   const handleClick = () => {
-    console.log('Button Clicked.');
+    navigate('/');
   }
 
   const listMenuOptions = () => (

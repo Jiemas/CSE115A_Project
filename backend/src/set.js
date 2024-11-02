@@ -98,7 +98,7 @@ exports.import = async (req, res) => {
     }
 
     // If the user doesnt have the correct authorization
-    if (exists.owner != req.user.key) {
+    if (setExists.owner != req.user.key) {
       res.status(403).send();
       return;
     }
@@ -119,8 +119,8 @@ exports.import = async (req, res) => {
         newCards[card.key] = card;
       }
     }
-
     await db.addCard(newCards, set_id);
+
     res.status(200).json({ message: 'Cards imported successfully', count: Object.keys(newCards).length });
   } catch (error) {
     console.error('Error importing cards:', error);

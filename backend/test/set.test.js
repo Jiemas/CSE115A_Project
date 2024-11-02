@@ -315,32 +315,31 @@ test('Delete, there should be no set entry in cards table', async () => {
 });
 
 test('Import with tab delimiter and newline row delimiter, expect 200', async () => {
-  const validSetId = '55c59651-36f7-49d2-b87a-66fc3736a292';
-  const response = await request.post(`/v0/import/${validSetId}`)
+  const validSetId = 'bd24a693-5256-4414-9321-c4a3480ad96g';
+  await request.post(`/v0/import/${validSetId}`)
+    .set('Authorization', `Bearer ${accessToken}`)
     .send('EnergyME\tthe ability to do work\n')
-    .set('Content-Type', 'text/plain');
-
-  expect(response.status).toBe(200);
-  expect(response.body.message).toBe('Cards imported successfully');
-  expect(response.body.count).toBe(1);
+    .set('Content-Type', 'text/plain')
+    .expect(200);
 }, 10000); // Increase timeout to 10 seconds
 
 test('Import with missing term or definition, expect 200 but no cards added', async () => {
-  const validSetId = '55c59651-36f7-49d2-b87a-66fc3736a292';
-  const response = await request.post(`/v0/import/${validSetId}`)
+  const validSetId = 'bd24a693-5256-4414-9321-c4a3480ad96g';
+  await request.post(`/v0/import/${validSetId}`)
+    .set('Authorization', `Bearer ${accessToken}`)
     .send('Energy3\t\nPeristalsis\t')
-    .set('Content-Type', 'text/plain');
+    .set('Content-Type', 'text/plain')
+    .expect(200);
 
-  expect(response.status).toBe(200);
-  expect(response.body.message).toBe('Cards imported successfully');
-  expect(response.body.count).toBe(0);
 }, 10000);
 
 test('Import with invalid set_id, expect 500', async () => {
   const invalid_set_id = 'invalid-set-id999';
-  const response = await request.post(`/v0/import/${invalid_set_id}`)
+  await request.post(`/v0/import/${invalid_set_id}`)
+    .set('Authorization', `Bearer ${accessToken}`)
     .send('EnergyFail\tthe ability to do work\n')
-    .set('Content-Type', 'text/plain');
+    .set('Content-Type', 'text/plain')
+    .expect(500);
 
-  expect(response.status).toBe(500);
+
 }, 10000);

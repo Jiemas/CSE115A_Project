@@ -93,13 +93,6 @@ export const Home: React.FC = () => {
           >
             Create New Set
           </Button> 
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleImportSet}
-          >
-            Import Set
-          </Button> 
         </Stack>
         <Grid container spacing={2}>
           {arraySet.map((set) => (

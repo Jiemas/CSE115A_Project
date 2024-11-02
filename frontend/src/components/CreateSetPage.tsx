@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { NavigationBar } from './home-page/NavigationBar';
 import {SetContext} from './App';
 
-let terms_copy = [{front: '', back: '', starred: false, key: ''}];
-
 const path = 'http://localhost:3001/v0';
 // const path = 'https://cse115a-project.onrender.com/v0';
 

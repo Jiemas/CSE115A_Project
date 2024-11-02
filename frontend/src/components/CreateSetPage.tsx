@@ -27,13 +27,13 @@ export const CreateSetPage: React.FC = () => {
   const [error, setError] = useState('');
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   
-    const getToken = () => {
-      let accessToken = sessionStorage.getItem('accessToken');
-      if (!accessToken) {
-        navigate('/login');
-      }
-      return JSON.parse(accessToken);
+  const getToken = () => {
+    let accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+      navigate('/login');
     }
+    return JSON.parse(accessToken);
+  }
 
   React.useEffect(() => {
     const accessToken = getToken();
@@ -220,13 +220,12 @@ export const CreateSetPage: React.FC = () => {
                   'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}`,
                 }),
                 body: JSON.stringify(newCard)
-              }
-            })
+              })
               .then((answer) => {
                 if (!answer.ok) {
                   setError('No duplicate cards allowed');
                 }
-              });
+              })
           } else {
             fetch(`${path}/card/${setKey}`, {
               method: 'put',
@@ -331,185 +330,189 @@ export const CreateSetPage: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: 2,
-      }}
-    >
-      <Typography variant="h4" gutterBottom>
-        {set.name ? 'Edit Flashcard Set' : 'Create New Flashcard Set'}
-      </Typography>
-      {error && (
-        <Typography variant="body2" color="error" sx={{ marginBottom: 2 }}>
-          {error}
+    <>
+      <NavigationBar/ >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: 2,
+        }}
+      >
+        <Typography variant="h4" gutterBottom>
+          {set.name ? 'Edit Flashcard Set' : 'Create New Flashcard Set'}
         </Typography>
-      )}
-      <TextField
-        label="Set Name"
-        value={setName}
-        onChange={e => {
-          setSetName(e.target.value);
-          setConfirmSetDelete(false);
-          setChanged(true);
-        }}
-        fullWidth
-        margin="normal"
-        disabled={setDeleted}
-      />
-      <TextField
-        label="Description"
-        value={setDescription}
-        onChange={e => {
-          setSetDescription(e.target.value);
-          setConfirmSetDelete(false);
-          setChanged(true);
-        }}
-        fullWidth
-        margin="normal"
-        disabled={setDeleted}
-      />
-      {set.name ? (
-        ''
-      ) : (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleCreateSet}
-          sx={{ marginTop: 2 }}
+        {error && (
+          <Typography variant="body2" color="error" sx={{ marginBottom: 2 }}>
+            {error}
+          </Typography>
+        )}
+        <TextField
+          label="Set Name"
+          value={setName}
+          onChange={e => {
+            setSetName(e.target.value);
+            setConfirmSetDelete(false);
+            setChanged(true);
+          }}
+          fullWidth
+          margin="normal"
           disabled={setDeleted}
-        >
-          Create Set
-        </Button>
-      )}
-      <Divider> ... </Divider>
-      {terms.map((item, index) =>
-        !item.delete || item.delete < 2 ? (
-          <Box
-            key={index}
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              width: '100%',
-              marginBottom: 1,
-            }}
-          >
-            <TextField
-              label={`Term ${index + 1}`}
-              value={item.front}
-              error={item.duplicate}
-              color={item.duplicate ? 'warning' : 'primary'}
-              onChange={e => handleTermChange(index, 'front', e.target.value)}
-              fullWidth
-              margin="normal"
-              disabled={setDeleted}
-            />
-            <TextField
-              label={`Definition ${index + 1}`}
-              value={item.back}
-              onChange={e => handleTermChange(index, 'back', e.target.value)}
-              fullWidth
-              margin="normal"
-              disabled={setDeleted}
-            />
-            <Button
-              variant="contained"
-              color={!item.delete ? 'primary' : 'error'}
-              onClick={() => handleDeleteCard(index)}
-              sx={{ marginTop: 1 }}
-              disabled={setDeleted}
-            >
-              {!item.delete ? 'Delete' : 'Confirm Delete'}
-            </Button>
-          </Box>
-        ) : (
+        />
+        <TextField
+          label="Description"
+          value={setDescription}
+          onChange={e => {
+            setSetDescription(e.target.value);
+            setConfirmSetDelete(false);
+            setChanged(true);
+          }}
+          fullWidth
+          margin="normal"
+          disabled={setDeleted}
+        />
+        {set.name ? (
           ''
-        )
-      )}
-      {set.name ? (
-        <>
+        ) : (
           <Button
             variant="contained"
             color="primary"
-            onClick={handleAddTerm}
-            sx={{ marginTop: 1 }}
+            onClick={handleCreateSet}
+            sx={{ marginTop: 2 }}
             disabled={setDeleted}
           >
-            Add Another Term
+            Create Set
           </Button>
-          <div>
-            {/* Your existing create set form */}
+        )}
+        <Divider> ... </Divider>
+        {terms.map((item, index) =>
+          !item.delete || item.delete < 2 ? (
+            <Box
+              key={index}
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                width: '100%',
+                marginBottom: 1,
+              }}
+            >
+              <TextField
+                label={`Term ${index + 1}`}
+                value={item.front}
+                error={item.duplicate}
+                color={item.duplicate ? 'warning' : 'primary'}
+                onChange={e => handleTermChange(index, 'front', e.target.value)}
+                fullWidth
+                margin="normal"
+                disabled={setDeleted}
+              />
+              <TextField
+                label={`Definition ${index + 1}`}
+                value={item.back}
+                onChange={e => handleTermChange(index, 'back', e.target.value)}
+                fullWidth
+                margin="normal"
+                disabled={setDeleted}
+              />
+              <Button
+                variant="contained"
+                color={!item.delete ? 'primary' : 'error'}
+                onClick={() => handleDeleteCard(index)}
+                sx={{ marginTop: 1 }}
+                disabled={setDeleted}
+              >
+                {!item.delete ? 'Delete' : 'Confirm Delete'}
+              </Button>
+            </Box>
+          ) : (
+            ''
+          )
+        )}
+        {set.name ? (
+          <>
             <Button
               variant="contained"
               color="primary"
+              onClick={handleAddTerm}
               sx={{ marginTop: 1 }}
-              onClick={() => setIsImportModalOpen(true)}
+              disabled={setDeleted}
             >
-              Import Cards
+              Add Another Term
             </Button>
-            <ImportModal
-              isOpen={isImportModalOpen}
-              onClose={() => setIsImportModalOpen(false)}
-              onImport={handleImport}
+            <div>
+              {/* Your existing create set form */}
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ marginTop: 1 }}
+                onClick={() => setIsImportModalOpen(true)}
+                disabled={setDeleted}
+              >
+                Import Cards
+              </Button>
+              <ImportModal
+                isOpen={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+                onImport={handleImport}
+              />
+            </div>
+            <Button
+              variant="contained"
+              color={error ? 'error' : 'success'}
+              onClick={handleUpdateSet}
+              sx={{ marginTop: 2 }}
+              disabled={!changed || setDeleted}
+            >
+              Update Set
+            </Button>
+          </>
+        ) : (
+          ''
+        )}
+        {/* <Modal open={importModalOpen} onClose={() => setImportModalOpen(false)}>
+          <div className="modal-content">
+            <h2>Import Cards</h2>
+            <TextField
+              label="Paste your cards here"
+              multiline
+              rows={10}
+              variant="outlined"
+              fullWidth
+              value={plaintext}
+              onChange={e => setPlaintext(e.target.value)}
             />
+            <div className="modal-actions">
+              <Button
+                onClick={() => setImportModalOpen(false)}
+                style={{ marginRight: '10px' }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleImportSet}
+              >
+                Import
+              </Button>
+            </div>
           </div>
+        </Modal> */}
+        {set.name ? (
           <Button
             variant="contained"
-            color={error ? 'error' : 'success'}
-            onClick={handleUpdateSet}
+            color={confirmSetDelete ? 'error' : 'primary'}
+            onClick={handleDeleteSet}
             sx={{ marginTop: 2 }}
-            disabled={!changed || setDeleted}
+            disabled={setDeleted}
           >
-            Update Set
+            {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
           </Button>
-        </>
-      ) : (
-        ''
-      )}
-      {/* <Modal open={importModalOpen} onClose={() => setImportModalOpen(false)}>
-        <div className="modal-content">
-          <h2>Import Cards</h2>
-          <TextField
-            label="Paste your cards here"
-            multiline
-            rows={10}
-            variant="outlined"
-            fullWidth
-            value={plaintext}
-            onChange={e => setPlaintext(e.target.value)}
-          />
-          <div className="modal-actions">
-            <Button
-              onClick={() => setImportModalOpen(false)}
-              style={{ marginRight: '10px' }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleImportSet}
-            >
-              Import
-            </Button>
-          </div>
-        </div>
-      </Modal> */}
-      {set.name ? (
-        <Button
-          variant="contained"
-          color={confirmSetDelete ? 'error' : 'primary'}
-          onClick={handleDeleteSet}
-          sx={{ marginTop: 2 }}
-          disabled={setDeleted}
-        >
-          {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
-        </Button>
-      ) : (
-        ''
-      )}
-    </Box>
+        ) : (
+          ''
+        )}
+      </Box>
+    </>
   );
 };

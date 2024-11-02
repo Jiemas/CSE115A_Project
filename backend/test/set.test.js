@@ -2,7 +2,6 @@ const supertest = require('supertest');
 const http = require('http');
 require('dotenv').config();
 const app = require('../src/app');
-const db = require('../src/db');
 
 let server;
 
@@ -314,32 +313,26 @@ test('Delete, there should be no set entry in cards table', async () => {
     .expect(404);
 });
 
-test('Import with tab delimiter and newline row delimiter, expect 200', async () => {
-  const validSetId = 'bd24a693-5256-4414-9321-c4a3480ad96g';
-  await request.post(`/v0/import/${validSetId}`)
+test('Import with tab delim and newline row delim, expect 200', async () => {
+  await request.post(`/v0/import/${setKey}`)
     .set('Authorization', `Bearer ${accessToken}`)
     .send('EnergyME\tthe ability to do work\n')
     .set('Content-Type', 'text/plain')
     .expect(200);
 }, 10000); // Increase timeout to 10 seconds
 
-test('Import with missing term or definition, expect 200 but no cards added', async () => {
-  const validSetId = 'bd24a693-5256-4414-9321-c4a3480ad96g';
-  await request.post(`/v0/import/${validSetId}`)
+test('Import w/ missing term or def, expect 200, no cards added', async () => {
+  await request.post(`/v0/import/${setKey}`)
     .set('Authorization', `Bearer ${accessToken}`)
     .send('Energy3\t\nPeristalsis\t')
     .set('Content-Type', 'text/plain')
     .expect(200);
-
 }, 10000);
 
-test('Import with invalid set_id, expect 500', async () => {
-  const invalid_set_id = 'invalid-set-id999';
-  await request.post(`/v0/import/${invalid_set_id}`)
+test('Import with invalid set_id, expect 404', async () => {
+  await request.post(`/v0/import/random`)
     .set('Authorization', `Bearer ${accessToken}`)
     .send('EnergyFail\tthe ability to do work\n')
     .set('Content-Type', 'text/plain')
-    .expect(500);
-
-
+    .expect(404);
 }, 10000);

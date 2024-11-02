@@ -11,11 +11,9 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemIcon,
+  ListItemIcon
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu'; 
-import FilterListIcon from '@mui/icons-material/FilterList';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,8 +22,7 @@ export const NavigationBar: React.FC = () => {
   const navigate = useNavigate();
 
   const pageIcons = [ 
-    <FilterListIcon />,
-    <AccountCircleIcon />,
+    <LogoutIcon />,
   ];
   const pageLabels = ['Logout'];
 
@@ -63,7 +60,8 @@ export const NavigationBar: React.FC = () => {
       <List>
         {pageIcons.map((icon, index) =>
           !adminOptions[index] ? (
-            <ListItem button key={index}>
+            <ListItem button key={index} onClick={handleLogout}
+            >
               <ListItemIcon sx={{ minWidth: 'auto', marginRight: '8px' }}>
                 {icon}
               </ListItemIcon>

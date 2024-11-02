@@ -245,7 +245,6 @@ export const CreateSetPage: React.FC = () => {
       updatedTerms[index]['changed'] = true;
     }
     setTerms(updatedTerms);
-    // setTerms(updatedTerms);
   }
 
   return (

@@ -323,6 +323,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /import/{setId}:
     post:
+      security:
+        - bearerAuth: []
       description: Imports a set of cards into the specified set
       requestBody:
         description: Array of cards to be imported

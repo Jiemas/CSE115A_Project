@@ -5,8 +5,8 @@ import { Box, Card, CardContent, Typography, Grid, Button, Stack } from '@mui/ma
 
 import {SetContext} from '../App';
 
-// const path = 'http://localhost:3001/v0';
-const path = 'https://cse115a-project.onrender.com/v0';
+const path = 'http://localhost:3001/v0';
+// const path = 'https://cse115a-project.onrender.com/v0';
 
 let setArray = [
   {
@@ -24,6 +24,7 @@ export const Home: React.FC = () => {
   const navigate = useNavigate();
   const handleSetClick = (clicked_set = Object) => {
     setSet(clicked_set);
+    sessionStorage.setItem('set', JSON.stringify(clicked_set));
     navigate('/create-set');
   };
   const handleCreateSet = () => {

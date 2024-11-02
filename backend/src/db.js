@@ -18,7 +18,7 @@ exports.getSet_name = async (name) => {
   const answer = await fetch(
     `${rootPath}/set.json?orderBy="name"&equalTo="${name}"`, {method: 'GET'});
   const duplicate = await answer.json();
-  return Object.entries(duplicate).map((elem) => elem[1]);
+  return !duplicate ? null : Object.entries(duplicate).map((elem) => elem[1]);
 };
 
 exports.getSet_id = async (id) => {
@@ -43,7 +43,7 @@ exports.addSet = async (newObj, setId) => {
   const firstCardId = crypto.randomUUID();
   const cardObj = {};
   cardObj[firstCardId] =
-    {back: 'Put definition here', front: 'Put term here',
+    {back: '', front: '',
       key: firstCardId, starred: false,
     };
   const setObj = {};
@@ -63,7 +63,7 @@ exports.deleteSet = async (id) => {
 exports.getCard_front = async (front, setId) => {
   const answer = await fetch(`${rootPath}/card/${setId}.json`, {method: 'GET'});
   const json = await answer.json();
-  return Object.entries(json).map((elem) => elem[1])
+  return !json ? null : Object.entries(json).map((elem) => elem[1])
     .find((elem) => elem.front == front);
 };
 

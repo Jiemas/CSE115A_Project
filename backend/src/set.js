@@ -88,13 +88,13 @@ exports.delete = async (req, res) => {
 
 exports.import = async (req, res) => {
   try {
-    const set_id = req.params.setId;
+    const setId = req.params.setId;
     const cards = req.body;
 
     // Check if the set exists
-    const setExists = await db.getSet_id(set_id);
+    const setExists = await db.getSet_id(setId);
     if (!setExists) {
-      return res.status(400).json({ message: 'Invalid set_id', status: 400 });
+      return res.status(404).send();
     }
 
     // If the user doesnt have the correct authorization
@@ -114,16 +114,18 @@ exports.import = async (req, res) => {
           key: crypto.randomUUID(),
           front: term.trim(),
           back: definition.trim(),
-          starred: false
+          starred: false,
         };
         newCards[card.key] = card;
       }
     }
-    await db.addCard(newCards, set_id);
+    await db.addCard(newCards, setId);
 
-    res.status(200).json({ message: 'Cards imported successfully', count: Object.keys(newCards).length });
+    res.status(200).json(
+      {message: 'Cards imported successfully',
+        count: Object.keys(newCards).length});
   } catch (error) {
     console.error('Error importing cards:', error);
-    res.status(500).json({ message: 'Failed to import cards', error: error.message });
+    res.status(500).send();
   }
 };

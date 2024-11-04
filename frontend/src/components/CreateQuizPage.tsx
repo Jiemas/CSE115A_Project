@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { SetContext } from './App';
 
@@ -14,9 +14,10 @@ export const CreateQuizPage: React.FC = () => {
   const { set } = context;
   const navigate = useNavigate();
   const [terms, setTerms] = useState<{ front: string; back: string; key: string }[]>([]);
-  const [currentTermIndex, setCurrentTermIndex] = useState(0);
-  const [choices, setChoices] = useState<string[]>([]); // Stores multiple-choice options
-  const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: string]: string }>({});
+  const [choices, setChoices] = useState<{ [key: string]: string[] }>({});
+  const [isResultsOpen, setIsResultsOpen] = useState(false); // Controls the results modal
+  const [showFeedback, setShowFeedback] = useState(false); // Controls whether feedback is displayed
 
   useEffect(() => {
     let accessToken = sessionStorage.getItem('accessToken');
@@ -43,72 +44,108 @@ export const CreateQuizPage: React.FC = () => {
       })
       .then(data => {
         setTerms(data);
+        // Generate choices for each term without shuffling on re-render
+        const initialChoices = data.reduce((acc, term) => {
+          const options = [term.back, 'Wrong answer', 'Wrong answer', 'Wrong answer'];
+          acc[term.key] = options.sort(() => Math.random() - 0.5); // Shuffle only once
+          return acc;
+        }, {} as { [key: string]: string[] });
+        setChoices(initialChoices);
       })
       .catch(error => console.error('Error fetching terms:', error));
     }
   }, [set, navigate]);
 
-  // Generate answer choices when the current term changes
-  useEffect(() => {
-    if (terms.length > 0) {
-      // Generate choices with the correct answer and placeholders
-      const newChoices = [
-        terms[currentTermIndex].back, // Correct answer
-        'Wrong answer',
-        'Wrong answer',
-        'Wrong answer',
-      ].sort(() => Math.random() - 0.5); // Shuffle once when the term loads
-
-      setChoices(newChoices); // Set the shuffled choices once
-    }
-  }, [currentTermIndex, terms]);
-
-  const handleCheckAnswer = (selectedAnswer: string) => {
-    const correctAnswer = terms[currentTermIndex].back;
-    setIsAnswerCorrect(selectedAnswer === correctAnswer);
+  const handleAnswerSelect = (termKey: string, selectedAnswer: string) => {
+    setSelectedAnswers(prevAnswers => ({
+      ...prevAnswers,
+      [termKey]: selectedAnswer,
+    }));
   };
 
-  const handleNextTerm = () => {
-    setIsAnswerCorrect(null);
-    //Currently just cycles infinitely
-    setCurrentTermIndex((prevIndex) => (prevIndex + 1) % terms.length);
+  const handleDisplayResults = () => {
+    setIsResultsOpen(true); // Open the results modal
+    setShowFeedback(true); // Enable feedback display
   };
+
+  const handleCloseResults = () => {
+    setIsResultsOpen(false); // Close the modal
+  };
+
+  // Calculate the number of correct answers
+  const correctCount = terms.reduce((count, term) => {
+    const isCorrect = selectedAnswers[term.key] === term.back;
+    return isCorrect ? count + 1 : count;
+  }, 0);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2, gap: 2 }}>
       <Typography variant="h4" gutterBottom>
         Quiz on {set.name}
       </Typography>
       {terms.length > 0 ? (
-        <>
-          <Typography variant="h6">
-            Term: {terms[currentTermIndex].front}
-          </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, marginTop: 2, width: '100%' }}>
-            {choices.map((choice, index) => (
-              <Button
-                key={index}
-                variant="contained"
-                color="primary"
-                onClick={() => handleCheckAnswer(choice)}
-                sx={{ width: '100%' }}
-              >
-                {choice}
-              </Button>
-            ))}
-          </Box>
-          {isAnswerCorrect !== null && (
-            <Typography variant="body1" color={isAnswerCorrect ? 'success.main' : 'error.main'} sx={{ marginTop: 2 }}>
-              {isAnswerCorrect ? 'Correct!' : `Incorrect, the answer is "${terms[currentTermIndex].back}"`}
-            </Typography>
-          )}
-          <Button variant="contained" onClick={handleNextTerm} sx={{ marginTop: 2 }}>
-            Next Term
-          </Button>
-        </>
+        terms.map((term, index) => {
+          const isCorrect = selectedAnswers[term.key] === term.back;
+          const choicesForTerm = choices[term.key];
+
+          return (
+            <Box key={term.key} sx={{ width: '100%', marginBottom: 3 }}>
+              <Typography variant="h6">Term {index + 1}: {term.front}</Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, marginTop: 1 }}>
+                {choicesForTerm.map((choice, choiceIndex) => (
+                  <Button
+                    key={choiceIndex}
+                    variant="contained"
+                    onClick={() => handleAnswerSelect(term.key, choice)}
+                    disabled={showFeedback} // Disable selection after results are shown
+                    sx={{
+                      width: '100%',
+                      backgroundColor:
+                        showFeedback && choice === term.back ? 'green' :
+                        showFeedback && choice === selectedAnswers[term.key] && !isCorrect ? 'red' :
+                        selectedAnswers[term.key] === choice ? '#1565c0' : 'primary.main',
+                      color: selectedAnswers[term.key] === choice || (showFeedback && choice === term.back) ? '#ffffff' : 'inherit',
+                    }}
+                  >
+                    {choice}
+                  </Button>
+                ))}
+              </Box>
+              {showFeedback && !isCorrect && (
+                <Typography variant="body2" color="error" sx={{ marginTop: 1 }}>
+                  Incorrect. Correct answer: {term.back}
+                </Typography>
+              )}
+              {showFeedback && isCorrect && (
+                <Typography variant="body2" color="green" sx={{ marginTop: 1 }}>
+                  Correct!
+                </Typography>
+              )}
+            </Box>
+          );
+        })
       ) : (
         <Typography>Loading terms...</Typography>
       )}
+      <Button variant="contained" color="success" onClick={handleDisplayResults} sx={{ marginTop: 3 }}>
+        Display Results
+      </Button>
+
+      {/* Results Modal */}
+      <Dialog open={isResultsOpen} onClose={handleCloseResults}>
+        <DialogTitle>Quiz Results</DialogTitle>
+        <DialogContent>
+          <Typography variant="h6" fontWeight="bold">
+            {100 * correctCount / terms.length}%
+          </Typography>
+          <Typography variant="h6">
+            You got {correctCount} out of {terms.length} correct!
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseResults} color="primary">Close</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

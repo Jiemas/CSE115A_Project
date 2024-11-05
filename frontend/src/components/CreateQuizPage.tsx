@@ -114,7 +114,7 @@ export const CreateQuizPage: React.FC = () => {
                     key={choiceIndex}
                     variant="contained"
                     onClick={() => handleAnswerSelect(term.key, choice)}
-                    disabled={showFeedback}
+                    // disabled={showFeedback} // removed, because it's weird. Prevents colored feedback on buttons.
                     sx={{
                       width: '100%',
                       backgroundColor:

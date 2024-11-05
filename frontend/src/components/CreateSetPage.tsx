@@ -352,7 +352,8 @@ export const CreateSetPage: React.FC = () => {
           >
             Add Another Term
           </Button>
-          <Button
+          {terms.length >=4 && (
+            <Button
             variant="contained"
             color="primary"
             onClick={handleQuizMe}
@@ -361,6 +362,7 @@ export const CreateSetPage: React.FC = () => {
           >
             Quiz Me
           </Button>
+          )}
           <Button
             variant="contained"
             color={error ? 'error' : 'success'}

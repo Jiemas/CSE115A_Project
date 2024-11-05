@@ -16,8 +16,8 @@ export const CreateQuizPage: React.FC = () => {
   const [terms, setTerms] = useState<{ front: string; back: string; key: string }[]>([]);
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: string]: string }>({});
   const [choices, setChoices] = useState<{ [key: string]: string[] }>({});
-  const [isResultsOpen, setIsResultsOpen] = useState(false); // Controls the results modal
-  const [showFeedback, setShowFeedback] = useState(false); // Controls whether feedback is displayed
+  const [isResultsOpen, setIsResultsOpen] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   useEffect(() => {
     let accessToken = sessionStorage.getItem('accessToken');
@@ -44,12 +44,29 @@ export const CreateQuizPage: React.FC = () => {
       })
       .then(data => {
         setTerms(data);
-        // Generate choices for each term without shuffling on re-render
+
+        // Generate choices for each term using unique random options
         const initialChoices = data.reduce((acc, term) => {
-          const options = [term.back, 'Wrong answer', 'Wrong answer', 'Wrong answer'];
-          acc[term.key] = options.sort(() => Math.random() - 0.5); // Shuffle only once
+          // Filter out the current term's `back` value to avoid duplication
+          const otherBacks = data
+            .map(t => t.back)
+            .filter(back => back !== term.back);
+
+          // Randomly select three unique incorrect answers
+          const incorrectAnswers = [];
+          while (incorrectAnswers.length < 3) {
+            const randomBack = otherBacks[Math.floor(Math.random() * otherBacks.length)];
+            if (!incorrectAnswers.includes(randomBack)) {
+              incorrectAnswers.push(randomBack);
+            }
+          }
+
+          // Combine the correct answer with incorrect answers and shuffle them
+          const options = [term.back, ...incorrectAnswers].sort(() => Math.random() - 0.5);
+          acc[term.key] = options;
           return acc;
         }, {} as { [key: string]: string[] });
+
         setChoices(initialChoices);
       })
       .catch(error => console.error('Error fetching terms:', error));
@@ -64,12 +81,12 @@ export const CreateQuizPage: React.FC = () => {
   };
 
   const handleDisplayResults = () => {
-    setIsResultsOpen(true); // Open the results modal
-    setShowFeedback(true); // Enable feedback display
+    setIsResultsOpen(true);
+    setShowFeedback(true);
   };
 
   const handleCloseResults = () => {
-    setIsResultsOpen(false); // Close the modal
+    setIsResultsOpen(false);
   };
 
   // Calculate the number of correct answers
@@ -97,7 +114,7 @@ export const CreateQuizPage: React.FC = () => {
                     key={choiceIndex}
                     variant="contained"
                     onClick={() => handleAnswerSelect(term.key, choice)}
-                    disabled={showFeedback} // Disable selection after results are shown
+                    disabled={showFeedback}
                     sx={{
                       width: '100%',
                       backgroundColor:

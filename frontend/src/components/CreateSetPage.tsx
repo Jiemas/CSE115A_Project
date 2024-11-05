@@ -283,11 +283,13 @@ export const CreateSetPage: React.FC = () => {
     ]);
   };
 
-  const handleTermChange = (
-    index: number,
-    field: 'front' | 'back',
-    value: string
-  ) => {
+  const handleQuizMe = () => {
+    setConfirmSetDelete(false);
+
+    navigate(`/quiz/`);
+  };
+
+  const handleTermChange = (index: number, field: 'front' | 'back', value: string) => {
     setConfirmSetDelete(false);
     setChanged(true);
     const updatedTerms = [...terms];
@@ -469,6 +471,17 @@ export const CreateSetPage: React.FC = () => {
           </>
         ) : (
           ''
+        )}
+        {terms.length >=4 && (
+          <Button
+          variant="contained"
+          color="primary"
+          onClick={handleQuizMe}
+          sx={{ marginTop: 1 }}
+          disabled={setDeleted}
+        >
+          Quiz Me
+        </Button>
         )}
         {/* <Modal open={importModalOpen} onClose={() => setImportModalOpen(false)}>
           <div className="modal-content">

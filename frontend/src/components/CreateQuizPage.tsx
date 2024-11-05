@@ -2,7 +2,9 @@ import React, { useEffect, useState, useContext } from 'react';
 import { Box, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { SetContext } from './App';
+import { NavigationBar } from './home-page/NavigationBar';
 
+// const path = 'http://localhost:3001/v0';
 const path = 'https://cse115a-project.onrender.com/v0';
 
 export const CreateQuizPage: React.FC = () => {
@@ -96,6 +98,10 @@ export const CreateQuizPage: React.FC = () => {
     setIsResultsOpen(false);
   };
 
+  const handleBack = () => {
+    navigate('/create-set');
+  };
+
   // Calculate the number of correct answers
   const correctCount = terms.reduce((count, term) => {
     const isCorrect = selectedAnswers[term.key] === term.back;
@@ -103,7 +109,9 @@ export const CreateQuizPage: React.FC = () => {
   }, 0);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2, gap: 2 }}>
+    <>
+      <NavigationBar />
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2, gap: 2 }}>
       <Typography variant="h4" gutterBottom>
         Quiz on {set.name}
       </Typography>
@@ -155,13 +163,16 @@ export const CreateQuizPage: React.FC = () => {
       <Button variant="contained" color="success" onClick={handleDisplayResults} sx={{ marginTop: 3 }}>
         Display Results
       </Button>
+      <Button variant="contained" color="primary" onClick={handleBack} sx={{ marginTop: 3 }}>
+        Back to Set
+      </Button>
 
       {/* Results Modal */}
       <Dialog open={isResultsOpen} onClose={handleCloseResults}>
         <DialogTitle>Quiz Results</DialogTitle>
         <DialogContent>
           <Typography variant="h6" fontWeight="bold">
-            {100 * correctCount / terms.length}%
+            {Math.floor((100 * correctCount) / terms.length)}%
           </Typography>
           <Typography variant="h6">
             You got {correctCount} out of {terms.length} correct!
@@ -172,5 +183,6 @@ export const CreateQuizPage: React.FC = () => {
         </DialogActions>
       </Dialog>
     </Box>
+  </>
   );
 };

@@ -136,7 +136,7 @@ export const CreateQuizPage: React.FC = () => {
                         showFeedback && choice === term.back ? 'green' :
                         showFeedback && choice === selectedAnswers[term.key] && !isCorrect ? 'red' :
                         selectedAnswers[term.key] === choice ? '#1565c0' : 'primary.main',
-                      color: selectedAnswers[term.key] === choice || (showFeedback && choice === term.back) ? '#ffffff' : 'inherit',
+                      color: selectedAnswers[term.key] === choice || (showFeedback && choice === term.back) ? '#ffffff' : '#F2EBE3',
                       opacity: showFeedback ? 0.8 : 1,
                     }}
                   >

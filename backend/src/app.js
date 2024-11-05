@@ -56,7 +56,7 @@ app.put('/v0/login', auth.createAccount);
 app.delete('/v0/login/:id', auth.delete);
 
 // Import Cards
-app.post('/v0/import/:setId', express.text(), set.import);
+app.post('/v0/import/:setId', express.text(), auth.check, set.import);
 
 // Testing
 // app.get('/v0/llm', llm.llm_test);

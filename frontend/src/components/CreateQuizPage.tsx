@@ -19,6 +19,11 @@ export const CreateQuizPage: React.FC = () => {
   const [isResultsOpen, setIsResultsOpen] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
 
+  // Function to shuffle an array
+  const shuffleArray = (array: any[]) => {
+    return array.sort(() => Math.random() - 0.5);
+  };
+
   useEffect(() => {
     let accessToken = sessionStorage.getItem('accessToken');
     if (!accessToken) {
@@ -43,12 +48,14 @@ export const CreateQuizPage: React.FC = () => {
         return res.json();
       })
       .then(data => {
-        setTerms(data);
+        // Shuffle terms before setting them in state
+        const shuffledTerms = shuffleArray(data);
+        setTerms(shuffledTerms);
 
         // Generate choices for each term using unique random options
-        const initialChoices = data.reduce((acc, term) => {
+        const initialChoices = shuffledTerms.reduce((acc, term) => {
           // Filter out the current term's `back` value to avoid duplication
-          const otherBacks = data
+          const otherBacks = shuffledTerms
             .map(t => t.back)
             .filter(back => back !== term.back);
 
@@ -107,14 +114,14 @@ export const CreateQuizPage: React.FC = () => {
 
           return (
             <Box key={term.key} sx={{ width: '100%', marginBottom: 3 }}>
-              <Typography variant="h6">Term {index + 1}: {term.front}</Typography>
+              <Typography variant="h6">{index + 1}: {term.front}</Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, marginTop: 1 }}>
                 {choicesForTerm.map((choice, choiceIndex) => (
                   <Button
                     key={choiceIndex}
                     variant="contained"
                     onClick={() => handleAnswerSelect(term.key, choice)}
-                    // disabled={showFeedback} // removed, because it's weird. Prevents colored feedback on buttons.
+                    // disabled={showFeedback} // Keep button highlighted after display results
                     sx={{
                       width: '100%',
                       backgroundColor:
@@ -122,6 +129,7 @@ export const CreateQuizPage: React.FC = () => {
                         showFeedback && choice === selectedAnswers[term.key] && !isCorrect ? 'red' :
                         selectedAnswers[term.key] === choice ? '#1565c0' : 'primary.main',
                       color: selectedAnswers[term.key] === choice || (showFeedback && choice === term.back) ? '#ffffff' : 'inherit',
+                      opacity: showFeedback ? 0.8 : 1,
                     }}
                   >
                     {choice}

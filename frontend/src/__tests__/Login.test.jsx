@@ -12,6 +12,15 @@ import { ThemeProvider } from '@mui/material';
 
 const URL = 'http://localhost:3001/v0/login'; 
 
+/** Inputs value into the text field through fireEvent
+ * @param {string} label
+ * @param {string} value
+ */
+async function inputToField(label, value) {
+  // https://allmaddesigns.com/test-text-input-in-jest-with-fireevent/
+  await fireEvent.change(screen.getByLabelText(label), {
+    target: {value}});
+}
 
 const server = setupServer();
 
@@ -42,6 +51,11 @@ it('Create Account button works', async () => {
 });
 
 it('success create account', async () => {
+  server.use(
+    http.put('http://localhost:3001/v0/login', async (req) => {
+      return HttpResponse.json({ accessToken: 'fake-access-token' }, { status: 201 });
+    })
+  );
   render(
     <MemoryRouter>
       <LoginPage create={false} loading={false} />
@@ -49,18 +63,16 @@ it('success create account', async () => {
   );
   fireEvent.click(screen.getByRole('button', {name: 'Create Account'}));
   expect(screen.getByText('Create')).toBeInTheDocument(); 
-  server.use(
-    http.put('http://localhost:3001/v0/login', async (req) => {
-      return HttpResponse.json({ accessToken: 'fake-access-token' }, { status: 201 });
-    })
-  );
-  fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'test100@example.com' } });
-  fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'password1' } });
-  expect(screen.getByText('Create')).toBeInTheDocument(); 
+  inputToField('Email', 'test@email.com');
+  inputToField('Password', 'fake_password');
 
-  fireEvent.click(screen.getByRole('button', {name: 'Create'}));
+  await waitFor(() => {
+    fireEvent.click(screen.getByText('Create'));
+  });
 
-  expect(screen.getByText('Log In')).toBeInTheDocument(); 
+  await waitFor(() => {
+    expect(screen.getByText('Log In')).toBeInTheDocument(); 
+  });
 
 });
 

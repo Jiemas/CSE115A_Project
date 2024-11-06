@@ -5,8 +5,8 @@ import { NavigationBar } from './home-page/NavigationBar';
 import {SetContext} from './App';
 import ImportModal from './ImportModal';
 
-// const path = 'http://localhost:3001/v0';
-const path = 'https://cse115a-project.onrender.com/v0';
+const path = 'http://localhost:3001/v0';
+//const path = 'https://cse115a-project.onrender.com/v0';
 
 
 export const CreateSetPage: React.FC = () => {

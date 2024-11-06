@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {it, beforeAll, afterAll, afterEach} from 'vitest';
 import {render, screen, fireEvent, waitFor} from '@testing-library/react';
 import {setupServer} from 'msw/node';
@@ -6,7 +6,7 @@ import {http, HttpResponse} from 'msw';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { Home } from '../components/home-page/HomePage'; 
 import { expect } from 'vitest';
-import App, { SetContext } from '../components/App'; 
+import App, { SetContext, SetItem } from '../components/App'; 
 import { LoginPage } from '../components/LoginPage'; 
 import { ThemeProvider } from '@mui/material'; 
 
@@ -89,7 +89,7 @@ it('success create account', async () => {
 //     fireEvent.click(screen.getByRole('button', {name: 'Create Account'}));
 //     server.use(
 //       http.put(URL, async () => {
-//         return HttpResponse.json({ accessToken: 'fake-access-token' }, { status: 401 });
+//         return HttpResponse.status(401);
 //       })
 //     );
 //     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'test' } });
@@ -104,34 +104,57 @@ it('success create account', async () => {
 //     await waitFor(() => {
 //       expect(alertCalled).toBeTruthy();
 //     });
-// });
+// }); 
 
+it('navigates to Home when Login is successful', async () => {   
+  render( 
+        <MemoryRouter initialEntries={['/login']}>
+          <Routes>
+            <Route path="/" element={<div>Worked</div>} />
+            <Route path="/login" element={<LoginPage create={false} loading={false} />} />
+          </Routes>
+        </MemoryRouter>  
+  );
+  server.use(
+    http.post(URL, async () => {
+      return HttpResponse.json({ accessToken: 'fake-access-token' }, { status: 200 });
+    })
+  );
+  expect(screen.getByText('Login')).toBeInTheDocument(); 
+  inputToField('Email', 'test@email.com');
+  inputToField('Password', 'fake_password');
+  await waitFor(() => {
+    fireEvent.click(screen.getByText('Login'));
+  }); 
   
-  // it('navigates to Home when Login is successful', async () => {
-  //     render(
-  //       <ThemeProvider theme={theme}>
-  //         <SetContext.Provider value={{ set, setSet }}>
-  //           <MemoryRouter initialEntries={['/login']}>
-  //             <Routes>
-  //               <Route path="/" element={<Home />} />
-  //               <Route path="/login" element={<LoginPage create={false} loading={false} />} />
-  //             </Routes>
-  //           </MemoryRouter>
-  //         </SetContext.Provider>
-  //       </ThemeProvider>
-  //     );
-  //     server.use(
-  //       http.post(URL, async () => {
-  //         return HttpResponse.json({ accessToken: 'fake-access-token' }, { status: 200 });
-  //       })
-  //     );
-  //     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'test@example.com' } });
-  //     fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'password1' } });
-      
-      
-  //     fireEvent.click(screen.getByRole('button', {name: 'Logi'}));
-      
-  //     await waitFor(() => {
-  //       expect(screen.getByText('Rapid Review')).toBeInTheDocument(); 
-  //     });
-  //   });
+  await waitFor(() => {
+    expect(screen.getByText('Worked')).toBeInTheDocument(); 
+  });
+});
+
+// it('Failed login account attempt', async () => {
+//     let alertCalled = false;
+//     window.alert = () => {
+//       alertCalled = true; 
+//     };
+//     server.use(
+//       http.post(URL, async () => {
+//         return HttpResponse.status(401);
+//       })
+//     );
+//     render(
+//       <MemoryRouter>
+//         <LoginPage create={false} loading={false} />
+//       </MemoryRouter>
+//     ); 
+  
+//     inputToField('Email', 'test');
+//     inputToField('Password', 'fake_password');
+    
+//     await waitFor(() => {
+//       fireEvent.click(screen.getByRole('button', {name: 'Login'}));
+//     }); 
+//     await waitFor(() => {
+//       expect(alertCalled).toBeTruthy();
+//     });
+// }); 

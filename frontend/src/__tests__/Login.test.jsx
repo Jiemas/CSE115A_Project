@@ -65,7 +65,6 @@ it('success create account', async () => {
   expect(screen.getByText('Create')).toBeInTheDocument(); 
   inputToField('Email', 'test@email.com');
   inputToField('Password', 'fake_password');
-
   await waitFor(() => {
     fireEvent.click(screen.getByText('Create'));
   });

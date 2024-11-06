@@ -50,7 +50,7 @@ it('success create account', async () => {
   fireEvent.click(screen.getByRole('button', {name: 'Create Account'}));
   expect(screen.getByText('Create')).toBeInTheDocument(); 
   server.use(
-    http.put('http://localhost:3001/v0/login', async (req) => {
+    http.put('URL', async (req) => {
       return HttpResponse.json({ accessToken: 'fake-access-token' }, { status: 201 });
     })
   );

@@ -10,7 +10,8 @@ import App, { SetContext, SetItem } from '../components/App';
 import { LoginPage } from '../components/LoginPage'; 
 import { ThemeProvider } from '@mui/material'; 
 
-const URL = 'http://localhost:3001/v0/login'; 
+// const URL = 'http://localhost:3001/v0/login'; 
+const URL = 'https://cse115a-project.onrender.com/v0/login'; 
 
 /** Inputs value into the text field through fireEvent
  * @param {string} label
@@ -52,7 +53,7 @@ it('Create Account button works', async () => {
 
 it('success create account', async () => {
   server.use(
-    http.put('http://localhost:3001/v0/login', async (req) => {
+    http.put(URL, async (req) => {
       return HttpResponse.json({ accessToken: 'fake-access-token' }, { status: 201 });
     })
   );

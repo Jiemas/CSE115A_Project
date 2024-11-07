@@ -2,11 +2,8 @@ import React from 'react';
 import { NavigationBar } from './NavigationBar';
 import { useNavigate } from 'react-router-dom';
 import { Box, Card, CardContent, Typography, Grid, Button, Stack } from '@mui/material';
-
 import {SetContext} from '../App';
-
-// const path = 'http://localhost:3001/v0';
-const path = 'https://cse115a-project.onrender.com/v0';
+import {callBackend} from '../../helper';
 
 let setArray = [
   {
@@ -22,38 +19,27 @@ export const Home: React.FC = () => {
   const [arraySet, setArraySet] = React.useState(setArray);
 
   const navigate = useNavigate();
-  const handleSetClick = (clicked_set = Object) => {
-    setSet(clicked_set);
-    sessionStorage.setItem('set', JSON.stringify(clicked_set));
-    navigate('/create-set');
-  };
-  const handleCreateSet = () => {
-    setSet({name: '', description: ''});
-    navigate('/create-set');
-  };
 
-  const handleImportSet = () => {
-    console.log('Import Set button clicked'); 
+  const updateSetThenNavigate = (newSet: object) => {
+    setSet(newSet);
+    navigate('/create-set');
+  }
+
+  const handleSetClick = (clicked_set: object) => {
+    if (clicked_set.key == '.') return;
+    sessionStorage.setItem('set', JSON.stringify(clicked_set));
+    updateSetThenNavigate(clicked_set)
   };
 
   React.useEffect(() => {
-    let accessToken = sessionStorage.getItem('accessToken');
-    if (!accessToken) {
-      navigate('/login');
-    }
-    accessToken = JSON.parse(accessToken);
+    const unparsedAccessToken = sessionStorage.getItem('accessToken');
+    if (!unparsedAccessToken) navigate('/login');
+    const accessToken = JSON.parse(unparsedAccessToken);
 
-    fetch(`${path}/set`, {
-      method: 'get',
-      headers: new Headers({
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      }),
-    })
+    callBackend('get', 'set', accessToken)
       .then((res) => {
         if (res.status == 403 || res.status == 401) {
           navigate('/login');
-          throw res;
         }
         return res.json();
       })
@@ -90,7 +76,7 @@ export const Home: React.FC = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={handleCreateSet}
+            onClick={() => updateSetThenNavigate({name: '', description: ''})}
           >
             Create New Set
           </Button> 

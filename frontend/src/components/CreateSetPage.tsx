@@ -4,10 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { NavigationBar } from './home-page/NavigationBar';
 import {SetContext} from './App';
 import ImportModal from './ImportModal';
-
-// const path = 'http://localhost:3001/v0';
-const path = 'https://cse115a-project.onrender.com/v0';
-
+import {path, callBackend} from '../helper';
 
 export const CreateSetPage: React.FC = () => {
   const context = React.useContext(SetContext);
@@ -29,9 +26,7 @@ export const CreateSetPage: React.FC = () => {
   
   const getToken = () => {
     let accessToken = sessionStorage.getItem('accessToken');
-    if (!accessToken) {
-      navigate('/login');
-    }
+    if (!accessToken) navigate('/login');
     return JSON.parse(accessToken);
   }
 
@@ -39,95 +34,35 @@ export const CreateSetPage: React.FC = () => {
     const accessToken = getToken();
 
     if (set.name && !setDeleted && !changed) {
-      fetch(`${path}/card/${set.key}`, {
-        method: 'get',
-        headers: new Headers({
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        }),
-      })
+      callBackend('get', `card/${set.key}`, accessToken)
         .then((res) => {
           if (res.status == 403 || res.status == 401) {
             navigate('/login');
-            throw res;
           }
           return res.json();
         })
         .then(async (json) => {
           if (JSON.stringify(terms) != JSON.stringify(json) && !changed) {
-            await setTerms(json);
+            setTerms(json);
           }
-        })
+        });
     }
   }, [terms]);
 
   const handleImport = async (text: string) => {
     setChanged(true);
-    let accessToken = sessionStorage.getItem('accessToken');
-    if (!accessToken) {
-      navigate('/login');
-      return;
-    }
-    accessToken = JSON.parse(accessToken);
+    const accessToken = getToken();
 
-    try {
-      const response = await fetch(`${path}/import/${set.key}`, {
-        method: 'POST',
-        headers: new Headers({
-          'Content-Type': 'text/plain',
-          Authorization: `Bearer ${accessToken}`,
-        }),
-        body: text,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('Import successful:', data);
-
-      // Reload the page to show the newly imported cards
-      setSet(prevSet => ({
-        ...prevSet,
-        card_num: prevSet.card_num + data.count,
-      }));
-
-      // Fetch the newly imported cards
-      const cardsResponse = await fetch(`${path}/card/${set.key}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (!cardsResponse.ok) {
-        throw new Error(`HTTP error! status: ${cardsResponse.status}`);
-      }
-
-      const allCards = await cardsResponse.json();
-
-      // Create a set of existing card keys
-      const existingCardKeys = new Set(terms.map(term => term.key));
-
-      // Filter out only the new cards
-      const newCards = Object.values(allCards).filter(
-        card => !existingCardKeys.has(card.key)
-      );
-
-      // Add only the new cards to the terms array
-      setTerms(prevTerms => [
-        ...prevTerms,
-        ...newCards.map(card => ({
-          ...card,
-          changed: true,
-          delete: 0,
-          duplicate: false,
-        })),
-      ]);
-      
-    } catch (error) {
-      console.error('Import failed:', error);
-      // Handle import error (e.g., show an error message to the user)
+    const response = await callBackend('POST', `import/${set.key}`, accessToken, text, 'text/plain');
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    if (data && Object.keys(data.count).length) {
+      const termsCopy = terms;
+      const newTerms = termsCopy.concat(Object.entries(data.count).map((elem) => elem[1]));
+      setTerms(newTerms);
+      const setCopy = set;
+      setCopy.card_num = newTerms.length;
+      setSet(setCopy);
     }
   };
 
@@ -253,6 +188,7 @@ export const CreateSetPage: React.FC = () => {
                 Authorization: `Bearer ${accessToken}`,
               }),
             });
+            // NEED TO ADD METHOD TO REMOVE TERM FROM TERMS ARRAY THEN UPDATE TERMS
           }
         }
       }

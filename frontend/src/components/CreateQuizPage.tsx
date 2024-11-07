@@ -3,9 +3,7 @@ import { Box, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActi
 import { useNavigate } from 'react-router-dom';
 import { SetContext } from './App';
 import { NavigationBar } from './home-page/NavigationBar';
-
-// const path = 'http://localhost:3001/v0';
-const path = 'https://cse115a-project.onrender.com/v0';
+import {path} from '../helper';
 
 export const CreateQuizPage: React.FC = () => {
   const context = useContext(SetContext);

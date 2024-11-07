@@ -9,7 +9,7 @@ import ImportModal from './ImportModal';
 const path = 'https://cse115a-project.onrender.com/v0';
 
 
-export const CreateSetPage: React.FC = () => {
+const CreateSetPage: React.FC = () => {
   const context = React.useContext(SetContext);
   if (!context) {
     throw new Error('CreateSetPage must be used within a SetProvider');
@@ -529,3 +529,5 @@ export const CreateSetPage: React.FC = () => {
     </>
   );
 };
+
+export default CreateSetPage;

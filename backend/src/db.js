@@ -23,6 +23,7 @@ exports.getAllSets = async (userKey) => {
     Object.entries(sets).map((elem) => elem[1]);
 };
 
+// BUG ADDING NEW SET CHECKS ALL SETS NAME, EVEN IF USER DOESNT OWN THE SET
 exports.getSet_name = async (name) => {
   const path = `set.json?orderBy="name"&equalTo="${name}"`;
   const set = await callDatabase('get', path);

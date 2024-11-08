@@ -10,8 +10,10 @@ import App, { SetContext, SetItem } from '../components/App';
 import { LoginPage } from '../components/LoginPage'; 
 import { ThemeProvider } from '@mui/material';  
 
+import {path} from '../helper';
+
 // const URL = 'http://localhost:3001/v0/login'; 
-const URL = 'https://cse115a-project.onrender.com/v0/login'; 
+const URL = `${path}/login`; 
 
 /** Inputs value into the text field through fireEvent
  * @param {string} label

@@ -9,15 +9,12 @@ import {
   Stack,
 } from '@mui/material';
 
-// const path = 'http://localhost:3001/v0';
-const path = 'https://cse115a-project.onrender.com/v0';
-
+import {callBackend} from '../helper';
 
 export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
   const [create, setCreate] = useState(false);
 
   const navigate = useNavigate();
@@ -26,11 +23,8 @@ export const LoginPage: React.FC = () => {
     event.preventDefault();
     setLoading(true);
   
-    fetch(`${path}/login`, {
-      method: create ? 'PUT' : 'POST',
-      body: JSON.stringify({email: username, password: password}),
-      headers: {'Content-Type': 'application/json'}
-    })
+    const requestBody = {email: username, password: password};
+    callBackend(create ? 'PUT' : 'POST', 'login', '', requestBody)
       .then((res) => {
         if (!res.ok) {
           alert(create ? 'Unable to create account' : 'Invalid email or password');

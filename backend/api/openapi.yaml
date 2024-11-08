@@ -351,7 +351,7 @@ paths:
                   message:
                     type: string
                   count:
-                    type: integer
+                    type: object
         default:
           description: Unexpected Error
           content:

@@ -11,7 +11,7 @@ const card = require('./card');
 const auth = require('./auth');
 
 // Testing
-// const llm = require('./llm');
+const llm = require('./llm');
 
 const app = express();
 app.use(cors());
@@ -59,7 +59,7 @@ app.delete('/v0/login/:id', auth.delete);
 app.post('/v0/import/:setId', express.text(), auth.check, set.import);
 
 // Testing
-// app.get('/v0/llm', llm.llm_test);
+app.get('/v0/llm', llm.llm_test);
 
 app.use((err, req, res, next) => {
   res.status(err.status).json({

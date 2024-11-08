@@ -35,13 +35,21 @@ const setSet = (elem) => {
   set = elem;
 };
 
-// sessionStorage.setItem('accessToken', JSON.stringify({
-//   user: 'something', accessToken: 'blah'
-// }));
-
+/**
+ * @return {object}
+ */
+function renderHome() {
+  return <MemoryRouter> 
+  <SetContext.Provider value={{set, setSet}}>
+    <Routes>
+      <Route path="/" element={<Home />} />
+    </Routes>
+  </SetContext.Provider> 
+</MemoryRouter>;
+};
 
 it('renders homepage', async () => {
-  window.sessionStorage.setItem('accessToken', 'random');
+  window.sessionStorage.setItem('accessToken', JSON.stringify('random'));
 
   server.use(
     http.post(URL, async () => {
@@ -49,55 +57,33 @@ it('renders homepage', async () => {
           [], {status: 200});
     }),
   );
+  render(renderHome());
+  await waitFor(() => {
+    expect(screen.getByText('My Flashcards')).toBeInTheDocument();
+  });
+}); 
+
+it('create set button works', async () => {    
   render(
     <MemoryRouter> 
       <SetContext.Provider value={{set, setSet}}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/create-set" element={<div>Worked</div>} />
         </Routes>
       </SetContext.Provider> 
-    </MemoryRouter>
-  );
+</MemoryRouter>); 
+
   await waitFor(() => {
     expect(screen.getByText('My Flashcards')).toBeInTheDocument();
   });
+
+  await waitFor(() => {
+    fireEvent.click(screen.getByText('Create New Set'));
+  }); 
+
+  await waitFor(() => {
+    expect(screen.getByText('Worked')).toBeInTheDocument();
+  });
 });
-
-// it('renders homepage', async () => {    
-//   render(
-//     <BrowserRouter>
-//       <SetContext.Provider value={set, setSet}>
-//           <Home />
-//       </SetContext.Provider>
-//   </BrowserRouter>
-//   );
-
-//   await waitFor(() => {
-//     expect(screen.getByText('My Flashcards')).toBeInTheDocument();
-//   });
-// });
-
-// it('create set button works', async () => {    
-//   render(
-//     <BrowserRouter>
-//       <SetContext.Provider value={set, setSet}>
-//         <Route path="/" element={<div>Worked</div>} />
-//         <Route path="/create-set" element={<div>Worked</div>} />
-//         <Home />
-//       </SetContext.Provider>
-//   </BrowserRouter>
-//   );
-
-//   await waitFor(() => {
-//     expect(screen.getByText('My Flashcards')).toBeInTheDocument();
-//   });
-
-//   await waitFor(() => {
-//     fireEvent.click(screen.getByText('Create New Set'));
-//   }); 
-
-//   await waitFor(() => {
-//     expect(screen.getByText('Worked')).toBeInTheDocument();
-//   });
-// });
 

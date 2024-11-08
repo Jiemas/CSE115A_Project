@@ -6,7 +6,7 @@ import {SetContext} from './App';
 import ImportModal from './ImportModal';
 import {callBackend, waitTime} from '../helper';
 
-const CreateSetPage: React.FC = () => {
+export const CreateSetPage: React.FC = () => {
   const context = React.useContext(SetContext);
   if (!context) {
     throw new Error('CreateSetPage must be used within a SetProvider');
@@ -400,5 +400,3 @@ const CreateSetPage: React.FC = () => {
     </>
   );
 };
-
-export default CreateSetPage;

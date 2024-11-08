@@ -123,7 +123,7 @@ exports.import = async (req, res) => {
 
     res.status(200).json(
       {message: 'Cards imported successfully',
-        count: Object.keys(newCards).length});
+        count: newCards});
   } catch (error) {
     console.error('Error importing cards:', error);
     res.status(500).send();

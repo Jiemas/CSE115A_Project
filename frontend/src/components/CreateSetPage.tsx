@@ -4,10 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { NavigationBar } from './home-page/NavigationBar';
 import {SetContext} from './App';
 import ImportModal from './ImportModal';
-
-// const path = 'http://localhost:3001/v0';
-const path = 'https://cse115a-project.onrender.com/v0';
-
+import {callBackend, waitTime} from '../helper';
 
 export const CreateSetPage: React.FC = () => {
   const context = React.useContext(SetContext);
@@ -29,9 +26,7 @@ export const CreateSetPage: React.FC = () => {
   
   const getToken = () => {
     let accessToken = sessionStorage.getItem('accessToken');
-    if (!accessToken) {
-      navigate('/login');
-    }
+    if (!accessToken) navigate('/login');
     return JSON.parse(accessToken);
   }
 
@@ -39,95 +34,37 @@ export const CreateSetPage: React.FC = () => {
     const accessToken = getToken();
 
     if (set.name && !setDeleted && !changed) {
-      fetch(`${path}/card/${set.key}`, {
-        method: 'get',
-        headers: new Headers({
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        }),
-      })
+      callBackend('get', `card/${set.key}`, accessToken)
         .then((res) => {
           if (res.status == 403 || res.status == 401) {
             navigate('/login');
-            throw res;
           }
           return res.json();
         })
         .then(async (json) => {
           if (JSON.stringify(terms) != JSON.stringify(json) && !changed) {
-            await setTerms(json);
+            setTerms(json);
           }
-        })
+        });
     }
   }, [terms]);
 
   const handleImport = async (text: string) => {
     setChanged(true);
-    let accessToken = sessionStorage.getItem('accessToken');
-    if (!accessToken) {
-      navigate('/login');
-      return;
-    }
-    accessToken = JSON.parse(accessToken);
+    const accessToken = getToken();
 
-    try {
-      const response = await fetch(`${path}/import/${set.key}`, {
-        method: 'POST',
-        headers: new Headers({
-          'Content-Type': 'text/plain',
-          Authorization: `Bearer ${accessToken}`,
-        }),
-        body: text,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('Import successful:', data);
-
-      // Reload the page to show the newly imported cards
-      setSet(prevSet => ({
-        ...prevSet,
-        card_num: prevSet.card_num + data.count,
-      }));
-
-      // Fetch the newly imported cards
-      const cardsResponse = await fetch(`${path}/card/${set.key}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (!cardsResponse.ok) {
-        throw new Error(`HTTP error! status: ${cardsResponse.status}`);
-      }
-
-      const allCards = await cardsResponse.json();
-
-      // Create a set of existing card keys
-      const existingCardKeys = new Set(terms.map(term => term.key));
-
-      // Filter out only the new cards
-      const newCards = Object.values(allCards).filter(
-        card => !existingCardKeys.has(card.key)
-      );
-
-      // Add only the new cards to the terms array
-      setTerms(prevTerms => [
-        ...prevTerms,
-        ...newCards.map(card => ({
-          ...card,
-          changed: true,
-          delete: 0,
-          duplicate: false,
-        })),
-      ]);
-      
-    } catch (error) {
-      console.error('Import failed:', error);
-      // Handle import error (e.g., show an error message to the user)
+    const response = await callBackend(
+      'POST', `import/${set.key}`, accessToken, text, 'text/plain');
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    if (data && Object.keys(data.count).length) {
+      const termsCopy = terms;
+      const newTerms = termsCopy.concat(
+        Object.entries(data.count).map((elem) => elem[1]));
+      setTerms(newTerms);
+      const setCopy = set;
+      setCopy.card_num = newTerms.length;
+      setSet(setCopy);
     }
   };
 
@@ -141,44 +78,22 @@ export const CreateSetPage: React.FC = () => {
     if (!changed) return;
     setError('');
     const new_set = { description: setDescription, name: setName };
-    const answer = await fetch(`${path}/set`, {
-      method: 'put',
-      headers: new Headers({
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      }),
-      body: JSON.stringify(new_set),
-    });
+    const answer = await callBackend('put', 'set', accessToken, new_set);
     const setKey = await answer.json();
     new_set.key = setKey;
     setSetDeleted(true);
     setTimeout(async () => {
       setSet(new_set);
-      await fetch(`${path}/card/${new_set.key}`, {
-        method: 'get',
-        headers: new Headers({
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        }),
-      })
+      await callBackend('get', `card/${new_set.key}`, accessToken)
         .then((res) => res.json())
         .then(async (json) => {
           setTerms(json);
         })
       setSetDeleted(false);
-    }, 1300);
+    }, waitTime);
   }
 
-  const handleUpdateSet = async () => { 
-    const accessToken = getToken();
-    setConfirmSetDelete(false);
-    if (!setName || !setDescription) {
-      setError('Please fill out all fields');
-      return;
-    } 
-    if (!changed) return;
-    setError('');
-    let setKey = set.key;
+  const updateSet = async (accessToken: string) => {
     const updated_set = JSON.parse(JSON.stringify(set));
     delete updated_set.key;
     delete updated_set.owner;
@@ -187,72 +102,66 @@ export const CreateSetPage: React.FC = () => {
     updated_set.card_num = terms.filter(
       term => term.delete < 2 || !term.delete
     ).length;
-    await fetch(`${path}/set/${setKey}`, {
-      method: 'put',
-      headers: new Headers({
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      }),
-      body: JSON.stringify(updated_set),
-    });
+    await callBackend('put', `set/${set.key}`, accessToken, updated_set);
+  }
 
-    let err409 = false;
+  const checkForDuplicates = () => {
+    let duplicateFound = false;
     const term_fronts: { [key: string]: number } = {};
     terms.map(term => {
       if (term_fronts[term.front] && term.delete < 2) {
         term.duplicate = true;
         setError('No duplicate cards allowed');
-        err409 = true;
+        duplicateFound = true;
       } else {
         term_fronts[term.front] = 1;
+        term.duplicate = false;
       }
     });
+    return duplicateFound;
+  }
+
+  const handleUpdateSet = async () => { 
+    const accessToken = getToken();
+    setConfirmSetDelete(false);
+
+    // Check name and description of set are not empty
+    if (!setName || !setDescription) {
+      setError('Please fill out all fields');
+      return;
+    } 
+    if (!changed) return;
+
+    setError('');
+    await updateSet(accessToken);
+    const err409 = checkForDuplicates();
 
     terms.map(term => {
       if (term.changed) {
         if (term.delete < 2) {
           const newCard = {front: term.front, back: term.back, starred: term.starred};
           if (term.key) {
-            fetch(`${path}/card/${setKey}?cardId=${term.key}`, 
-              {
-                method: 'post',
-                headers: new Headers({
-                  'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}`,
-                }),
-                body: JSON.stringify(newCard)
-              })
+            callBackend('post', `card/${set.key}?cardId=${term.key}`, accessToken, newCard)
               .then((answer) => {
                 if (!answer.ok) {
                   setError('No duplicate cards allowed');
                 }
               })
           } else {
-            fetch(`${path}/card/${setKey}`, {
-              method: 'put',
-              headers: new Headers({
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-              }),
-              body: JSON.stringify(newCard),
-            }).then(answer => {
+            callBackend('put', `card/${set.key}`, accessToken, newCard)
+              .then(answer => {
               if (!answer.ok) {
                 setError('No duplicate cards allowed');
               } else {
-                answer.json().then(res => {
-                  term.key = res;
-                });
+                answer.json().then(res => term.key = res);
               }
             });
           }
         } else {
           if (term.key) {
-            fetch(`${path}/card/${set.key}?cardId=${term.key}`, {
-              method: 'delete',
-              headers: new Headers({
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-              }),
-            });
+            callBackend('delete', `card/${set.key}?cardId=${term.key}`, accessToken);
+            // NEED TO ADD METHOD TO REMOVE TERM FROM TERMS ARRAY THEN UPDATE TERMS
+            // OR MAYBE NOT?? KINDA LAZY
           }
         }
       }
@@ -262,7 +171,7 @@ export const CreateSetPage: React.FC = () => {
       setTimeout(() => {
         setChanged(false);
         setSetDeleted(false);
-      }, 1300);
+      }, waitTime);
     }
   };
 
@@ -285,7 +194,6 @@ export const CreateSetPage: React.FC = () => {
 
   const handleQuizMe = () => {
     setConfirmSetDelete(false);
-
     navigate(`/quiz/`);
   };
 
@@ -300,19 +208,11 @@ export const CreateSetPage: React.FC = () => {
   };
 
   const handleDeleteSet = () => {
-    const accessToken = getToken();
     if (confirmSetDelete) {
-      fetch(`${path}/set/${set.key}`, {
-        method: 'delete',
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        }),
-      });
+      const accessToken = getToken();
+      callBackend('delete', `set/${set.key}`, accessToken);
       setSetDeleted(true);
-      setTimeout(() => {
-        navigate('/');
-      }, 1300);
+      setTimeout(() => navigate('/'), waitTime);
     } else {
       setConfirmSetDelete(true);
     }
@@ -483,35 +383,6 @@ export const CreateSetPage: React.FC = () => {
           Quiz Me
         </Button>
         )}
-        {/* <Modal open={importModalOpen} onClose={() => setImportModalOpen(false)}>
-          <div className="modal-content">
-            <h2>Import Cards</h2>
-            <TextField
-              label="Paste your cards here"
-              multiline
-              rows={10}
-              variant="outlined"
-              fullWidth
-              value={plaintext}
-              onChange={e => setPlaintext(e.target.value)}
-            />
-            <div className="modal-actions">
-              <Button
-                onClick={() => setImportModalOpen(false)}
-                style={{ marginRight: '10px' }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleImportSet}
-              >
-                Import
-              </Button>
-            </div>
-          </div>
-        </Modal> */}
         {set.name ? (
           <Button
             variant="contained"

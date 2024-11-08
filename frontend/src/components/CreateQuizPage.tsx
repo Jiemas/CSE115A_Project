@@ -3,9 +3,7 @@ import { Box, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActi
 import { useNavigate } from 'react-router-dom';
 import { SetContext } from './App';
 import { NavigationBar } from './home-page/NavigationBar';
-
-// const path = 'http://localhost:3001/v0';
-const path = 'https://cse115a-project.onrender.com/v0';
+import {callBackend} from '../helper';
 
 export const CreateQuizPage: React.FC = () => {
   const context = useContext(SetContext);
@@ -35,50 +33,44 @@ export const CreateQuizPage: React.FC = () => {
     accessToken = JSON.parse(accessToken);
 
     if (set.key) {
-      fetch(`${path}/card/${set.key}`, {
-        method: 'get',
-        headers: new Headers({
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        }),
-      })
-      .then(res => {
-        if (res.status === 403 || res.status === 401) {
-          navigate('/login');
-          throw new Error('Unauthorized');
-        }
-        return res.json();
-      })
-      .then(data => {
-        // Shuffle terms before setting them in state
-        const shuffledTerms = shuffleArray(data);
-        setTerms(shuffledTerms);
-
-        // Generate choices for each term using unique random options
-        const initialChoices = shuffledTerms.reduce((acc, term) => {
-          // Filter out the current term's `back` value to avoid duplication
-          const otherBacks = shuffledTerms
-            .map(t => t.back)
-            .filter(back => back !== term.back);
-
-          // Randomly select three unique incorrect answers
-          const incorrectAnswers = [];
-          while (incorrectAnswers.length < 3) {
-            const randomBack = otherBacks[Math.floor(Math.random() * otherBacks.length)];
-            if (!incorrectAnswers.includes(randomBack)) {
-              incorrectAnswers.push(randomBack);
-            }
+      callBackend('get', `card/${set.key}`, accessToken)
+        .then(res => {
+          if (res.status === 403 || res.status === 401) {
+            navigate('/login');
+            throw new Error('Unauthorized');
           }
+          return res.json();
+        })
+        .then(data => {
+          // Shuffle terms before setting them in state
+          const shuffledTerms = shuffleArray(data);
+          setTerms(shuffledTerms);
 
-          // Combine the correct answer with incorrect answers and shuffle them
-          const options = [term.back, ...incorrectAnswers].sort(() => Math.random() - 0.5);
-          acc[term.key] = options;
-          return acc;
-        }, {} as { [key: string]: string[] });
+          // Generate choices for each term using unique random options
+          const initialChoices = shuffledTerms.reduce((acc, term) => {
+            // Filter out the current term's `back` value to avoid duplication
+            const otherBacks = shuffledTerms
+              .map(t => t.back)
+              .filter(back => back !== term.back);
 
-        setChoices(initialChoices);
-      })
-      .catch(error => console.error('Error fetching terms:', error));
+            // Randomly select three unique incorrect answers
+            const incorrectAnswers = [];
+            while (incorrectAnswers.length < 3) {
+              const randomBack = otherBacks[Math.floor(Math.random() * otherBacks.length)];
+              if (!incorrectAnswers.includes(randomBack)) {
+                incorrectAnswers.push(randomBack);
+              }
+            }
+
+            // Combine the correct answer with incorrect answers and shuffle them
+            const options = [term.back, ...incorrectAnswers].sort(() => Math.random() - 0.5);
+            acc[term.key] = options;
+            return acc;
+          }, {} as { [key: string]: string[] });
+
+          setChoices(initialChoices);
+        })
+        .catch(error => console.error('Error fetching terms:', error));
     }
   }, [set, navigate]);
 

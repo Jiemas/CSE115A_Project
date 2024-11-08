@@ -97,3 +97,7 @@ When you try to make a Git commit, the following happens in the background:
 - [commitlint](https://github.com/conventional-changelog/commitlint) checks if
   your commit message meets the
   [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format.
+
+  ## Run unit tests
+
+pnpm run test

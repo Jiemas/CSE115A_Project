@@ -8,7 +8,7 @@ import { Home } from '../components/home-page/HomePage';
 import { expect } from 'vitest';
 import App, { SetContext, SetItem } from '../components/App'; 
 import { LoginPage } from '../components/LoginPage'; 
-import { ThemeProvider } from '@mui/material'; 
+import { ThemeProvider } from '@mui/material';  
 
 import {path} from '../helper';
 
@@ -31,7 +31,8 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());  
 
-it('renders the LoginPage by default', () => {
+it('renders the LoginPage by default', () => { 
+
   render(
     <MemoryRouter>
       <LoginPage create={false} loading={false} />

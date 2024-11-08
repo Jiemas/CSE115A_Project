@@ -130,7 +130,7 @@ export const CreateQuizPage: React.FC = () => {
           gap: 2,
         }}
       >
-        <Typography variant="h4" gutterBottom>
+        <Typography variant='h4' gutterBottom>
           Quiz on {set.name}
         </Typography>
         {terms.length > 0 ? (
@@ -140,7 +140,7 @@ export const CreateQuizPage: React.FC = () => {
 
             return (
               <Box key={term.key} sx={{ width: '100%', marginBottom: 3 }}>
-                <Typography variant="h6">
+                <Typography variant='h6'>
                   {index + 1}: {term.front}
                 </Typography>
                 <Box
@@ -154,7 +154,7 @@ export const CreateQuizPage: React.FC = () => {
                   {choicesForTerm.map((choice, choiceIndex) => (
                     <Button
                       key={choiceIndex}
-                      variant="contained"
+                      variant='contained'
                       onClick={() => handleAnswerSelect(term.key, choice)}
                       // disabled={showFeedback} // Keep button highlighted after display results
                       sx={{
@@ -183,8 +183,8 @@ export const CreateQuizPage: React.FC = () => {
                 </Box>
                 {showFeedback && !isCorrect && (
                   <Typography
-                    variant="body2"
-                    color="error"
+                    variant='body2'
+                    color='error'
                     sx={{ marginTop: 1 }}
                   >
                     Incorrect. Correct answer: {term.back}
@@ -192,8 +192,8 @@ export const CreateQuizPage: React.FC = () => {
                 )}
                 {showFeedback && isCorrect && (
                   <Typography
-                    variant="body2"
-                    color="green"
+                    variant='body2'
+                    color='green'
                     sx={{ marginTop: 1 }}
                   >
                     Correct!
@@ -206,16 +206,16 @@ export const CreateQuizPage: React.FC = () => {
           <Typography>Loading terms...</Typography>
         )}
         <Button
-          variant="contained"
-          color="success"
+          variant='contained'
+          color='success'
           onClick={handleDisplayResults}
           sx={{ marginTop: 3 }}
         >
           Display Results
         </Button>
         <Button
-          variant="contained"
-          color="primary"
+          variant='contained'
+          color='primary'
           onClick={handleBack}
           sx={{ marginTop: 3 }}
         >
@@ -226,15 +226,15 @@ export const CreateQuizPage: React.FC = () => {
         <Dialog open={isResultsOpen} onClose={handleCloseResults}>
           <DialogTitle>Quiz Results</DialogTitle>
           <DialogContent>
-            <Typography variant="h6" fontWeight="bold">
+            <Typography variant='h6' fontWeight='bold'>
               {Math.floor((100 * correctCount) / terms.length)}%
             </Typography>
-            <Typography variant="h6">
+            <Typography variant='h6'>
               You got {correctCount} out of {terms.length} correct!
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseResults} color="primary">
+            <Button onClick={handleCloseResults} color='primary'>
               Close
             </Button>
           </DialogActions>

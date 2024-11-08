@@ -82,13 +82,13 @@ export const Home: React.FC = () => {
           padding: 2,
         }}
       >
-        <Typography variant="h4" gutterBottom>
+        <Typography variant='h4' gutterBottom>
           My Flashcards
         </Typography>
-        <Stack direction="row" spacing={2} sx={{ marginBottom: 4 }}>
+        <Stack direction='row' spacing={2} sx={{ marginBottom: 4 }}>
           <Button
-            variant="contained"
-            color="primary"
+            variant='contained'
+            color='primary'
             onClick={() => updateSetThenNavigate({ name: '', description: '' })}
           >
             Create New Set
@@ -106,9 +106,9 @@ export const Home: React.FC = () => {
               >
                 <Card sx={{ minHeight: 150, width: '100%' }}>
                   <CardContent>
-                    <Typography variant="h5">{set.name}</Typography>
-                    <Typography variant="body2">{set.description}</Typography>
-                    <Typography variant="body2" color="textSecondary">
+                    <Typography variant='h5'>{set.name}</Typography>
+                    <Typography variant='body2'>{set.description}</Typography>
+                    <Typography variant='body2' color='textSecondary'>
                       Cards: {set.card_num}
                     </Typography>
                   </CardContent>

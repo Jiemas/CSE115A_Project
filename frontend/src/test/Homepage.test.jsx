@@ -44,7 +44,7 @@ function renderHome() {
     <MemoryRouter>
       <SetContext.Provider value={{ set, setSet }}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path='/' element={<Home />} />
         </Routes>
       </SetContext.Provider>
     </MemoryRouter>
@@ -70,8 +70,8 @@ it('create set button works', async () => {
     <MemoryRouter>
       <SetContext.Provider value={{ set, setSet }}>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/create-set" element={<div>Worked</div>} />
+          <Route path='/' element={<Home />} />
+          <Route path='/create-set' element={<div>Worked</div>} />
         </Routes>
       </SetContext.Provider>
     </MemoryRouter>

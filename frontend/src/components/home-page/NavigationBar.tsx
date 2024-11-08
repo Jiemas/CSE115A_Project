@@ -70,7 +70,7 @@ export const NavigationBar: React.FC = () => {
   );
 
   return (
-    <AppBar position="static">
+    <AppBar position='static'>
       <Toolbar
         sx={{
           display: 'flex',
@@ -87,18 +87,18 @@ export const NavigationBar: React.FC = () => {
             borderRadius: '4px',
           }}
         >
-          <Typography variant="h5">Rapid Review</Typography>
+          <Typography variant='h5'>Rapid Review</Typography>
         </ButtonBase>
         <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
           <IconButton
-            size="small"
+            size='small'
             onClick={toggleDrawer(true)}
-            color="inherit"
+            color='inherit'
             sx={{ mr: 2 }}
           >
             <MenuIcon />
           </IconButton>
-          <Drawer anchor="top" open={drawerOpen} onClose={toggleDrawer(false)}>
+          <Drawer anchor='top' open={drawerOpen} onClose={toggleDrawer(false)}>
             {listMenuOptions()}
           </Drawer>
         </Box>

@@ -48,10 +48,10 @@ const App: React.FC = ({}) => {
       <SetContext.Provider value={{ set, setSet }}>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/create-set" element={<CreateSetPage />} />
-            <Route path="/quiz/" element={<CreateQuizPage />} />
+            <Route path='/' element={<Home />} />
+            <Route path='/login' element={<LoginPage />} />
+            <Route path='/create-set' element={<CreateSetPage />} />
+            <Route path='/quiz/' element={<CreateQuizPage />} />
           </Routes>
         </BrowserRouter>
       </SetContext.Provider>

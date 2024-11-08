@@ -114,9 +114,9 @@ it('navigates to Home when Login is successful', async () => {
   render(
     <MemoryRouter initialEntries={['/login']}>
       <Routes>
-        <Route path="/" element={<div>Worked</div>} />
+        <Route path='/' element={<div>Worked</div>} />
         <Route
-          path="/login"
+          path='/login'
           element={<LoginPage create={false} loading={false} />}
         />
       </Routes>

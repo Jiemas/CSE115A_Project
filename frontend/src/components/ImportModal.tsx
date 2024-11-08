@@ -38,7 +38,7 @@ const ImportModal: React.FC<ImportModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose}>
       <h2>Import Cards</h2>
       <textarea
-        placeholder="Paste your cards here (one card per line, term and definition separated by tab)"
+        placeholder='Paste your cards here (one card per line, term and definition separated by tab)'
         value={importText}
         onChange={e => setImportText(e.target.value)}
         rows={10}

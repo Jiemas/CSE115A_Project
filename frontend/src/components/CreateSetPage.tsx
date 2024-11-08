@@ -282,16 +282,16 @@ export const CreateSetPage: React.FC = () => {
           padding: 2,
         }}
       >
-        <Typography variant="h4" gutterBottom>
+        <Typography variant='h4' gutterBottom>
           {set.name ? 'Edit Flashcard Set' : 'Create New Flashcard Set'}
         </Typography>
         {error && (
-          <Typography variant="body2" color="error" sx={{ marginBottom: 2 }}>
+          <Typography variant='body2' color='error' sx={{ marginBottom: 2 }}>
             {error}
           </Typography>
         )}
         <TextField
-          label="Set Name"
+          label='Set Name'
           value={setName}
           onChange={e => {
             setSetName(e.target.value);
@@ -299,11 +299,11 @@ export const CreateSetPage: React.FC = () => {
             setChanged(true);
           }}
           fullWidth
-          margin="normal"
+          margin='normal'
           disabled={setDeleted}
         />
         <TextField
-          label="Description"
+          label='Description'
           value={setDescription}
           onChange={e => {
             setSetDescription(e.target.value);
@@ -311,15 +311,15 @@ export const CreateSetPage: React.FC = () => {
             setChanged(true);
           }}
           fullWidth
-          margin="normal"
+          margin='normal'
           disabled={setDeleted}
         />
         {set.name ? (
           ''
         ) : (
           <Button
-            variant="contained"
-            color="primary"
+            variant='contained'
+            color='primary'
             onClick={handleCreateSet}
             sx={{ marginTop: 2 }}
             disabled={setDeleted}
@@ -346,7 +346,7 @@ export const CreateSetPage: React.FC = () => {
                 color={item.duplicate ? 'warning' : 'primary'}
                 onChange={e => handleTermChange(index, 'front', e.target.value)}
                 fullWidth
-                margin="normal"
+                margin='normal'
                 disabled={setDeleted}
               />
               <TextField
@@ -354,11 +354,11 @@ export const CreateSetPage: React.FC = () => {
                 value={item.back}
                 onChange={e => handleTermChange(index, 'back', e.target.value)}
                 fullWidth
-                margin="normal"
+                margin='normal'
                 disabled={setDeleted}
               />
               <Button
-                variant="contained"
+                variant='contained'
                 color={!item.delete ? 'primary' : 'error'}
                 onClick={() => handleDeleteCard(index)}
                 sx={{ marginTop: 1 }}
@@ -374,8 +374,8 @@ export const CreateSetPage: React.FC = () => {
         {set.name ? (
           <>
             <Button
-              variant="contained"
-              color="primary"
+              variant='contained'
+              color='primary'
               onClick={handleAddTerm}
               sx={{ marginTop: 1 }}
               disabled={setDeleted}
@@ -385,8 +385,8 @@ export const CreateSetPage: React.FC = () => {
             <div>
               {/* Your existing create set form */}
               <Button
-                variant="contained"
-                color="primary"
+                variant='contained'
+                color='primary'
                 sx={{ marginTop: 1 }}
                 onClick={() => setIsImportModalOpen(true)}
                 disabled={setDeleted}
@@ -400,7 +400,7 @@ export const CreateSetPage: React.FC = () => {
               />
             </div>
             <Button
-              variant="contained"
+              variant='contained'
               color={error ? 'error' : 'success'}
               onClick={handleUpdateSet}
               sx={{ marginTop: 2 }}
@@ -414,8 +414,8 @@ export const CreateSetPage: React.FC = () => {
         )}
         {terms.length >= 4 && (
           <Button
-            variant="contained"
-            color="primary"
+            variant='contained'
+            color='primary'
             onClick={handleQuizMe}
             sx={{ marginTop: 1 }}
             disabled={setDeleted}
@@ -425,7 +425,7 @@ export const CreateSetPage: React.FC = () => {
         )}
         {set.name ? (
           <Button
-            variant="contained"
+            variant='contained'
             color={confirmSetDelete ? 'error' : 'primary'}
             onClick={handleDeleteSet}
             sx={{ marginTop: 2 }}

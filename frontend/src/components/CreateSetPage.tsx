@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Divider } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { NavigationBar } from './home-page/NavigationBar';
-import {SetContext} from './App';
+import { SetContext } from './App';
 import ImportModal from './ImportModal';
-import {callBackend, waitTime} from '../helper';
+import { callBackend, waitTime } from '../helper';
 
 export const CreateSetPage: React.FC = () => {
   const context = React.useContext(SetContext);
@@ -13,35 +13,46 @@ export const CreateSetPage: React.FC = () => {
   }
   const { set, setSet } = context;
   const navigate = useNavigate();
-  
+
   const [changed, setChanged] = useState(false);
   const [confirmSetDelete, setConfirmSetDelete] = useState(false);
   const [setDeleted, setSetDeleted] = useState(false);
   const [setName, setSetName] = useState(set.name);
   const [setDescription, setSetDescription] = useState(set.description);
-  const [terms, setTerms] = useState<{ front: string; back: string; starred: boolean;
-    key: string; changed: boolean; delete: number; duplicate: boolean }[]>([]); 
+  const [terms, setTerms] = useState<
+    {
+      front: string;
+      back: string;
+      starred: boolean;
+      key: string;
+      changed: boolean;
+      delete: number;
+      duplicate: boolean;
+    }[]
+  >([]);
   const [error, setError] = useState('');
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  
+
   const getToken = () => {
     let accessToken = sessionStorage.getItem('accessToken');
-    if (!accessToken) navigate('/login');
+    if (!accessToken) {
+      navigate('/login');
+    }
     return JSON.parse(accessToken);
-  }
+  };
 
   React.useEffect(() => {
     const accessToken = getToken();
 
     if (set.name && !setDeleted && !changed) {
       callBackend('get', `card/${set.key}`, accessToken)
-        .then((res) => {
+        .then(res => {
           if (res.status == 403 || res.status == 401) {
             navigate('/login');
           }
           return res.json();
         })
-        .then(async (json) => {
+        .then(async json => {
           if (JSON.stringify(terms) != JSON.stringify(json) && !changed) {
             setTerms(json);
           }
@@ -54,13 +65,21 @@ export const CreateSetPage: React.FC = () => {
     const accessToken = getToken();
 
     const response = await callBackend(
-      'POST', `import/${set.key}`, accessToken, text, 'text/plain');
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      'POST',
+      `import/${set.key}`,
+      accessToken,
+      text,
+      'text/plain'
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const data = await response.json();
     if (data && Object.keys(data.count).length) {
       const termsCopy = terms;
       const newTerms = termsCopy.concat(
-        Object.entries(data.count).map((elem) => elem[1]));
+        Object.entries(data.count).map(elem => elem[1])
+      );
       setTerms(newTerms);
       const setCopy = set;
       setCopy.card_num = newTerms.length;
@@ -74,8 +93,10 @@ export const CreateSetPage: React.FC = () => {
     if (!setName || !setDescription) {
       setError('Please fill out all fields');
       return;
-    } 
-    if (!changed) return;
+    }
+    if (!changed) {
+      return;
+    }
     setError('');
     const new_set = { description: setDescription, name: setName };
     const answer = await callBackend('put', 'set', accessToken, new_set);
@@ -85,13 +106,13 @@ export const CreateSetPage: React.FC = () => {
     setTimeout(async () => {
       setSet(new_set);
       await callBackend('get', `card/${new_set.key}`, accessToken)
-        .then((res) => res.json())
-        .then(async (json) => {
+        .then(res => res.json())
+        .then(async json => {
           setTerms(json);
-        })
+        });
       setSetDeleted(false);
     }, waitTime);
-  }
+  };
 
   const updateSet = async (accessToken: string) => {
     const updated_set = JSON.parse(JSON.stringify(set));
@@ -103,7 +124,7 @@ export const CreateSetPage: React.FC = () => {
       term => term.delete < 2 || !term.delete
     ).length;
     await callBackend('put', `set/${set.key}`, accessToken, updated_set);
-  }
+  };
 
   const checkForDuplicates = () => {
     let duplicateFound = false;
@@ -119,9 +140,9 @@ export const CreateSetPage: React.FC = () => {
       }
     });
     return duplicateFound;
-  }
+  };
 
-  const handleUpdateSet = async () => { 
+  const handleUpdateSet = async () => {
     const accessToken = getToken();
     setConfirmSetDelete(false);
 
@@ -129,8 +150,10 @@ export const CreateSetPage: React.FC = () => {
     if (!setName || !setDescription) {
       setError('Please fill out all fields');
       return;
-    } 
-    if (!changed) return;
+    }
+    if (!changed) {
+      return;
+    }
 
     setError('');
     await updateSet(accessToken);
@@ -139,27 +162,40 @@ export const CreateSetPage: React.FC = () => {
     terms.map(term => {
       if (term.changed) {
         if (term.delete < 2) {
-          const newCard = {front: term.front, back: term.back, starred: term.starred};
+          const newCard = {
+            front: term.front,
+            back: term.back,
+            starred: term.starred,
+          };
           if (term.key) {
-            callBackend('post', `card/${set.key}?cardId=${term.key}`, accessToken, newCard)
-              .then((answer) => {
-                if (!answer.ok) {
-                  setError('No duplicate cards allowed');
-                }
-              })
-          } else {
-            callBackend('put', `card/${set.key}`, accessToken, newCard)
-              .then(answer => {
+            callBackend(
+              'post',
+              `card/${set.key}?cardId=${term.key}`,
+              accessToken,
+              newCard
+            ).then(answer => {
               if (!answer.ok) {
                 setError('No duplicate cards allowed');
-              } else {
-                answer.json().then(res => term.key = res);
               }
             });
+          } else {
+            callBackend('put', `card/${set.key}`, accessToken, newCard).then(
+              answer => {
+                if (!answer.ok) {
+                  setError('No duplicate cards allowed');
+                } else {
+                  answer.json().then(res => (term.key = res));
+                }
+              }
+            );
           }
         } else {
           if (term.key) {
-            callBackend('delete', `card/${set.key}?cardId=${term.key}`, accessToken);
+            callBackend(
+              'delete',
+              `card/${set.key}?cardId=${term.key}`,
+              accessToken
+            );
             // NEED TO ADD METHOD TO REMOVE TERM FROM TERMS ARRAY THEN UPDATE TERMS
             // OR MAYBE NOT?? KINDA LAZY
           }
@@ -197,7 +233,11 @@ export const CreateSetPage: React.FC = () => {
     navigate(`/quiz/`);
   };
 
-  const handleTermChange = (index: number, field: 'front' | 'back', value: string) => {
+  const handleTermChange = (
+    index: number,
+    field: 'front' | 'back',
+    value: string
+  ) => {
     setConfirmSetDelete(false);
     setChanged(true);
     const updatedTerms = [...terms];
@@ -233,7 +273,7 @@ export const CreateSetPage: React.FC = () => {
 
   return (
     <>
-      <NavigationBar/ >
+      <NavigationBar />
       <Box
         sx={{
           display: 'flex',
@@ -372,16 +412,16 @@ export const CreateSetPage: React.FC = () => {
         ) : (
           ''
         )}
-        {terms.length >=4 && (
+        {terms.length >= 4 && (
           <Button
-          variant="contained"
-          color="primary"
-          onClick={handleQuizMe}
-          sx={{ marginTop: 1 }}
-          disabled={setDeleted}
-        >
-          Quiz Me
-        </Button>
+            variant="contained"
+            color="primary"
+            onClick={handleQuizMe}
+            sx={{ marginTop: 1 }}
+            disabled={setDeleted}
+          >
+            Quiz Me
+          </Button>
         )}
         {set.name ? (
           <Button

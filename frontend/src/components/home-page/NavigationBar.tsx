@@ -11,19 +11,16 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemIcon
+  ListItemIcon,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu'; 
+import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
 
 export const NavigationBar: React.FC = () => {
-
   const navigate = useNavigate();
 
-  const pageIcons = [ 
-    <LogoutIcon />,
-  ];
+  const pageIcons = [<LogoutIcon />];
   const pageLabels = ['Logout'];
 
   const adminOptions = [false];
@@ -49,7 +46,7 @@ export const NavigationBar: React.FC = () => {
 
   const handleClick = () => {
     navigate('/');
-  }
+  };
 
   const listMenuOptions = () => (
     <Box
@@ -60,8 +57,7 @@ export const NavigationBar: React.FC = () => {
       <List>
         {pageIcons.map((icon, index) =>
           !adminOptions[index] ? (
-            <ListItem button key={index} onClick={handleLogout}
-            >
+            <ListItem button key={index} onClick={handleLogout}>
               <ListItemIcon sx={{ minWidth: 'auto', marginRight: '8px' }}>
                 {icon}
               </ListItemIcon>
@@ -116,7 +112,7 @@ export const NavigationBar: React.FC = () => {
             onClick={handleLogout}
             sx={{ color: 'white', marginRight: 2 }}
           >
-            Logout 
+            Logout
             <LogoutIcon />
           </Button>
         </Box>

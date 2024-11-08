@@ -9,7 +9,7 @@ import {
   Stack,
 } from '@mui/material';
 
-import {callBackend} from '../helper';
+import { callBackend } from '../helper';
 
 export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -22,18 +22,20 @@ export const LoginPage: React.FC = () => {
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
-  
-    const requestBody = {email: username, password: password};
+
+    const requestBody = { email: username, password: password };
     callBackend(create ? 'PUT' : 'POST', 'login', '', requestBody)
-      .then((res) => {
+      .then(res => {
         if (!res.ok) {
-          alert(create ? 'Unable to create account' : 'Invalid email or password');
+          alert(
+            create ? 'Unable to create account' : 'Invalid email or password'
+          );
           setLoading(false);
           throw res;
         }
         return res.json();
       })
-      .then(async (json) => {
+      .then(async json => {
         sessionStorage.setItem('accessToken', JSON.stringify(json.accessToken));
         setLoading(false);
         if (create) {
@@ -48,7 +50,7 @@ export const LoginPage: React.FC = () => {
 
   const handleClickCreate = async () => {
     setCreate(!create);
-  }
+  };
 
   return (
     <Stack alignItems="center">

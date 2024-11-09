@@ -16,12 +16,16 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './setupTests.js',
     coverage: {
+      provider: 'v8', // or 'istanbul'
+      reporter: ['text', 'json', 'html'],
+      include: ['src/**/*.{js,jsx,ts,tsx}'],
       exclude: [
-        'dist/*',
-        'src/main.jsx',
-        'src/__tests__/validity.test.jsx',
+        'node_modules',
         '.eslintrc.cjs',
         'vite.config.js',
+        'src/main.tsx',
+        'src/helper.tsx',
+        'dist/*',
       ],
     },
   },

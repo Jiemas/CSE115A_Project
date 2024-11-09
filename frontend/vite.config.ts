@@ -26,6 +26,8 @@ export default defineConfig({
         'src/main.tsx',
         'src/helper.tsx',
         'dist/*',
+        'src/components/react-app-env.d.ts',
+        'src/auth/AuthContext.tsx',
       ],
     },
   },

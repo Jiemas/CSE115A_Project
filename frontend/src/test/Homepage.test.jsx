@@ -6,8 +6,7 @@ import {http, HttpResponse} from 'msw';
 import { MemoryRouter, Routes, Route, sessionStorage } from 'react-router-dom';
 import { Home } from '../components/home-page/HomePage'; 
 import { expect } from 'vitest';
-import { SetContext } from '../components/App'; 
-import { LoginPage } from '../components/LoginPage';  
+import { SetContext } from '../components/App';   
 
 const URL = 'http://localhost:3001/v0/login'; 
 //const URL = 'https://cse115a-project.onrender.com/v0/login'; 

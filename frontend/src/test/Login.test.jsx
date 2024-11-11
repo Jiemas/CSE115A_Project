@@ -1,14 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import {it, beforeAll, afterAll, afterEach} from 'vitest';
 import {render, screen, fireEvent, waitFor} from '@testing-library/react';
 import {setupServer} from 'msw/node';
 import {http, HttpResponse} from 'msw';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { Home } from '../components/home-page/HomePage'; 
-import { expect } from 'vitest';
-import App, { SetContext, SetItem } from '../components/App'; 
-import { LoginPage } from '../components/LoginPage'; 
-import { ThemeProvider } from '@mui/material';  
+import { MemoryRouter, Routes, Route } from 'react-router-dom'; 
+import { expect } from 'vitest'; 
+import { LoginPage } from '../components/LoginPage';  
 
 import {path} from '../helper';
 
@@ -32,7 +29,6 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());  
 
 it('renders the LoginPage by default', () => { 
-
   render(
     <MemoryRouter>
       <LoginPage create={false} loading={false} />
@@ -40,7 +36,6 @@ it('renders the LoginPage by default', () => {
   );
   expect(screen.getByText('Log In')).toBeInTheDocument(); 
   expect(screen.getByText('Create Account')).toBeInTheDocument(); 
-
 });
 
 it('Create Account button works', async () => {
@@ -72,11 +67,9 @@ it('success create account', async () => {
   await waitFor(() => {
     fireEvent.click(screen.getByText('Create'));
   });
-
   await waitFor(() => {
     expect(screen.getByText('Log In')).toBeInTheDocument(); 
   });
-
 });
 
 

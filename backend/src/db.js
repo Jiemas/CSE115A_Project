@@ -123,3 +123,14 @@ exports.addUser = async (user) => {
 exports.deleteUser = async (key) => {
   await fetch(`${rootPath}/user/${key}.json`, {method: 'DELETE'});
 };
+
+// ----- tiff edits -----
+// db function to store/access the wrong answers?
+// exports.wrongAnswers = async (setId, cardId, parsedObj) => {
+
+// };
+
+// db function to store/access the right answers?
+// exports.rightAnswers = async (setId, cardId, parsedObj) => {
+
+// };

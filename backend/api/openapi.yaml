@@ -305,9 +305,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'   
 
-  /llm:
+  /llm: #/{setId}:
     get:
       description: Testing for llm
+      # ------ added parameters for set id and card id -------
+      # parameters:
+      #   - name: setId
+      #     in: path
+      #     description: the set that contains the cards to generate right/wrong answers for
+      #     required: True
+      #     schema: 
+      #       type: string
+        # - name: cardId
+        #   in: query
+        #   description: the specific card (maybe cards in the future) to generate answers for
+        #   required: True 
+        #   schema:
+        #     type: string
+      # --------------------------------------------------------
       responses:
         200:
           description: Test Response

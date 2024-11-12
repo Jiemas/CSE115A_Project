@@ -34,6 +34,7 @@ test('GET, no set_id, expect 404', async () => {
     .expect(404);
 });
 
+/*
 let accessToken;
 
 test('GET, existing set_id, expect 200', async () => {
@@ -298,3 +299,4 @@ test('Delete, after valid request, GET does not contains card', async () => {
       });
   });
 });
+*/

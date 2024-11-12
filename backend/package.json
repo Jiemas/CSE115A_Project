@@ -16,6 +16,7 @@
     "bcrypt": "*",
     "bcryptjs": "^2.4.3",
     "body-parser": "*",
+    "bull": "*",
     "cors": "^2.8.5",
     "dotenv": "*",
     "express": "*",
@@ -23,6 +24,7 @@
     "js-yaml": "*",
     "jsonwebtoken": "*",
     "openai": "*",
+    "pm2": "^5.4.2",
     "swagger-ui-express": "*"
   },
   "jest": {

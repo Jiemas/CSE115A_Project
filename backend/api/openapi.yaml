@@ -305,22 +305,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'   
 
-  /llm:
-    get:
-      description: Testing for llm
-      responses:
-        200:
-          description: Test Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/keyString'
-        default:
-          description: Unexpected Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   /import/{setId}:
     post:
       security:
@@ -352,6 +336,28 @@ paths:
                     type: string
                   count:
                     type: object
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /llm/{setId}:
+    post:
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: setId
+          in: path
+          description: id of the set to generate answers for
+          required: True
+          schema:
+            type: string
+      description: Generate answers for cards in set
+      responses:
+        201:
+          description: Request to generate answers succeeded
         default:
           description: Unexpected Error
           content:

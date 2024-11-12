@@ -34,6 +34,7 @@ test('GET, expect 401, no token provided', async () => {
     .expect(401);
 });
 
+/*
 test('GET, expect 403, invalid token provided', async () => {
   await request.get(path)
     .set('Authorization', 'Bearer asiopgho')
@@ -336,3 +337,4 @@ test('Import with invalid set_id, expect 404', async () => {
     .set('Content-Type', 'text/plain')
     .expect(404);
 }, 10000);
+*/

@@ -1,4 +1,4 @@
-const db = require('./db');
+// const db = require('./db');
 const OpenAI = require('openai');
 
 // https://openrouter.ai/meta-llama/llama-3.2-1b-instruct:free/api
@@ -15,7 +15,7 @@ exports.llm_test = async (req, res) => {
     ` question "${front}" has the correct answer "${back}". Generate 9` +
     ' unique incorrect answers in a similar style to the correct answer' +
     ' in only JSON.';
-  console.log(sendContent);
+  // console.log(sendContent);
   const completion = await openai.chat.completions.create({
     model: 'meta-llama/llama-3.2-1b-instruct:free',
     messages: [
@@ -27,81 +27,57 @@ exports.llm_test = async (req, res) => {
   });
   // console.log(completion.choices[0].message.content);
 
-  // ----- my edits -----------
-  // parse LLM output into JSON object
+  // Parse LLM response into a ist of wrong answers
   const responses = JSON.parse(completion.choices[0].message.content);
+  const responsesList = [];
+  // console.log(responses);
 
-  // create obj to store the array of LLM responses
-  const responsesObj = {};
-
-  // prints out a list of objects, each object is one of the LLM's wrong answers
-  for (const i in responses) {
-    if (responses.hasOwnProperty(i)) {
-      // console.log(responses[i]);
-
-      for (const r in responses[i]) {
-        if (responses[i][r] != null) {
-          responsesObj[r] = responses[i][r];
-        } else {
-          res.status(500).send('couldnt LLM parse into JSON obj properly');
+  for (const r in responses) {
+    if (responses.hasOwnProperty(r)) {
+      for (const item in responses[r]) {
+        if (item != null) {
+          responsesList.push(responses[r][item]);
         }
       }
     }
   }
-  console.log(responsesObj);
+
+  console.log(responsesList);
 
   res.status(200).send();
 };
 
+// --- Generates wrong answers for 1 card from a specified set ---
+// exports.llm_generate = async (req, res) => {
+//   // trying to test with a set from mail@email.com account..
+//   const setId = 'db3a7b47-c716-473a-9a3a-aa28cb0b67e2';
+//   // const cardId = req.path.cardId;
+//   // '77ed52f0-ae87-4870-8b71-5eb439f0550';
 
-// when test answers need to be generated
-exports.llm_generate = async (req, res) => {
-  // trying to test with a set from mail@email.com account..
-  const setId = 'db3a7b47-c716-473a-9a3a-aa28cb0b67e2';
-  // req.params.setId;
-  const allCards = db.getAllCards(setId);
+//   console.log('setid: ' + setId);
+//   // console.log('cardid: ' + cardId);
 
-  console.log('setid: ' + setId);
-  console.log('all cards in set: ' + allCards);
+//   const set = await db.setDetails(setId);
+//   if (set == null) {
+//     res.status(404).send('no set name found');
+//   }
 
-  // for (const card in allCards) {
-  //   if (card != null) {
-  //     const setName = 'Concepts for Midterm 1 of CSE102';
-  //     const front = card.front;
-  //     const back = card.back;
+//   console.log('set name: ' + set.name);
+//   console.log('set card num: ' + set.card_num);
+//   console.log('set key: ' + set.key);
 
-  //     const sendContent = `In a test about ${setName}, a multiple choice` +
-  //     ` question "${front}" has the correct answer "${back}". Generate 9` +
-  //     ' unique incorrect answers in a similar style to the correct answer' +
-  //     ' in only JSON.';
-  //     console.log(sendContent);
-  //     const completion = await openai.chat.completions.create({
-  //       model: 'meta-llama/llama-3.2-1b-instruct:free',
-  //       messages: [
-  //         {
-  //           'role': 'user',
-  //           'content': sendContent,
-  //         },
-  //       ],
-  //     });
+//   // const card = await db.cardDetails(setId, cardId);
+//   // if (card == null) {
+//   //   // res.status(404).send('no card/set info found');
+//   // }
+//   // console.log('card: ' + card);
 
-  //     const responses = JSON.parse(completion.choices[0].message.content);
-  //     const responsesObj = {};
-  //     for (const i in responses) {
-  //       if (responses.hasOwnProperty(i)) {
-  //         // console.log(responses[i]);
-  //         for (const r in responses[i]) {
-  //           if (responses[i][r] != null) {
-  //             responsesObj[r] = responses[i][r];
-  //           } else {
-  //             res.status(500).send('couldnt parse into JSON obj properly');
-  //           }
-  //         }
-  //       }
-  //     }
-  //     console.log(responsesObj);
-  //   }
-  // }
+//   const cards = await db.getAllCards(setId);
+//   console.log('all cards: ' + cards);
 
-  res.status(200).send('end of llm_genereate');
-};
+//   // console.log('card.front' + card.front);
+//   // console.log('card.back' + card.back);
+
+//   // return res.status(200).send('end of llm_generate');
+//   res.status(200).send('end of llm_generate');
+// };

@@ -72,7 +72,7 @@ paths:
         - name: id
           in: path
           description: id of the set
-          required: True
+          required: true
           schema:
             type: string
       responses:
@@ -235,7 +235,42 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error' 
+                $ref: '#/components/schemas/Error'
+
+  # --- tiff adding this for db.cardDetails? don't think this works ---
+  # /card/{setId}/{cardId}:
+  #   security:
+  #       - bearerAuth: []
+  #     description: Returns a specific card from a specific set
+  #     parameters:
+  #       - name: setId
+  #         in: path
+  #         description: id of the set that the card belongs to
+  #         required: True
+  #         schema:
+  #           type: string
+  #       - name: cardId
+  #         in: path
+  #         description: the individual card's id
+  #         required: True
+  #         schema:
+  #           type: string
+  #     responses:
+  #       200:
+  #         description: Individual Card response
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/Card'
+  #       404:
+  #         description: Card not found
+  #       default:
+  #         description: Unexpected Error
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/Error' 
+  # ----------------------------------------------------------------------
   /login:
     post:
       description: Login
@@ -305,7 +340,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'   
 
-  /llm: #/{setId}:
+  /llm: # /{setId}/{cardId}
     get:
       description: Testing for llm
       # ------ added parameters for set id and card id -------

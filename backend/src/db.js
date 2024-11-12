@@ -124,7 +124,7 @@ exports.deleteUser = async (key) => {
   await fetch(`${rootPath}/user/${key}.json`, {method: 'DELETE'});
 };
 
-// ----- tiff edits -----
+// ------------ tiff edits ----------------------------------
 // db function to store/access the wrong answers?
 // exports.wrongAnswers = async (setId, cardId, parsedObj) => {
 
@@ -134,3 +134,29 @@ exports.deleteUser = async (key) => {
 // exports.rightAnswers = async (setId, cardId, parsedObj) => {
 
 // };
+
+// function to grab Set details (params/body)
+exports.setDetails = async (setId) => {
+  const answer = await fetch(`${rootPath}/set/${setId}.json`,
+    {method: 'GET'},
+  );
+  const set = await answer.json();
+  return set ? set : null;
+};
+
+// need to create a new card/{setiid}/{cardid} endpoint/path to
+// get the specific info of one card? otherwise exports.cardDetails doesn't work
+
+// function to grab Card details (params/body)
+// so that we can grab the front and back of a card
+exports.cardDetails = async (setId, cardId) => {
+  // const answer = await fetch(`${rootPath}/card/${setId}/${cardId}.json`,
+  //   {method: 'GET'},
+  // );
+  const answer = await fetch(`${rootPath}/card/${setId}/${cardId}.json`,
+    {method: 'GET'},
+  );
+  const card = await answer.json();
+  return card ? card : null;
+};
+// -------------------------------------------------------------

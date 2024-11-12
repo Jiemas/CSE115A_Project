@@ -8,8 +8,8 @@ import { Home } from '../components/home-page/HomePage';
 import { expect } from 'vitest';
 import { SetContext } from '../components/App';   
 
-const URL = 'http://localhost:3001/v0/login'; 
-//const URL = 'https://cse115a-project.onrender.com/v0/login'; 
+import {path} from '../helper';  
+const URL_set = `${path}/set`; 
 
 async function inputToField(label, value) {
   // https://allmaddesigns.com/test-text-input-in-jest-with-fireevent/
@@ -49,11 +49,17 @@ function renderHome() {
 
 it('renders homepage', async () => {
   window.sessionStorage.setItem('accessToken', JSON.stringify('random'));
-
   server.use(
-    http.post(URL, async () => {
-      return HttpResponse.json(
-          [], {status: 200});
+    http.get(`${URL_set}`, async () => {
+        return HttpResponse.json([
+          {
+            "card_num": 0,
+            "description": "string",
+            "name": "string",
+            "owner": "string",
+            "key": "12345"
+          }
+        ], { status: 200 });
     }),
   );
   render(renderHome());
@@ -63,6 +69,19 @@ it('renders homepage', async () => {
 }); 
 
 it('create set button works', async () => {    
+  server.use(
+    http.get(`${URL_set}`, async () => {
+        return HttpResponse.json([
+          {
+            "card_num": 0,
+            "description": "string",
+            "name": "string",
+            "owner": "string",
+            "key": "12345"
+          }
+        ], { status: 200 });
+    }),
+  );
   render(
     <MemoryRouter> 
       <SetContext.Provider value={{set, setSet}}>
@@ -85,4 +104,3 @@ it('create set button works', async () => {
     expect(screen.getByText('Worked')).toBeInTheDocument();
   });
 });
-

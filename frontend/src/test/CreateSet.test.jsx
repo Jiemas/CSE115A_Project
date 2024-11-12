@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {it, beforeAll, afterAll, afterEach} from 'vitest';
 import {render, screen, fireEvent, waitFor} from '@testing-library/react';
 import {setupServer} from 'msw/node';
@@ -9,7 +9,6 @@ import { expect } from 'vitest';
 import { SetContext } from '../components/App';  
 
 import {path} from '../helper';  
-const URL_login = `${path}/login`; 
 const URL_set = `${path}/set`; 
 
 async function inputToField(label, value) {
@@ -31,8 +30,9 @@ let set = {
     owner: '',
     key: ''
 };
-const setSet = (elem) => {
-  set = elem;
+
+const setSet = async () => {
+  set.name = 'asdf';
 };
 
 /**
@@ -47,15 +47,9 @@ function renderCreateSetPage() {
   </SetContext.Provider> 
 </MemoryRouter>;
 };
+window.sessionStorage.setItem('accessToken', JSON.stringify('random'));
 
 it('renders Create Set page', async () => {
-  window.sessionStorage.setItem('accessToken', JSON.stringify('random'));
-  server.use(
-    http.post(URL_login, async () => {
-      return HttpResponse.json(
-          [], {status: 200});
-    }),
-  );
   render(renderCreateSetPage());
   await waitFor(() => {
     expect(screen.getByText('Create New Flashcard Set')).toBeInTheDocument();
@@ -64,14 +58,34 @@ it('renders Create Set page', async () => {
 
 it('success create set', async () => { 
     server.use(
-        http.put(URL_set, async () => {
-            return HttpResponse.json({ key: 'fake-set-key' }, { status: 201 });
+        http.put(`${URL_set}`, async () => {
+            return HttpResponse.json('12345', { status: 201 });
         }),
     );
     server.use(
-        http.put(`${URL_set}/{fake-set-key}`, async () => {
-            return HttpResponse.json({ key: 'fake-set-key' }, { status: 201 });
-        }),
+      http.get(`${path}/card/12345`, async () => {
+          return HttpResponse.json([
+            {
+              "front": "string",
+              "back": "string",
+              "starred": true,
+              "key": "string"
+            }
+          ], { status: 200 });
+      }),
+    );
+    server.use(
+      http.get(`${URL_set}`, async () => {
+          return HttpResponse.json([
+            {
+              "card_num": 0,
+              "description": "string",
+              "name": "string",
+              "owner": "string",
+              "key": "12345"
+            }
+          ], { status: 200 });
+      }),
     );
     render(renderCreateSetPage());
     
@@ -80,7 +94,9 @@ it('success create set', async () => {
     });
     inputToField("Set Name", "cells unit 3");
     inputToField("Description", "i'm learning about cells");
-    
-    fireEvent.click(screen.getByRole('button', {name: 'Create Set'}));
-    await waitFor(() => { expect(screen.getByText('Edit Flashcard Set')).toBeInTheDocument(); }); 
+    await waitFor(() => {
+      fireEvent.click(screen.getByRole('button', {name: 'Create Set'}));
+    });
+    await waitFor(() => { expect(screen.getByText('Edit Flashcard Set')).toBeInTheDocument(); 
+    }, {timeout: 1400}); 
   }); 

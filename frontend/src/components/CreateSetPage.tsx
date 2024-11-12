@@ -70,7 +70,6 @@ export const CreateSetPage: React.FC = () => {
 
   const handleCreateSet = async () => {
     const accessToken = getToken();
-    console.log(accessToken)
     if (!setName || !setDescription) {
       setError('Please fill out all fields');
       return;

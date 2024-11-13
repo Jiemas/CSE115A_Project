@@ -25,18 +25,22 @@ const isSetIdValidAndAllowed = async (setId, userKey, res) => {
 exports.llm_queue = async (req, res) => {
   const setId = req.params.setId;
   if (! (await isSetIdValidAndAllowed(setId, req.user.key, res))) return;
-
-  console.log('sending request to queue');
-  for (let i = 0; i < 20; i++) {
-    await myQueue.add({
-      message: setId,
-    });
+  const cards = await db.getAllCards(setId);
+  let requestsAdded = 0;
+  for (card of cards) {
+    if (card.llm) continue;
+    await myQueue.add(card.key);
+    requestsAdded++;
   }
-  res.status(201).send();
+  res.status(201).json(requestsAdded);
 };
 
 myQueue.process(async (job) => {
   console.log(job.data);
+  // Get card info using key in job.data
+  // Prompt LLM using Card Info
+  // Parse the output from the LLM
+  // Update the card in the db using card key
 });
 
 exports.llm_test = async (req, res) => {

@@ -358,6 +358,10 @@ paths:
       responses:
         201:
           description: Request to generate answers succeeded
+          content:
+            application/json:
+              schema:
+                type: integer
         default:
           description: Unexpected Error
           content:
@@ -440,7 +444,7 @@ components:
 
     Card:
       type: object
-      maxProperties: 4
+      maxProperties: 5
       properties:
         front:
           type: string

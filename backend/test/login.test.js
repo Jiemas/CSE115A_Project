@@ -2,6 +2,7 @@ const supertest = require('supertest');
 const http = require('http');
 require('dotenv').config();
 const app = require('../src/app');
+const myQueue = require('../src/JobQueue');
 let server;
 
 const path = '/v0/login';
@@ -24,7 +25,8 @@ beforeAll(() => {
   request = supertest(server);
 });
 
-afterAll((done) => {
+afterAll(async (done) => {
+  myQueue.close(done);
   server.close(done);
 });
 
@@ -34,7 +36,6 @@ test('login, expect 400 code, invalid body', async () => {
     .expect(400);
 });
 
-/*
 test('login, expect 400 code, body no password', async () => {
   await request.post(path)
     .send({email: 'email@email.com'})
@@ -152,4 +153,4 @@ test('account database cleanup', async () => {
   await request.delete(`${path}/${accountKey}`)
     .expect(200);
 });
-*/
+

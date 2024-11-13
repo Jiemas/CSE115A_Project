@@ -3,12 +3,12 @@ const OpenAI = require('openai');
 const myQueue = require('./JobQueue');
 
 // https://openrouter.ai/meta-llama/llama-3.2-1b-instruct:free/api
-/*
+
 const openai = new OpenAI({
   baseURL: 'https://openrouter.ai/api/v1',
   apiKey: process.env.API_KEY,
 });
-*/
+
 const isSetIdValidAndAllowed = async (setId, userKey, res) => {
   const set = await db.getSet_id(setId);
   if (!set) {
@@ -27,12 +27,17 @@ exports.llm_queue = async (req, res) => {
   if (! (await isSetIdValidAndAllowed(setId, req.user.key, res))) return;
 
   console.log('sending request to queue');
-  const response = await myQueue.add({
-    message: setId,
-  });
-  console.log(response.message);
+  for (let i = 0; i < 20; i++) {
+    await myQueue.add({
+      message: setId,
+    });
+  }
   res.status(201).send();
 };
+
+myQueue.process(async (job) => {
+  console.log(job.data);
+});
 
 exports.llm_test = async (req, res) => {
   const setName = 'CSE 115A: Test 1';

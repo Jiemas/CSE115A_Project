@@ -25,6 +25,7 @@
     "jsonwebtoken": "*",
     "openai": "*",
     "pm2": "^5.4.2",
+    "redis": "^4.7.0",
     "swagger-ui-express": "*"
   },
   "jest": {
@@ -51,7 +52,7 @@
     ]
   },
   "scripts": {
-    "start": "nodemon src/server.js",
+    "start": "redis-server & nodemon src/server.js",
     "test": "jest --testTimeout=10000 --runInBand --coverage --verbose --forceExit --detectOpenHandles",
     "lint": "eslint . --no-inline-config --max-warnings 0"
   }

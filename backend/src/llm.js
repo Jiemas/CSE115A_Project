@@ -49,8 +49,13 @@ const llmPromptCorrectAnswers = async (setName, front, back) => {
 };
 
 const llmParseResponse = async (response) => {
-  const parsedResponse = JSON.parse(response);
+  let parsedResponse;
   const responsesList = [];
+  try {
+    parsedResponse = JSON.parse(response);
+  } catch (error) {
+    return responsesList;
+  }
 
   for (r in parsedResponse) {
     if (parsedResponse.hasOwnProperty(r)) {
@@ -92,35 +97,33 @@ exports.llm_queue = async (req, res) => {
 };
 
 myQueue.process(async (job) => {
-  console.log(job.data);
   // Get card info using key in job.data
   const {cardId, setId} = job.data;
-
   const set = await db.getSet_id(setId);
-  if (set == null) {
-    res.status(404).send();
-  }
-
-  const card = await db.getCard_id(cardId);
-  if (card == null) {
-    res.status(404).send();
-  }
+  if (!set) return;
+  const card = await db.getCard_id(setId, cardId);
+  if (!card) return;
 
   const name = set.name;
   const front = card.front;
   const back = card.back;
-
+  console.log(front, back);
+  /*
   // Prompt LLM using Card Info
-  const wrongResponses = llmPromptWrongAnswers(name, front, back);
-  const correctResponses = llmPromptCorrectAnswers(name, front, back);
+  const wrongResponses = await llmPromptWrongAnswers(name, front, back);
+  const correctResponses = await llmPromptCorrectAnswers(name, front, back);
 
   // Parse the output from the LLM
   const wrongList = llmParseResponse(wrongResponses);
   const correctList = llmParseResponse(correctResponses);
-
+  console.log('finished discussion');
+  console.log(wrongList, correctList);
+  */
+  /*
   // Update the card in the db using card key
   db.addWrongAnswers(setId, cardId, wrongList);
   db.addCorrectAnswers(setId, cardId, correctList);
+  */
 });
 
 

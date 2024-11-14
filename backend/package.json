@@ -52,7 +52,7 @@
     ]
   },
   "scripts": {
-    "dep_start": "nodemon src/server.js",
+    "lstart": "redis-server & nodemon src/server.js",
     "start": "nodemon src/server.js",
     "test": "jest --testTimeout=10000 --runInBand --coverage --verbose --forceExit --detectOpenHandles",
     "lint": "eslint . --no-inline-config --max-warnings 0"

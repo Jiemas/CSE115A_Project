@@ -1,6 +1,6 @@
 const db = require('./db');
 const OpenAI = require('openai');
-const myQueue = require('./JobQueue');
+const myQueue = require('./jobQueue');
 
 // https://openrouter.ai/meta-llama/llama-3.2-1b-instruct:free/api
 

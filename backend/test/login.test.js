@@ -25,7 +25,7 @@ beforeAll(() => {
   request = supertest(server);
 });
 
-afterAll(async (done) => {
+afterAll((done) => {
   myQueue.close(done);
   server.close(done);
 });

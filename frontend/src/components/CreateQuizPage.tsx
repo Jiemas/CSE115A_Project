@@ -36,6 +36,14 @@ export const CreateQuizPage: React.FC = () => {
     return array.sort(() => Math.random() - 0.5);
   };
 
+  const getToken = () => {
+    let accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+      navigate('/login');
+    }
+    return JSON.parse(accessToken);
+  };
+
   const randomlySelect = (otherBacks: string[], selectNum: number) => {
     const incorrectAnswers: string[] = [];
     while (incorrectAnswers.length < selectNum) {
@@ -49,13 +57,7 @@ export const CreateQuizPage: React.FC = () => {
   };
 
   useEffect(() => {
-    let accessToken = sessionStorage.getItem('accessToken');
-    if (!accessToken) {
-      navigate('/login');
-      return;
-    }
-    accessToken = JSON.parse(accessToken);
-
+    const accessToken = getToken();
     if (set.key) {
       callBackend('get', `card/${set.key}`, accessToken)
         .then(res => {
@@ -137,6 +139,13 @@ export const CreateQuizPage: React.FC = () => {
 
   const handleBack = () => {
     navigate('/create-set');
+  };
+
+  const handleLLM = () => {
+    const accessToken = getToken();
+    if (set.key) {
+      callBackend('post', `llm/${set.key}`, accessToken);
+    }
   };
 
   // Calculate the number of correct answers
@@ -239,6 +248,14 @@ export const CreateQuizPage: React.FC = () => {
           sx={{ marginTop: 3 }}
         >
           Display Results
+        </Button>
+        <Button
+          variant='contained'
+          color='primary'
+          onClick={handleLLM}
+          sx={{ marginTop: 3 }}
+        >
+          LLM
         </Button>
         <Button
           variant='contained'

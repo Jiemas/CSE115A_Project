@@ -36,6 +36,18 @@ export const CreateQuizPage: React.FC = () => {
     return array.sort(() => Math.random() - 0.5);
   };
 
+  const randomlySelect = (otherBacks: string[], selectNum: number) => {
+    const incorrectAnswers: string[] = [];
+    while (incorrectAnswers.length < selectNum) {
+      const randomBack =
+        otherBacks[Math.floor(Math.random() * otherBacks.length)];
+      if (!incorrectAnswers.includes(randomBack)) {
+        incorrectAnswers.push(randomBack);
+      }
+    }
+    return incorrectAnswers;
+  };
+
   useEffect(() => {
     let accessToken = sessionStorage.getItem('accessToken');
     if (!accessToken) {
@@ -65,16 +77,31 @@ export const CreateQuizPage: React.FC = () => {
               const otherBacks = shuffledTerms
                 .map(t => t.back)
                 .filter(back => back !== term.back);
-
-              // Randomly select three unique incorrect answers
-              const incorrectAnswers = [];
-              while (incorrectAnswers.length < 3) {
-                const randomBack =
-                  otherBacks[Math.floor(Math.random() * otherBacks.length)];
-                if (!incorrectAnswers.includes(randomBack)) {
-                  incorrectAnswers.push(randomBack);
+              let numLLMTerms = 0;
+              let incorrectAnswers: string[] = [];
+              if (term.llm) {
+                if (term.llm.wrong) {
+                  const numDesiredLLMTerms = 1;
+                  incorrectAnswers = incorrectAnswers.concat(
+                    randomlySelect(['fake', 'fake again', 'doubly fake'], numDesiredLLMTerms)
+                  );
+                  /* This is the real code, above is just hardcoded for testing
+                  incorrectAnswers = incorrectAnswers.concat(
+                    randomlySelect(term.llm.wrong, numDesiredLLMTerms)
+                  );
+                  */
+                  numLLMTerms = numDesiredLLMTerms;
+                }
+                const chanceOfLLMCorrect = 0.5;
+                if (term.llm.right && Math.random() < chanceOfLLMCorrect) {
+                  term.back = randomlySelect(['fake answer', 'this cant be right'], 1)[0];
+                  // This is the real code, above is just hardcoded for testing
+                  // term.back = randomlySelect(term.llm.right, 1)[0];
                 }
               }
+              incorrectAnswers = incorrectAnswers.concat(
+                randomlySelect(otherBacks, 3 - numLLMTerms)
+              );
 
               // Combine the correct answer with incorrect answers and shuffle them
               const options = [term.back, ...incorrectAnswers].sort(

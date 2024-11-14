@@ -58,11 +58,8 @@ app.delete('/v0/login/:id', auth.delete);
 // Import Cards
 app.post('/v0/import/:setId', express.text(), auth.check, set.import);
 
-// Testing
-app.get('/v0/llm', llm.llm_test);
-
-// Tiff's llm testing ver:
-// app.get('/v0/llm', llm.llm_generate);
+// Testin
+app.post('/v0/llm/:setId', auth.check, llm.llm_queue);
 
 app.use((err, req, res, next) => {
   res.status(err.status).json({

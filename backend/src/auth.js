@@ -3,14 +3,19 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const db = require('./db');
 
+const getExistingUser = async (email, bool, res) => {
+  const user = await db.getUser(email);
+  if (Boolean(user) == bool) {
+    res.status(401).send();
+    return false;
+  }
+  return bool ? true : user;
+};
+
 exports.createAccount = async (req, res) => {
   // Check the given email corresponds to existing member
   // If it does, return 401
-  const out = await db.getUser(req.body.email);
-  if (out) {
-    res.status(401).send();
-    return;
-  }
+  if (!(await getExistingUser(req.body.email, true, res))) return;
   const newObj = {};
   req.body.key = crypto.randomUUID();
 
@@ -26,14 +31,11 @@ exports.createAccount = async (req, res) => {
 exports.login = async (req, res) => {
   // Check the given email corresponds to existing member
   // If not, return 401
-  const out = await db.getUser(req.body.email);
-  if (!out) {
-    res.status(401).send();
-    return;
-  }
+  const user = await getExistingUser(req.body.email, false, res);
+  if (!user) return;
 
   // Checks that provided password matches the encryped one in db
-  const {password, key, email} = out;
+  const {password, key, email} = user;
   if (!bcrypt.compareSync(req.body.password, password)) {
     res.status(401).send();
     return;

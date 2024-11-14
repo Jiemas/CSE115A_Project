@@ -29,7 +29,7 @@ exports.llm_queue = async (req, res) => {
   let requestsAdded = 0;
   for (card of cards) {
     if (card.llm) continue;
-    await myQueue.add(card.key);
+    await myQueue.add({key: card.key});
     requestsAdded++;
   }
   res.status(201).json(requestsAdded);

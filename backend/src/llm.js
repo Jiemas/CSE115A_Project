@@ -9,6 +9,13 @@ const openai = new OpenAI({
   apiKey: process.env.API_KEY,
 });
 
+/* THINGS TO DO:
+1. Refactor this file
+2. Make it so LLM is called once per process
+3. Add a delete LLM data endpoint (Future Sprint?)
+4. More clearly indicate in frontend when an answer option has been LLM gen
+*/
+
 // Helper functions for myQueue.process()
 // TODO Lots of duplication here, so fix that later
 const llmPromptWrongAnswers = async (setName, front, back) => {

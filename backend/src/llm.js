@@ -10,6 +10,7 @@ const openai = new OpenAI({
 });
 
 // Helper functions for myQueue.process()
+// TODO Lots of duplication here, so fix that later
 const llmPromptWrongAnswers = async (setName, front, back) => {
   const sendContent = `In a test about ${setName}, the multiple-choice ` +
     `question "${front}" has the correct answer "${back}".` +
@@ -29,6 +30,7 @@ const llmPromptWrongAnswers = async (setName, front, back) => {
   return completion.choices[0].message.content;
 };
 
+// TODO Lots of duplication here and above, so fix that later
 const llmPromptCorrectAnswers = async (setName, front, back) => {
   const sendContent = `In a test about ${setName}, the multiple-choice ` +
     `question "${front}" has the correct answer "${back}".` +
@@ -54,7 +56,7 @@ const llmParseResponse = async (response) => {
   try {
     parsedResponse = JSON.parse(response);
   } catch (error) {
-    return responsesList;
+    return 1;
   }
 
   for (r in parsedResponse) {
@@ -88,14 +90,23 @@ exports.llm_queue = async (req, res) => {
   if (! (await isSetIdValidAndAllowed(setId, req.user.key, res))) return;
   const cards = await db.getAllCards(setId);
   let requestsAdded = 0;
+  newCards = {};
   for (card of cards) {
-    if (card.wrong && card.correct) continue;
+    newCards[card.key] = card;
+    if (card.wrong && card.correct && card.wrong != 1 && card.correct != 1) {
+      continue;
+    }
     await myQueue.add({cardId: card.key, setId: setId});
     requestsAdded++;
+    card.wrong = 1;
+    card.correct = 1;
   }
+  db.overwriteCards(newCards, setId);
   res.status(201).json(requestsAdded);
 };
 
+// TODO May want to include in job.data a requestType so that only one call to
+// LLM happens per process
 myQueue.process(async (job) => {
   // Get card info using key in job.data
   const {cardId, setId} = job.data;
@@ -107,25 +118,21 @@ myQueue.process(async (job) => {
   const name = set.name;
   const front = card.front;
   const back = card.back;
-  db.addWrongAnswers(setId, cardId, ['list', 'of', 'wrong', 'answers']);
-  db.addCorrectAnswers(setId, cardId, ['list', 'of', 'correct', 'answers']);
-  console.log(front, back);
-  /*
-  // Prompt LLM using Card Info
-  const wrongResponses = await llmPromptWrongAnswers(name, front, back);
-  const correctResponses = await llmPromptCorrectAnswers(name, front, back);
 
-  // Parse the output from the LLM
-  const wrongList = llmParseResponse(wrongResponses);
-  const correctList = llmParseResponse(correctResponses);
-  console.log('finished discussion');
-  console.log(wrongList, correctList);
-  */
-  /*
-  // Update the card in the db using card key
-  db.addWrongAnswers(setId, cardId, wrongList);
-  db.addCorrectAnswers(setId, cardId, correctList);
-  */
+  if (card.wrong == 1) {
+    const wrongResponses = await llmPromptWrongAnswers(name, front, back);
+    const wrongList = await llmParseResponse(wrongResponses);
+    console.log(wrongList);
+    console.log(setId, cardId);
+    db.addWrongAnswers(setId, cardId, wrongList);
+  }
+  if (card.correct == 1) {
+    const correctResponses = await llmPromptCorrectAnswers(name, front, back);
+    const correctList = await llmParseResponse(correctResponses);
+    console.log(correctList);
+    console.log(setId, cardId);
+    db.addCorrectAnswers(setId, cardId, correctList);
+  }
 });
 
 

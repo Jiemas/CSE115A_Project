@@ -87,6 +87,10 @@ exports.updateCard = async (cardBody, setId, cardId) => {
   await callDatabase('PUT', `card/${setId}/${cardId}.json`, cardBody);
 };
 
+exports.overwriteCards = async (cardBody, setId) => {
+  await callDatabase('PUT', `card/${setId}.json`, cardBody);
+};
+
 exports.deleteCard = async (setId, cardId) => {
   await callDatabase('DELETE', `card/${setId}/${cardId}.json`);
 };
@@ -108,93 +112,12 @@ exports.deleteUser = async (key) => {
   await callDatabase('DELETE', `user/${key}.json`);
 };
 
-// DB functions to access and add wrong/correct answers to cards
-
-// card ->set_key -> card_key -> wrong_answers
-// and
-// card ->set_key -> card_key -> correct_answers
-
-exports.getWrongAnswers = async (setId, cardId) => {
-  const answer = await fetch(`${rootPath}/card/${setId}/${cardId}
-    /wrong_answers.json`, {
-    method: 'GET',
-  });
-  const wrongAnswers = await answer.json();
-  return wrongAnswers ? wrongAnswers : [];
-};
-
-exports.getCorrectAnswers = async (setId, cardId) => {
-  const answer = await fetch(`${rootPath}/card/${setId}/${cardId}
-    /correct_answers.json`, {
-    method: 'GET',
-  });
-  const correctAnswers = await answer.json();
-  return correctAnswers ? correctAnswers : [];
-};
-
 exports.addWrongAnswers = async (setId, cardId, wrongAnswersList) => {
   const wrongAnswersObj = {wrong: wrongAnswersList};
-  await fetch(`${rootPath}/card/${setId}/${cardId}.json`, {
-    method: 'PATCH',
-    body: JSON.stringify(wrongAnswersObj),
-    headers: {'Content-Type': 'application/json'},
-  });
+  await callDatabase('PATCH', `card/${setId}/${cardId}.json`, wrongAnswersObj);
 };
 
 exports.addCorrectAnswers = async (setId, cardId, correctAnswersList) => {
-  const correctAnswersObj = {correct: correctAnswersList};
-  await fetch(`${rootPath}/card/${setId}/${cardId}.json`, {
-    method: 'PATCH',
-    body: JSON.stringify(correctAnswersObj),
-    headers: {'Content-Type': 'application/json'},
-  });
+  const correctAnswerObj = {correct: correctAnswersList};
+  await callDatabase('PATCH', `card/${setId}/${cardId}.json`, correctAnswerObj);
 };
-
-
-// ---------------- TEST VERSIONS ---------------------------------
-
-// For LLM Test Function:
-// Currently setting the obj label to be the front of test card
-// FUTURE: path should be wrong_answers/setId/cardId etc.
-// exports.getWrongAnswers = async (front) => {
-//   const answer = await fetch(`${rootPath}/Test_LLM_responses/
-//     ${front}/wrong_answers.json`, {
-//     method: 'GET',
-//   });
-//   const wrongAnswers = await answer.json();
-//   return wrongAnswers ? wrongAnswers : [];
-// };
-// // get functions need auth.
-// exports.getCorrectAnswers = async (front) => {
-//   const answer = await fetch(`${rootPath}/Test_LLM_responses/
-//     ${front}/correct_answers.json`, {
-//     method: 'GET',
-//   });
-
-//   // console.log('fetching answer: ' + answer);
-//   if (!answer.ok) {
-//     console.error('Failed to fetch correct answers:', answer.statusText);
-//     return [];
-//   }
-
-//   const correctAnswers = await answer.json();
-//   return correctAnswers ? correctAnswers : [];
-// };
-
-// exports.addWrongAnswers = async (front, wrongAnswersList) => {
-//   const wrongAnswersObj = {wrong_answers: wrongAnswersList};
-//   await fetch(`${rootPath}/Test_LLM_responses/${front}.json`, {
-//     method: 'PATCH',
-//     body: JSON.stringify(wrongAnswersObj),
-//     headers: {'Content-Type': 'application/json'},
-//   });
-// };
-
-// exports.addCorrectAnswers = async (front, correctAnswersList) => {
-//   const correctAnswersObj = {correct_answers: correctAnswersList};
-//   await fetch(`${rootPath}/Test_LLM_responses/${front}.json`, {
-//     method: 'PATCH',
-//     body: JSON.stringify(correctAnswersObj),
-//     headers: {'Content-Type': 'application/json'},
-//   });
-// };

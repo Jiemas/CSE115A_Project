@@ -81,7 +81,7 @@ export const CreateQuizPage: React.FC = () => {
                 .filter(back => back !== term.back);
               let numLLMTerms = 0;
               let incorrectAnswers: string[] = [];
-              if (term.wrong) {
+              if (term.wrong && term.wrong != 1) {
                 const numDesiredLLMTerms = 1;
                 /*
                 incorrectAnswers = incorrectAnswers.concat(
@@ -95,11 +95,14 @@ export const CreateQuizPage: React.FC = () => {
                 numLLMTerms = numDesiredLLMTerms;
               }
               const chanceOfLLMCorrect = 0.5;
-              if (term.correct && Math.random() < chanceOfLLMCorrect) {
+              if (
+                term.correct &&
+                term.correct != 1 &&
+                Math.random() < chanceOfLLMCorrect
+              ) {
                 // term.back = randomlySelect(['fake answer', 'this cant be right'], 1)[0];
                 // This is the real code, above is just hardcoded for testing
                 term.back = randomlySelect(term.correct, 1)[0];
-                console.log('back overwrite');
               }
               incorrectAnswers = incorrectAnswers.concat(
                 randomlySelect(otherBacks, 3 - numLLMTerms)

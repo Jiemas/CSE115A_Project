@@ -158,7 +158,7 @@ test('PUT new, returns string key', async () => {
 });
 
 test('PUT new, after valid request, GET contains set', async () => {
-  await sleep(400).then(async () => {
+  await sleep(700).then(async () => {
     await request.get(path)
       .set('Authorization', `Bearer ${accessToken}`)
       .then((data) => {
@@ -235,7 +235,7 @@ test('PUT update, expect 201, body, known set', async () => {
 });
 
 test('PUT update, after valid request, GET contains updated set', async () => {
-  await sleep(500).then(async () => {
+  await sleep(700).then(async () => {
     await request.get(path)
       .set('Authorization', `Bearer ${accessToken}`)
       .then((data) => {

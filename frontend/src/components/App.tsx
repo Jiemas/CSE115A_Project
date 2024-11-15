@@ -19,10 +19,11 @@ interface SetContextType {
   setSet: React.Dispatch<React.SetStateAction<SetItem>>;
 }
 
-export const SetContext = React.createContext<SetContextType | undefined>(undefined);
+export const SetContext = React.createContext<SetContextType | undefined>(
+  undefined
+);
 
-
-  const App: React.FC = ({}) => {
+const App: React.FC = ({}) => {
   const [set, setSet] = React.useState<SetItem>({
     card_num: 0,
     description: '',
@@ -44,15 +45,13 @@ export const SetContext = React.createContext<SetContextType | undefined>(undefi
 
   return (
     <ThemeProvider theme={theme}>
-      <SetContext.Provider
-        value={{set, setSet}}
-      >
+      <SetContext.Provider value={{ set, setSet }}>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/create-set" element={<CreateSetPage />} />
-            <Route path="/quiz/" element={<CreateQuizPage />} />
+            <Route path='/' element={<Home />} />
+            <Route path='/login' element={<LoginPage />} />
+            <Route path='/create-set' element={<CreateSetPage />} />
+            <Route path='/quiz/' element={<CreateQuizPage />} />
           </Routes>
         </BrowserRouter>
       </SetContext.Provider>

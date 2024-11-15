@@ -2,7 +2,7 @@ const supertest = require('supertest');
 const http = require('http');
 require('dotenv').config();
 const app = require('../src/app');
-const myQueue = require('../src/JobQueue');
+const myQueue = require('../src/jobQueue');
 let server;
 
 setKey = 'bd24a693-5256-4414-9321-c4a3480ad96g';

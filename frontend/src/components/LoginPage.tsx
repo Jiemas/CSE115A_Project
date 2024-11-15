@@ -9,15 +9,12 @@ import {
   Stack,
 } from '@mui/material';
 
-const path = 'http://localhost:3001/v0';
-// const path = 'https://cse115a-project.onrender.com/v0';
-
+import { callBackend } from '../helper';
 
 export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
   const [create, setCreate] = useState(false);
 
   const navigate = useNavigate();
@@ -25,21 +22,20 @@ export const LoginPage: React.FC = () => {
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
-  
-    fetch(`${path}/login`, {
-      method: create ? 'PUT' : 'POST',
-      body: JSON.stringify({email: username, password: password}),
-      headers: {'Content-Type': 'application/json'}
-    })
-      .then((res) => {
+
+    const requestBody = { email: username, password: password };
+    callBackend(create ? 'PUT' : 'POST', 'login', '', requestBody)
+      .then(res => {
         if (!res.ok) {
-          alert(create ? 'Unable to create account' : 'Invalid email or password');
+          alert(
+            create ? 'Unable to create account' : 'Invalid email or password'
+          );
           setLoading(false);
           throw res;
         }
         return res.json();
       })
-      .then(async (json) => {
+      .then(async json => {
         sessionStorage.setItem('accessToken', JSON.stringify(json.accessToken));
         setLoading(false);
         if (create) {
@@ -48,16 +44,17 @@ export const LoginPage: React.FC = () => {
           setPassword('');
         } else {
           navigate('/');
+          window.location.reload();
         }
       });
   };
 
   const handleClickCreate = async () => {
     setCreate(!create);
-  }
+  };
 
   return (
-    <Stack alignItems="center">
+    <Stack alignItems='center'>
       <Paper
         elevation={3}
         sx={{
@@ -67,13 +64,13 @@ export const LoginPage: React.FC = () => {
           maxWidth: '500px',
         }}
       >
-        <Typography variant="h4" mb={1.5} textAlign={'center'}>
+        <Typography variant='h4' mb={1.5} textAlign={'center'}>
           {create ? 'Create Account' : 'Log In'}
         </Typography>
         {loading && (
           <Stack
-            justifyContent="center"
-            alignItems="center"
+            justifyContent='center'
+            alignItems='center'
             sx={{
               position: 'absolute',
               top: 0,
@@ -90,35 +87,35 @@ export const LoginPage: React.FC = () => {
         <form onSubmit={handleLogin}>
           <Stack
             spacing={1}
-            display="flex"
-            justifyContent="center"
-            alignItems="left"
+            display='flex'
+            justifyContent='center'
+            alignItems='left'
           >
             <TextField
-              label="Email"
-              variant="outlined"
+              label='Email'
+              variant='outlined'
               value={username}
               onChange={e => setUsername(e.target.value)}
               disabled={loading}
-              size="medium"
+              size='medium'
               //required
             />
             <TextField
-              label="Password"
-              type="password"
-              variant="outlined"
+              label='Password'
+              type='password'
+              variant='outlined'
               value={password}
               onChange={e => setPassword(e.target.value)}
               disabled={loading}
               //required
             />
-            <Stack display="flex" justifyContent="center" alignItems="center">
+            <Stack display='flex' justifyContent='center' alignItems='center'>
               <Button
-                type="submit"
-                variant="contained"
+                type='submit'
+                variant='contained'
                 disabled={loading || !username || !password ? true : false}
                 sx={{ width: '30%' }}
-                color="primary"
+                color='primary'
               >
                 {create ? 'Create' : 'Login'}
               </Button>
@@ -126,10 +123,10 @@ export const LoginPage: React.FC = () => {
           </Stack>
         </form>
         <Button
-          type="submit"
+          type='submit'
           disabled={loading ? true : false}
           sx={{ width: '100%' }}
-          color="primary"
+          color='primary'
           onClick={handleClickCreate}
         >
           {create ? 'Already Have Account' : 'Create Account'}

@@ -81,7 +81,7 @@ export const CreateQuizPage: React.FC = () => {
                 .filter(back => back !== term.back);
               let numLLMTerms = 0;
               let incorrectAnswers: string[] = [];
-              if (term.wrong && term.wrong != 1) {
+              if (term.wrong && term.wrong != 1 && term.wrong != 2) {
                 const numDesiredLLMTerms = 1;
                 /*
                 incorrectAnswers = incorrectAnswers.concat(

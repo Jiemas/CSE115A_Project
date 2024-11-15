@@ -81,25 +81,25 @@ export const CreateQuizPage: React.FC = () => {
                 .filter(back => back !== term.back);
               let numLLMTerms = 0;
               let incorrectAnswers: string[] = [];
-              if (term.llm) {
-                if (term.llm.wrong) {
-                  const numDesiredLLMTerms = 1;
-                  incorrectAnswers = incorrectAnswers.concat(
-                    randomlySelect(['fake', 'fake again', 'doubly fake'], numDesiredLLMTerms)
-                  );
-                  /* This is the real code, above is just hardcoded for testing
-                  incorrectAnswers = incorrectAnswers.concat(
-                    randomlySelect(term.llm.wrong, numDesiredLLMTerms)
-                  );
-                  */
-                  numLLMTerms = numDesiredLLMTerms;
-                }
-                const chanceOfLLMCorrect = 0.5;
-                if (term.llm.right && Math.random() < chanceOfLLMCorrect) {
-                  term.back = randomlySelect(['fake answer', 'this cant be right'], 1)[0];
-                  // This is the real code, above is just hardcoded for testing
-                  // term.back = randomlySelect(term.llm.right, 1)[0];
-                }
+              if (term.wrong) {
+                const numDesiredLLMTerms = 1;
+                /*
+                incorrectAnswers = incorrectAnswers.concat(
+                  randomlySelect(['fake', 'fake again', 'doubly fake'], numDesiredLLMTerms)
+                );
+                */
+                // This is the real code, above is just hardcoded for testing
+                incorrectAnswers = incorrectAnswers.concat(
+                  randomlySelect(term.wrong, numDesiredLLMTerms)
+                );
+                numLLMTerms = numDesiredLLMTerms;
+              }
+              const chanceOfLLMCorrect = 0.5;
+              if (term.correct && Math.random() < chanceOfLLMCorrect) {
+                // term.back = randomlySelect(['fake answer', 'this cant be right'], 1)[0];
+                // This is the real code, above is just hardcoded for testing
+                term.back = randomlySelect(term.correct, 1)[0];
+                console.log('back overwrite');
               }
               incorrectAnswers = incorrectAnswers.concat(
                 randomlySelect(otherBacks, 3 - numLLMTerms)

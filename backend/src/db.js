@@ -133,9 +133,8 @@ exports.getCorrectAnswers = async (setId, cardId) => {
 };
 
 exports.addWrongAnswers = async (setId, cardId, wrongAnswersList) => {
-  const wrongAnswersObj = {wrong_answers: wrongAnswersList};
-  await fetch(`${rootPath}/card/${setId}/${cardId}
-    /wrong_answers.json`, {
+  const wrongAnswersObj = {wrong: wrongAnswersList};
+  await fetch(`${rootPath}/card/${setId}/${cardId}.json`, {
     method: 'PATCH',
     body: JSON.stringify(wrongAnswersObj),
     headers: {'Content-Type': 'application/json'},
@@ -143,9 +142,8 @@ exports.addWrongAnswers = async (setId, cardId, wrongAnswersList) => {
 };
 
 exports.addCorrectAnswers = async (setId, cardId, correctAnswersList) => {
-  const correctAnswersObj = {correct_answers: correctAnswersList};
-  await fetch(`${rootPath}/card/${setId}/${cardId}
-    /correct_answers.json`, {
+  const correctAnswersObj = {correct: correctAnswersList};
+  await fetch(`${rootPath}/card/${setId}/${cardId}.json`, {
     method: 'PATCH',
     body: JSON.stringify(correctAnswersObj),
     headers: {'Content-Type': 'application/json'},

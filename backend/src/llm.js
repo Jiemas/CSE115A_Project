@@ -89,7 +89,7 @@ exports.llm_queue = async (req, res) => {
   const cards = await db.getAllCards(setId);
   let requestsAdded = 0;
   for (card of cards) {
-    if (card.llm) continue;
+    if (card.wrong && card.correct) continue;
     await myQueue.add({cardId: card.key, setId: setId});
     requestsAdded++;
   }
@@ -107,6 +107,8 @@ myQueue.process(async (job) => {
   const name = set.name;
   const front = card.front;
   const back = card.back;
+  db.addWrongAnswers(setId, cardId, ['list', 'of', 'wrong', 'answers']);
+  db.addCorrectAnswers(setId, cardId, ['list', 'of', 'correct', 'answers']);
   console.log(front, back);
   /*
   // Prompt LLM using Card Info

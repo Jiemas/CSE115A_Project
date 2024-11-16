@@ -112,12 +112,8 @@ exports.deleteUser = async (key) => {
   await callDatabase('DELETE', `user/${key}.json`);
 };
 
-exports.addWrongAnswers = async (setId, cardId, wrongAnswersList) => {
-  const wrongAnswersObj = {wrong: wrongAnswersList};
-  await callDatabase('PATCH', `card/${setId}/${cardId}.json`, wrongAnswersObj);
-};
-
-exports.addCorrectAnswers = async (setId, cardId, correctAnswersList) => {
-  const correctAnswerObj = {correct: correctAnswersList};
-  await callDatabase('PATCH', `card/${setId}/${cardId}.json`, correctAnswerObj);
+exports.addLLM = async (setId, cardId, llmData, responseType) => {
+  const llmObj = {};
+  llmObj[responseType] = llmData;
+  await callDatabase('PATCH', `card/${setId}/${cardId}.json`, llmObj);
 };

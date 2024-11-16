@@ -77,79 +77,41 @@ export const CreateQuizPage: React.FC = () => {
         .then(data => {
           // Shuffle terms before setting them in state
           const shuffledTerms = shuffleArray(data);
-          // console.log('data: ' + data);
+          const termsCopy = JSON.parse(JSON.stringify(data));
           setTerms(shuffledTerms);
-          // console.log('shuffled terms: ' + shuffledTerms);
 
           // Generate choices for each term using unique random options
           const initialChoices = shuffledTerms.reduce(
             (acc, term) => {
               // Filter out the current term's `back` value to avoid duplication
-              const otherBacks = shuffledTerms
-                .map(t => t.back)
-                .filter(back => back !== term.back);
+              const otherBacks = termsCopy
+                .map((t: { back: any }) => t.back)
+                .filter((back: string) => back !== term.back);
               let numLLMTerms = 0;
-              console.log('term: ' + term.front);
-              console.log('other backs: ' + otherBacks);
-              console.log('term.llm: ' + term.llm);
-              console.log('term.wrong: ' + term.wrong);
-
-
-              // EDITED: running into an issue where it never goes into term.llm, it's not true
+              const numDesiredLLMTerms = 1;
               let incorrectAnswers: { text: string; isLLM: boolean }[] = []; // string[] = [];
-              if (term.llm) {
-                console.log('term.llm: ' + term.llm);
-                if (term.llm.wrong) {
-                  const numDesiredLLMTerms = 1; // edited this v
-                  // console.log('Term wrong answers:', term.wrong);
-                  incorrectAnswers = randomlySelect(
-                    term.llm.wrong,
-                    numDesiredLLMTerms,
-                    true
-                  );
-                  // ).map(answer => ({
-                  //   text: answer,
-                  //   isLLM: true, // Mark as LLM-generated
-                  // }));
-
-                  // const numDesiredLLMTerms = 1;
-                  // incorrectAnswers = incorrectAnswers.concat(
-                  //   randomlySelect(['fake', 'fake again', 'doubly fake'], numDesiredLLMTerms)
-                  // );
-                  /* This is the real code, above is just hardcoded for testing
-                  incorrectAnswers = incorrectAnswers.concat(
-                    randomlySelect(term.llm.wrong, numDesiredLLMTerms)
-                  );
-                  */
-                  numLLMTerms = numDesiredLLMTerms;
-                }
-                const chanceOfLLMCorrect = 0.5;
-                if (term.llm.right && Math.random() < chanceOfLLMCorrect) {
-                  // term.back = randomlySelect(['fake answer', 'this cant be right'], 1)[0];
-                  // This is the real code, above is just hardcoded for testing
-                  term.back = randomlySelect(term.llm.right, 1, true)[0].text;
-                  console.log('term.back: ' + term.back);
-                }
+              if (term.wrong && numDesiredLLMTerms > 0) {
+                incorrectAnswers = incorrectAnswers.concat(
+                  randomlySelect(term.wrong, numDesiredLLMTerms, true)
+                );
+                numLLMTerms = numDesiredLLMTerms;
               }
-
-              // added this
+              const chanceOfLLMCorrect = 0.5;
+              let correctAnswerIsLLM = false;
+              if (term.correct && Math.random() < chanceOfLLMCorrect) {
+                correctAnswerIsLLM = true;
+              }
               incorrectAnswers = incorrectAnswers.concat(
-                randomlySelect(otherBacks, 3 - numLLMTerms, false) //.map(answer => ({
-                //   text: answer,
-                //   isLLM: false, // Not LLM-generated
-                // }))
+                randomlySelect(otherBacks, 3 - numLLMTerms, false)
               );
-              console.log('Choices for term:', term.front, incorrectAnswers);
-              console.log(
-                'LLM-generated answers:',
-                incorrectAnswers.filter(answer => answer.isLLM)
-              );
-              //   randomlySelect(otherBacks, 3 - numLLMTerms)
-              // );
-
-              // Combine the correct answer with incorrect answers and shuffle them
               const options = [
-                { text: term.back, isLLM: false },
+                {
+                  text: correctAnswerIsLLM
+                    ? randomlySelect(term.wrong, numDesiredLLMTerms, true)[0]
+                        .text
+                    : term.back,
+                  isLLM: correctAnswerIsLLM,
+                },
                 ...incorrectAnswers,
               ].sort(() => Math.random() - 0.5);
               acc[term.key] = options;

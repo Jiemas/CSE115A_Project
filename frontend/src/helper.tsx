@@ -1,5 +1,5 @@
-// export const path = 'http://localhost:3001/v0';
-export const path = 'https://cse115a-project.onrender.com/v0';
+export const path = 'http://localhost:3001/v0';
+// export const path = 'https://cse115a-project.onrender.com/v0';
 
 export const waitTime = 1300;
 

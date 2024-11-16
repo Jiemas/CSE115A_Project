@@ -22,12 +22,14 @@ export const CreateQuizPage: React.FC = () => {
   const { set } = context;
   const navigate = useNavigate();
   const [terms, setTerms] = useState<
-    { front: string; back: string; key: string }[]
+    { front: string; back: string; key: string }[] //; llm: boolean
   >([]);
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [key: string]: string;
   }>({});
-  const [choices, setChoices] = useState<{ [key: string]: string[] }>({});
+  const [choices, setChoices] = useState<{
+    [key: string]: { text: string; isLLM: boolean }[]; // changed this, used to be string[]
+  }>({});
   const [isResultsOpen, setIsResultsOpen] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
 
@@ -44,13 +46,18 @@ export const CreateQuizPage: React.FC = () => {
     return JSON.parse(accessToken);
   };
 
-  const randomlySelect = (otherBacks: string[], selectNum: number) => {
-    const incorrectAnswers: string[] = [];
+  // edited with isLLM property
+  const randomlySelect = (
+    otherBacks: string[],
+    selectNum: number,
+    isLLM: boolean
+  ) => {
+    const incorrectAnswers: { text: string; isLLM: boolean }[] = [];
     while (incorrectAnswers.length < selectNum) {
       const randomBack =
         otherBacks[Math.floor(Math.random() * otherBacks.length)];
-      if (!incorrectAnswers.includes(randomBack)) {
-        incorrectAnswers.push(randomBack);
+      if (!incorrectAnswers.some(answer => answer.text === randomBack)) {
+        incorrectAnswers.push({ text: randomBack, isLLM });
       }
     }
     return incorrectAnswers;
@@ -70,7 +77,9 @@ export const CreateQuizPage: React.FC = () => {
         .then(data => {
           // Shuffle terms before setting them in state
           const shuffledTerms = shuffleArray(data);
+          // console.log('data: ' + data);
           setTerms(shuffledTerms);
+          // console.log('shuffled terms: ' + shuffledTerms);
 
           // Generate choices for each term using unique random options
           const initialChoices = shuffledTerms.reduce(
@@ -80,42 +89,74 @@ export const CreateQuizPage: React.FC = () => {
                 .map(t => t.back)
                 .filter(back => back !== term.back);
               let numLLMTerms = 0;
-              let incorrectAnswers: string[] = [];
-              if (term.wrong && term.wrong != 1) {
-                const numDesiredLLMTerms = 1;
-                /*
-                incorrectAnswers = incorrectAnswers.concat(
-                  randomlySelect(['fake', 'fake again', 'doubly fake'], numDesiredLLMTerms)
-                );
-                */
-                // This is the real code, above is just hardcoded for testing
-                incorrectAnswers = incorrectAnswers.concat(
-                  randomlySelect(term.wrong, numDesiredLLMTerms)
-                );
-                numLLMTerms = numDesiredLLMTerms;
+              console.log('term: ' + term.front);
+              console.log('other backs: ' + otherBacks);
+              console.log('term.llm: ' + term.llm);
+              console.log('term.wrong: ' + term.wrong);
+
+
+              // EDITED: running into an issue where it never goes into term.llm, it's not true
+              let incorrectAnswers: { text: string; isLLM: boolean }[] = []; // string[] = [];
+              if (term.llm) {
+                console.log('term.llm: ' + term.llm);
+                if (term.llm.wrong) {
+                  const numDesiredLLMTerms = 1; // edited this v
+                  // console.log('Term wrong answers:', term.wrong);
+                  incorrectAnswers = randomlySelect(
+                    term.llm.wrong,
+                    numDesiredLLMTerms,
+                    true
+                  );
+                  // ).map(answer => ({
+                  //   text: answer,
+                  //   isLLM: true, // Mark as LLM-generated
+                  // }));
+
+                  // const numDesiredLLMTerms = 1;
+                  // incorrectAnswers = incorrectAnswers.concat(
+                  //   randomlySelect(['fake', 'fake again', 'doubly fake'], numDesiredLLMTerms)
+                  // );
+                  /* This is the real code, above is just hardcoded for testing
+                  incorrectAnswers = incorrectAnswers.concat(
+                    randomlySelect(term.llm.wrong, numDesiredLLMTerms)
+                  );
+                  */
+                  numLLMTerms = numDesiredLLMTerms;
+                }
+                const chanceOfLLMCorrect = 0.5;
+                if (term.llm.right && Math.random() < chanceOfLLMCorrect) {
+                  // term.back = randomlySelect(['fake answer', 'this cant be right'], 1)[0];
+                  // This is the real code, above is just hardcoded for testing
+                  term.back = randomlySelect(term.llm.right, 1, true)[0].text;
+                  console.log('term.back: ' + term.back);
+                }
               }
-              const chanceOfLLMCorrect = 0.5;
-              if (
-                term.correct &&
-                term.correct != 1 &&
-                Math.random() < chanceOfLLMCorrect
-              ) {
-                // term.back = randomlySelect(['fake answer', 'this cant be right'], 1)[0];
-                // This is the real code, above is just hardcoded for testing
-                term.back = randomlySelect(term.correct, 1)[0];
-              }
+
+              // added this
               incorrectAnswers = incorrectAnswers.concat(
-                randomlySelect(otherBacks, 3 - numLLMTerms)
+                randomlySelect(otherBacks, 3 - numLLMTerms, false) //.map(answer => ({
+                //   text: answer,
+                //   isLLM: false, // Not LLM-generated
+                // }))
               );
+              console.log('Choices for term:', term.front, incorrectAnswers);
+              console.log(
+                'LLM-generated answers:',
+                incorrectAnswers.filter(answer => answer.isLLM)
+              );
+              //   randomlySelect(otherBacks, 3 - numLLMTerms)
+              // );
 
               // Combine the correct answer with incorrect answers and shuffle them
-              const options = [term.back, ...incorrectAnswers].sort(
-                () => Math.random() - 0.5
-              );
+              const options = [
+                { text: term.back, isLLM: false },
+                ...incorrectAnswers,
+              ].sort(() => Math.random() - 0.5);
               acc[term.key] = options;
               return acc;
             },
-            {} as { [key: string]: string[] }
+            // {} as { [key: string]: string[] }
+            {} as { [key: string]: { text: string; isLLM: boolean }[] }
           );
 
           setChoices(initialChoices);
@@ -194,29 +235,29 @@ export const CreateQuizPage: React.FC = () => {
                     <Button
                       key={choiceIndex}
                       variant='contained'
-                      onClick={() => handleAnswerSelect(term.key, choice)}
+                      onClick={() => handleAnswerSelect(term.key, choice.text)}
                       // disabled={showFeedback} // Keep button highlighted after display results
                       sx={{
                         width: '100%',
                         backgroundColor:
-                          showFeedback && choice === term.back
+                          showFeedback && choice.text === term.back
                             ? 'green'
                             : showFeedback &&
-                                choice === selectedAnswers[term.key] &&
+                                choice.text === selectedAnswers[term.key] &&
                                 !isCorrect
                               ? 'red'
-                              : selectedAnswers[term.key] === choice
+                              : selectedAnswers[term.key] === choice.text
                                 ? '#1565c0'
                                 : 'primary.main',
                         color:
-                          selectedAnswers[term.key] === choice ||
-                          (showFeedback && choice === term.back)
+                          selectedAnswers[term.key] === choice.text ||
+                          (showFeedback && choice.text === term.back)
                             ? '#ffffff'
                             : '#F2EBE3',
                         opacity: showFeedback ? 0.8 : 1,
                       }}
                     >
-                      {choice}
+                      {choice.text} {choice.isLLM && '(LLM)'}
                     </Button>
                   ))}
                 </Box>

@@ -28,7 +28,11 @@ export const CreateQuizPage: React.FC = () => {
     [key: string]: string;
   }>({});
   const [choices, setChoices] = useState<{
-    [key: string]: { text: string; isLLM: boolean }[]; // changed this, used to be string[]
+    [key: string]: {
+      isCorrect: boolean;
+      text: string;
+      isLLM: boolean;
+    }[]; // changed this, used to be string[]
   }>({});
   const [isResultsOpen, setIsResultsOpen] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -89,14 +93,14 @@ export const CreateQuizPage: React.FC = () => {
                 .filter((back: string) => back !== term.back);
               let numLLMTerms = 0;
               const numDesiredLLMTerms = 1;
-              let incorrectAnswers: { text: string; isLLM: boolean }[] = []; // string[] = [];
+              let incorrectAnswers: { text: string; isLLM: boolean }[] = [];
               if (term.wrong && numDesiredLLMTerms > 0) {
                 incorrectAnswers = incorrectAnswers.concat(
                   randomlySelect(term.wrong, numDesiredLLMTerms, true)
                 );
                 numLLMTerms = numDesiredLLMTerms;
               }
-              const chanceOfLLMCorrect = 0.5;
+              const chanceOfLLMCorrect = 0.25;
               let correctAnswerIsLLM = false;
               if (term.correct && Math.random() < chanceOfLLMCorrect) {
                 correctAnswerIsLLM = true;
@@ -107,10 +111,11 @@ export const CreateQuizPage: React.FC = () => {
               const options = [
                 {
                   text: correctAnswerIsLLM
-                    ? randomlySelect(term.wrong, numDesiredLLMTerms, true)[0]
+                    ? randomlySelect(term.correct, numDesiredLLMTerms, true)[0]
                         .text
                     : term.back,
                   isLLM: correctAnswerIsLLM,
+                  isCorrect: true,
                 },
                 ...incorrectAnswers,
               ].sort(() => Math.random() - 0.5);
@@ -202,7 +207,7 @@ export const CreateQuizPage: React.FC = () => {
                       sx={{
                         width: '100%',
                         backgroundColor:
-                          showFeedback && choice.text === term.back
+                          showFeedback && choice.isCorrect
                             ? 'green'
                             : showFeedback &&
                                 choice.text === selectedAnswers[term.key] &&
@@ -230,6 +235,7 @@ export const CreateQuizPage: React.FC = () => {
                     sx={{ marginTop: 1 }}
                   >
                     Incorrect. Correct answer: {term.back}
+                    {term.originalBack}
                   </Typography>
                 )}
                 {showFeedback && isCorrect && (

@@ -13,11 +13,12 @@ numOfAnswers = 9;
 
 // Leaving these functions separate until prompt is finalized
 const wrongAnswerPrompt = (setName, front, back) => {
-  return `In a multiple-choice/free-response quiz on ${setName}, ` +
+  const prompt = `In a multiple-choice/free-response quiz on ${setName}, ` +
     `the question is: "${front}" and the correct answer is "${back}". ` +
     `Generate exactly ${numOfAnswers} unique incorrect answers similar in ` +
     'style to the correct answer, similar in length and complexity, but ' +
-    'distinct from the correct answer. Ensure the JSON is complete and ' +
+    'distinct from the correct answer. Ensure the answers are wrong and ' +
+    'incorrect. Also, ensure the JSON is complete and ' +
     'properly formatted, with no surrounding text, quotes, or backticks ' +
     'and the JSON should have the following structure:' +
     `
@@ -28,42 +29,52 @@ const wrongAnswerPrompt = (setName, front, back) => {
         "Third incorrect answer", ...
       ]
     }`;
+  return prompt;
 };
 
 const correctAnswerPrompt = (setName, front, back) => {
-  return `In a multiple-choice/free-response quiz on ${setName}, ` +
+  const prompt = `In a multiple-choice/free-response quiz on ${setName}, ` +
     `the question is: "${front}" and the correct answer is "${back}". ` +
-    `Generate exactly ${numOfAnswers} unique correct answers similar in ` +
-    'style to the correct answer, similar in length and complexity, but ' +
-    'distinct from the correct answer. Ensure the JSON is complete and ' +
-    'properly formatted, with no surrounding text, quotes, or backticks ' +
-    'and the JSON should have the following structure:' +
+    `Generate exactly ${Math.floor(numOfAnswers / 3)} unique correct answers ` +
+    'similar in style to the correct answer, similar in length and ' +
+    'complexity, but distinct from the correct answer. Ensure the answers ' +
+    'are valid and correct. Also, ensure the JSON is ' +
+    'complete and properly formatted, with no surrounding text, quotes, or ' +
+    'backticks and the JSON should have the following structure:' +
     `
     {
-      "incorrect_answers": [
-        "First incorrect answer",
-        "Second incorrect answer",
-        "Third incorrect answer", ...
+      "correct_answers": [
+        "First correct answer",
+        "Second correct answer",
+        "Third correct answer", ...
       ]
     }`;
+  return prompt;
 };
 
 /* THINGS TO DO:
 3. Add a delete LLM data endpoint (Future Sprint?)
 4. More clearly indicate in frontend when an answer option has been LLM gen
 */
+// meta-llama/Llama-3.2-1L-Instruct:free
 
 const promptLLM = async (prompt) => {
-  const completion = await openai.chat.completions.create({
-    model: 'meta-llama/llama-3.2-1b-instruct:free',
-    messages: [
-      {
-        'role': 'user',
-        'content': prompt,
-      },
-    ],
-  });
-  return completion.choices[0].message.content;
+  let completion;
+  try {
+    completion = await openai.chat.completions.create({
+      model: 'meta-llama/llama-3.2-11b-vision-instruct:free',
+      messages: [
+        {
+          'role': 'user',
+          'content': prompt,
+        },
+      ],
+    });
+    return completion.choices[0].message.content;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
 };
 
 const llmParseResponse = async (response) => {
@@ -84,7 +95,9 @@ const llmParseResponse = async (response) => {
       }
     }
   }
-  return responsesList.length <= 2 * numOfAnswers ? responsesList : 2;
+  return responsesList.length <= 2 * numOfAnswers ?
+    Array.from(new Set(responsesList)) :
+    2;
 };
 
 const isSetIdValidAndAllowed = async (setId, userKey, res) => {
@@ -118,15 +131,14 @@ exports.llm_queue = async (req, res) => {
   for (card of cards) {
     newCards[card.key] = card;
     if (doesCardHaveLLM(card.wrong)) {
-      requestsAdded += pushToQueue(card, setId, 'wrong');
+      requestsAdded += await pushToQueue(card, setId, 'wrong');
       card.wrong = 1;
     }
     if (doesCardHaveLLM(card.correct)) {
-      requestsAdded += pushToQueue(card, setId, 'correct');
+      requestsAdded += await pushToQueue(card, setId, 'correct');
       card.correct = 1;
     }
   }
-  console.log(newCards);
   db.overwriteCards(newCards, setId);
   res.status(201).json(requestsAdded);
 };
@@ -137,14 +149,12 @@ myQueue.process(async (job) => {
   if (!set) return;
   const card = await db.getCard_id(setId, cardId);
   if (!card) return;
-
   const name = set.name;
   const {front, back} = card;
   const prompt = requestType == 'wrong' ?
     wrongAnswerPrompt(name, front, back) :
     correctAnswerPrompt(name, front, back);
   const response = await promptLLM(prompt);
-  console.log(response);
   const parsedResponse = await llmParseResponse(response);
   db.addLLM(setId, cardId, parsedResponse, requestType);
 });

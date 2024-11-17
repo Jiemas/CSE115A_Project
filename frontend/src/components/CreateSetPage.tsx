@@ -287,6 +287,9 @@ export const CreateSetPage: React.FC = () => {
           flexDirection: 'column',
           alignItems: 'center',
           padding: 2,
+          width: '100%',
+          maxWidth: '900px', // Set the maximum width for the container
+          margin: '0 auto', // Center the container horizontally
         }}
       >
         <Typography variant='h4' gutterBottom>
@@ -307,6 +310,7 @@ export const CreateSetPage: React.FC = () => {
           }}
           fullWidth
           margin='normal'
+          multiline
           disabled={setDeleted}
         />
         <TextField
@@ -319,6 +323,7 @@ export const CreateSetPage: React.FC = () => {
           }}
           fullWidth
           margin='normal'
+          multiline
           disabled={setDeleted}
         />
         {set.name ? (
@@ -354,6 +359,7 @@ export const CreateSetPage: React.FC = () => {
                 onChange={e => handleTermChange(index, 'front', e.target.value)}
                 fullWidth
                 margin='normal'
+                multiline
                 disabled={setDeleted}
               />
               <TextField
@@ -362,6 +368,7 @@ export const CreateSetPage: React.FC = () => {
                 onChange={e => handleTermChange(index, 'back', e.target.value)}
                 fullWidth
                 margin='normal'
+                multiline
                 disabled={setDeleted}
               />
               <Button

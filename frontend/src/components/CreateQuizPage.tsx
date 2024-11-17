@@ -103,6 +103,7 @@ export const CreateQuizPage: React.FC = () => {
               const chanceOfLLMCorrect = 0.25;
               let correctAnswerIsLLM = false;
               if (term.correct && Math.random() < chanceOfLLMCorrect) {
+                term.back = randomlySelect(term.correct, numDesiredLLMTerms, true)[0].text;
                 correctAnswerIsLLM = true;
               }
               incorrectAnswers = incorrectAnswers.concat(
@@ -110,10 +111,7 @@ export const CreateQuizPage: React.FC = () => {
               );
               const options = [
                 {
-                  text: correctAnswerIsLLM
-                    ? randomlySelect(term.correct, numDesiredLLMTerms, true)[0]
-                        .text
-                    : term.back,
+                  text: term.back,
                   isLLM: correctAnswerIsLLM,
                   isCorrect: true,
                 },
@@ -184,7 +182,6 @@ export const CreateQuizPage: React.FC = () => {
           terms.map((term, index) => {
             const isCorrect = selectedAnswers[term.key] === term.back;
             const choicesForTerm = choices[term.key];
-
             return (
               <Box key={term.key} sx={{ width: '100%', marginBottom: 3 }}>
                 <Typography variant='h6'>
@@ -234,8 +231,7 @@ export const CreateQuizPage: React.FC = () => {
                     color='error'
                     sx={{ marginTop: 1 }}
                   >
-                    Incorrect. Correct answer: {term.back}
-                    {term.originalBack}
+                    Incorrect. Correct answer: {term.back} Original answer:
                   </Typography>
                 )}
                 {showFeedback && isCorrect && (

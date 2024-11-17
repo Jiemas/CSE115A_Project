@@ -150,13 +150,6 @@ export const CreateQuizPage: React.FC = () => {
     navigate('/create-set');
   };
 
-  const handleLLM = () => {
-    const accessToken = getToken();
-    if (set.key) {
-      callBackend('post', `llm/${set.key}`, accessToken);
-    }
-  };
-
   // Calculate the number of correct answers
   const correctCount = terms.reduce((count, term) => {
     const isCorrect = selectedAnswers[term.key] === term.back;
@@ -256,14 +249,6 @@ export const CreateQuizPage: React.FC = () => {
           sx={{ marginTop: 3 }}
         >
           Display Results
-        </Button>
-        <Button
-          variant='contained'
-          color='primary'
-          onClick={handleLLM}
-          sx={{ marginTop: 3 }}
-        >
-          LLM
         </Button>
         <Button
           variant='contained'

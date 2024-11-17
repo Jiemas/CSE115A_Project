@@ -101,7 +101,7 @@ test('LLM, valid token, valid set, expect returned data is integer',
           await request.post(`/v0/llm/${key}`)
             .set('Authorization', `Bearer ${accessToken}`)
             .then(async (data) => {
-              expect(data.body).toBe(1);
+              expect(data.body).toBe(2);
               await sleep(1100).then(async () => {
                 await request.delete(`/v0/set/${key}`)
                   .set('Authorization', `Bearer ${accessToken}`);

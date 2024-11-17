@@ -271,6 +271,13 @@ export const CreateSetPage: React.FC = () => {
     setTerms(updatedTerms);
   };
 
+  const handleLLM = () => {
+    const accessToken = getToken();
+    if (set.key) {
+      callBackend('post', `llm/${set.key}`, accessToken);
+    }
+  };
+
   return (
     <>
       <NavigationBar />
@@ -413,15 +420,25 @@ export const CreateSetPage: React.FC = () => {
           ''
         )}
         {terms.length >= 4 && (
-          <Button
-            variant='contained'
-            color='primary'
-            onClick={handleQuizMe}
-            sx={{ marginTop: 1 }}
-            disabled={setDeleted}
-          >
-            Quiz Me
-          </Button>
+          <>
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={handleQuizMe}
+              sx={{ marginTop: 1 }}
+              disabled={setDeleted}
+            >
+              Quiz Me
+            </Button>
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={handleLLM}
+              sx={{ marginTop: 3 }}
+            >
+              LLM
+            </Button>
+          </>
         )}
         {set.name ? (
           <Button

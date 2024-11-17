@@ -444,7 +444,7 @@ components:
 
     Card:
       type: object
-      maxProperties: 5
+      maxProperties: 6
       properties:
         front:
           type: string

@@ -42,6 +42,7 @@ export const LoginPage: React.FC = () => {
           setPassword('');
         } else {
           navigate('/');
+          window.location.reload();
         }
       });
   };

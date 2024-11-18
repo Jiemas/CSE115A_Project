@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Divider } from '@mui/material';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Divider,
+  IconButton,
+  Tooltip,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
 import { NavigationBar } from './home-page/NavigationBar';
 import { SetContext } from './App';
@@ -288,8 +297,8 @@ export const CreateSetPage: React.FC = () => {
           alignItems: 'center',
           padding: 2,
           width: '100%',
-          maxWidth: '900px', // Set the maximum width for the container
-          margin: '0 auto', // Center the container horizontally
+          maxWidth: '900px',
+          margin: '0 auto',
         }}
       >
         <Typography variant='h4' gutterBottom>
@@ -348,7 +357,16 @@ export const CreateSetPage: React.FC = () => {
                 display: 'flex',
                 flexDirection: 'row',
                 width: '100%',
-                marginBottom: 1,
+                marginBottom: 4,
+                borderRadius: 1,
+                padding: 2,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                  transform: 'translateY(-2px)',
+                },
+                backgroundColor: '#ffffff',
               }}
             >
               <TextField
@@ -359,6 +377,7 @@ export const CreateSetPage: React.FC = () => {
                 onChange={e => handleTermChange(index, 'front', e.target.value)}
                 fullWidth
                 margin='normal'
+                sx={{ marginRight: 2 }} // Add this line to increase space
                 multiline
                 disabled={setDeleted}
               />
@@ -371,63 +390,75 @@ export const CreateSetPage: React.FC = () => {
                 multiline
                 disabled={setDeleted}
               />
-              <Button
-                variant='contained'
-                color={!item.delete ? 'primary' : 'error'}
-                onClick={() => handleDeleteCard(index)}
-                sx={{ marginTop: 1 }}
-                disabled={setDeleted}
-              >
-                {!item.delete ? 'Delete' : 'Confirm Delete'}
-              </Button>
+              <Tooltip title={!item.delete ? 'Delete' : 'Confirm Delete'}>
+                <span>
+                  <IconButton
+                    color={!item.delete ? 'primary' : 'error'}
+                    onClick={() => handleDeleteCard(index)}
+                    sx={{ marginTop: 1 }}
+                    disabled={setDeleted}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
             </Box>
           ) : (
             ''
           )
         )}
+
         {set.name ? (
           <>
-            <Button
-              variant='contained'
-              color='primary'
-              onClick={handleAddTerm}
-              sx={{ marginTop: 1 }}
-              disabled={setDeleted}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'left',
+                width: '100%',
+              }}
             >
-              Add Another Term
-            </Button>
-            <div>
-              {/* Your existing create set form */}
               <Button
                 variant='contained'
                 color='primary'
-                sx={{ marginTop: 1 }}
-                onClick={() => setIsImportModalOpen(true)}
+                onClick={handleAddTerm}
+                sx={{ marginTop: 1, marginRight: 2 }}
                 disabled={setDeleted}
               >
-                Import Cards
+                Add Another Term
               </Button>
-              <ImportModal
-                isOpen={isImportModalOpen}
-                onClose={() => setIsImportModalOpen(false)}
-                onImport={handleImport}
-              />
-            </div>
-            <Button
-              variant='contained'
-              color={error ? 'error' : 'success'}
-              onClick={handleUpdateSet}
-              sx={{ marginTop: 2 }}
-              disabled={!changed || setDeleted}
+              <div>
+                {/* Your existing create set form */}
+                <Button
+                  variant='contained'
+                  color='primary'
+                  sx={{ marginTop: 1 }}
+                  onClick={() => setIsImportModalOpen(true)}
+                  disabled={setDeleted}
+                >
+                  Import Cards
+                </Button>
+                <Button
+                  variant='contained'
+                  color={error ? 'error' : 'success'}
+                  onClick={handleUpdateSet}
+                  sx={{ marginTop: 1, marginLeft: 2 }}
+                  disabled={!changed || setDeleted}
+                >
+                  Update Set
+                </Button>
+              </div>
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'right',
+                gap: 2,
+                width: '100%',
+              }}
             >
-              Update Set
-            </Button>
-          </>
-        ) : (
-          ''
-        )}
-        {terms.length >= 4 && (
-          <>
             <Button
               variant='contained'
               color='primary'
@@ -441,26 +472,44 @@ export const CreateSetPage: React.FC = () => {
               variant='contained'
               color='primary'
               onClick={handleLLM}
-              sx={{ marginTop: 3 }}
+              sx={{ marginTop: 1 }}
             >
               LLM
             </Button>
+            </Box>
           </>
+        ) : (
+          ''
         )}
         {set.name ? (
+          <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'right',
+            gap: 2,
+            width: '100%',
+          }}
+        >
           <Button
             variant='contained'
             color={confirmSetDelete ? 'error' : 'primary'}
             onClick={handleDeleteSet}
-            sx={{ marginTop: 2 }}
+            sx={{ marginTop: 1 }}
             disabled={setDeleted}
           >
             {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
           </Button>
+        </Box>
         ) : (
           ''
         )}
       </Box>
+      <ImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={handleImport}
+      />
     </>
   );
 };

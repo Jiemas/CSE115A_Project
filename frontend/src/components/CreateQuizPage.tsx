@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Box, Button, Typography, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Box, Button, Typography, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Checkbox, FormControlLabel, Switch } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { SetContext } from './App';
 
@@ -19,11 +19,59 @@ export const CreateQuizPage: React.FC = () => {
   const [isResultsOpen, setIsResultsOpen] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [freeResponseTerms, setFreeResponseTerms] = useState<Set<string>>(new Set());
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(true);
+  const [multipleChoiceEnabled, setMultipleChoiceEnabled] = useState(true);
+  const [freeResponseEnabled, setFreeResponseEnabled] = useState(false);
+  const [quizReady, setQuizReady] = useState(false);
 
+  const shuffleArray = (array: any[]) => array.sort(() => Math.random() - 0.5);
 
-  // Function to shuffle an array
-  const shuffleArray = (array: any[]) => {
-    return array.sort(() => Math.random() - 0.5);
+  const handleSettingsConfirm = () => {
+    setIsSettingsModalOpen(false);
+    setQuizReady(true); // Allow the quiz to render only after settings are confirmed
+
+    const freeResponseSet = new Set<string>();
+    if (multipleChoiceEnabled && freeResponseEnabled) {
+      const startIndexForFreeResponse = Math.floor(terms.length / 2);
+      terms.slice(startIndexForFreeResponse).forEach(term => freeResponseSet.add(term.key));
+    } else if (freeResponseEnabled) {
+      terms.forEach(term => freeResponseSet.add(term.key));
+    }
+    setFreeResponseTerms(freeResponseSet);
+
+    const initialChoices = terms.reduce((acc, term) => {
+      if (freeResponseSet.has(term.key)) {
+        acc[term.key] = [];
+      } else {
+        const otherBacks = terms.map(t => t.back).filter(back => back !== term.back);
+        const incorrectAnswers: string[] = [];
+        while (incorrectAnswers.length < 3) {
+          const randomBack = otherBacks[Math.floor(Math.random() * otherBacks.length)];
+          if (!incorrectAnswers.includes(randomBack)) incorrectAnswers.push(randomBack);
+        }
+        const options = [term.back, ...incorrectAnswers].sort(() => Math.random() - 0.5);
+        acc[term.key] = options;
+      }
+      return acc;
+    }, {} as { [key: string]: string[] });
+
+    setChoices(initialChoices);
+  };
+
+  const handleMultipleChoiceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      setMultipleChoiceEnabled(true);
+    } else if (freeResponseEnabled) {
+      setMultipleChoiceEnabled(false);
+    }
+  };
+
+  const handleFreeResponseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      setFreeResponseEnabled(true);
+    } else if (multipleChoiceEnabled) {
+      setFreeResponseEnabled(false);
+    }
   };
 
   useEffect(() => {
@@ -50,48 +98,8 @@ export const CreateQuizPage: React.FC = () => {
         return res.json();
       })
       .then(data => {
-        // Shuffle terms before setting them in state
         const shuffledTerms = shuffleArray(data);
         setTerms(shuffledTerms);
-
-        // Assign the bottom half of the terms as free response
-        const freeResponseSet = new Set<string>();
-        const startIndexForFreeResponse = Math.floor(shuffledTerms.length / 2);
-        shuffledTerms.slice(startIndexForFreeResponse).forEach(term => {
-          freeResponseSet.add(term.key);
-        });
-        setFreeResponseTerms(freeResponseSet);
-
-        // Generate choices for each term using unique random options
-        const initialChoices = shuffledTerms.reduce((acc, term) => {
-          // Handle free response set first
-          if (freeResponseSet.has(term.key)) {
-            acc[term.key] = []; // No choices for free response
-          }
-          else {
-            // Filter out the current term's `back` value to avoid duplication
-            const otherBacks = shuffledTerms
-              .map(t => t.back)
-              .filter(back => back !== term.back);
-
-            // Randomly select three unique incorrect answers
-            const incorrectAnswers: string[] = [];
-            while (incorrectAnswers.length < 3) {
-              const randomBack = otherBacks[Math.floor(Math.random() * otherBacks.length)];
-              if (!incorrectAnswers.includes(randomBack)) {
-                incorrectAnswers.push(randomBack);
-              }
-            }
-
-            // Combine the correct answer with incorrect answers and shuffle them
-            const options = [term.back, ...incorrectAnswers].sort(() => Math.random() - 0.5);
-            acc[term.key] = options;
-          }
-          return acc;
-          
-        }, {} as { [key: string]: string[] });
-
-        setChoices(initialChoices);
       })
       .catch(error => console.error('Error fetching terms:', error));
     }
@@ -113,7 +121,6 @@ export const CreateQuizPage: React.FC = () => {
     setIsResultsOpen(false);
   };
 
-  // Calculate the number of correct answers
   const correctCount = terms.reduce((count, term) => {
     const userAnswer = selectedAnswers[term.key] || '';
     const isCorrect = freeResponseTerms.has(term.key)
@@ -124,74 +131,93 @@ export const CreateQuizPage: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2, gap: 2 }}>
-      <Typography variant="h4" gutterBottom>
-        Quiz on {set.name}
-      </Typography>
-      {terms.length > 0 ? (
-        terms.map((term, index) => {
-          const userAnswer = selectedAnswers[term.key] || '';
-          const isCorrect = freeResponseTerms.has(term.key)
-            ? userAnswer.trim().toLowerCase() === term.back.trim().toLowerCase()
-            : userAnswer === term.back;          
-          const choicesForTerm = choices[term.key];
+      {/* Settings Modal */}
+      <Dialog open={isSettingsModalOpen} onClose={() => {}}>
+        <DialogTitle>Choose Question Types</DialogTitle>
+        <DialogContent>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <FormControlLabel
+            control={<Switch checked={multipleChoiceEnabled} onChange={handleMultipleChoiceChange} />}
+            label="Multiple Choice"
+          />
+          <FormControlLabel
+            control={<Switch checked={freeResponseEnabled} onChange={handleFreeResponseChange} />}
+            label="Free Response"
+          />
+        </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSettingsConfirm} color="primary">Start Test</Button>
+        </DialogActions>
+      </Dialog>
 
-          return (
-            <Box key={term.key} sx={{ width: '100%', marginBottom: 3 }}>
-              <Typography variant="h6">{index + 1}: {term.front}</Typography>
-              {freeResponseTerms.has(term.key) ? (
-                <TextField
-                  label="Your Answer"
-                  variant="outlined"
-                  value={selectedAnswers[term.key] || ''}
-                  onChange={(e) => handleAnswerSelect(term.key, e.target.value)}
-                  fullWidth
-                  // disabled={showFeedback}
-                />
-              ) : (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, marginTop: 1 }}>
-                  {choicesForTerm.map((choice, choiceIndex) => (
-                    <Button
-                      key={choiceIndex}
-                      variant="contained"
-                      onClick={() => handleAnswerSelect(term.key, choice)}
-                      // disabled={showFeedback}
-                      sx={{
-                        width: '100%',
-                        backgroundColor:
-                          showFeedback && choice === term.back ? 'green' :
-                          showFeedback && choice === selectedAnswers[term.key] && !isCorrect ? 'red' :
-                          selectedAnswers[term.key] === choice ? '#1565c0' : 'primary.main',
-                        color: selectedAnswers[term.key] === choice || (showFeedback && choice === term.back) ? '#ffffff' : 'inherit',
-                        opacity: showFeedback ? 0.8 : 1,
-                      }}
-                    >
-                      {choice}
-                    </Button>
-                  ))}
+      {quizReady ? (
+        <>
+          <Typography variant="h4" gutterBottom>
+            Quiz on {set.name}
+          </Typography>
+          {terms.length > 0 ? (
+            terms.map((term, index) => {
+              const userAnswer = selectedAnswers[term.key] || '';
+              const isCorrect = freeResponseTerms.has(term.key)
+                ? userAnswer.trim().toLowerCase() === term.back.trim().toLowerCase()
+                : userAnswer === term.back;
+              const choicesForTerm = choices[term.key];
+
+              return (
+                <Box key={term.key} sx={{ width: '100%', marginBottom: 3 }}>
+                  <Typography variant="h6">{index + 1}: {term.front}</Typography>
+                  {freeResponseTerms.has(term.key) ? (
+                    <TextField
+                      label="Your Answer"
+                      variant="outlined"
+                      value={selectedAnswers[term.key] || ''}
+                      onChange={(e) => handleAnswerSelect(term.key, e.target.value)}
+                      fullWidth
+                    />
+                  ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, marginTop: 1 }}>
+                      {choicesForTerm.map((choice, choiceIndex) => (
+                        <Button
+                          key={choiceIndex}
+                          variant="contained"
+                          onClick={() => handleAnswerSelect(term.key, choice)}
+                          sx={{
+                            width: '100%',
+                            backgroundColor:
+                              showFeedback && choice === term.back ? 'green' :
+                              showFeedback && choice === selectedAnswers[term.key] && !isCorrect ? 'red' :
+                              selectedAnswers[term.key] === choice ? '#1565c0' : 'primary.main',
+                            color: selectedAnswers[term.key] === choice || (showFeedback && choice === term.back) ? '#ffffff' : 'inherit',
+                            opacity: showFeedback ? 0.8 : 1,
+                          }}
+                        >
+                          {choice}
+                        </Button>
+                      ))}
+                    </Box>
+                  )}
+                  {showFeedback && !isCorrect && (
+                    <Typography variant="body2" color="error" sx={{ marginTop: 1 }}>
+                      Incorrect. Correct answer: {term.back}
+                    </Typography>
+                  )}
+                  {showFeedback && isCorrect && (
+                    <Typography variant="body2" color="green" sx={{ marginTop: 1 }}>
+                      Correct!
+                    </Typography>
+                  )}
                 </Box>
-              )}
-
-              {/* Multiple choice answer feedback */}
-              {showFeedback && !isCorrect && (
-                <Typography variant="body2" color="error" sx={{ marginTop: 1 }}>
-                  Incorrect. Correct answer: {term.back}
-                </Typography>
-              )}
-              {showFeedback && isCorrect && (
-                <Typography variant="body2" color="green" sx={{ marginTop: 1 }}>
-                  Correct!
-                </Typography>
-              )}
-
-            </Box>
-          );
-        })
-      ) : (
-        <Typography>Loading terms...</Typography>
-      )}
-      <Button variant="contained" color="success" onClick={handleDisplayResults} sx={{ marginTop: 3 }}>
-        Display Results
-      </Button>
+              );
+            })
+          ) : (
+            <Typography>Loading terms...</Typography>
+          )}
+          <Button variant="contained" color="success" onClick={handleDisplayResults} sx={{ marginTop: 3 }}>
+            Display Results
+          </Button>
+        </>
+      ) : null}
 
       {/* Results Modal */}
       <Dialog open={isResultsOpen} onClose={handleCloseResults}>

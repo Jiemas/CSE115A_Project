@@ -44,8 +44,7 @@ function renderCreateSetPage() {
   <SetContext.Provider value={{set, setSet}}>
     <Routes>
       <Route path="/" element={<CreateSetPage />} /> 
-      <Route path="/" element={<Home/>} />
-      <Route path="/" element={<div>Worked</div>} />
+      <Route path="/" element={<Home/>} /> 
     </Routes>
   </SetContext.Provider> 
 </MemoryRouter>;
@@ -277,6 +276,6 @@ it('successfully deletes set', async () => {
   // );
   // render(renderCreateSetPage()); 
   await waitFor(() => {
-    expect(screen.getByText('Worked')).toBeInTheDocument(); 
+    expect(screen.getByText('My Flashcards')).toBeInTheDocument(); 
   }, {timeout: 2000});
 });

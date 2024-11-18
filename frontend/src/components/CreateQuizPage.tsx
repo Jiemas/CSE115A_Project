@@ -103,7 +103,11 @@ export const CreateQuizPage: React.FC = () => {
               const chanceOfLLMCorrect = 0.25;
               let correctAnswerIsLLM = false;
               if (term.correct && Math.random() < chanceOfLLMCorrect) {
-                term.back = randomlySelect(term.correct, numDesiredLLMTerms, true)[0].text;
+                term.back = randomlySelect(
+                  term.correct,
+                  numDesiredLLMTerms,
+                  true
+                )[0].text;
                 correctAnswerIsLLM = true;
               }
               incorrectAnswers = incorrectAnswers.concat(
@@ -161,11 +165,9 @@ export const CreateQuizPage: React.FC = () => {
       <NavigationBar />
       <Box
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
           padding: 2,
-          gap: 2,
+          maxWidth: 800,
+          margin: '0 auto',
         }}
       >
         <Typography variant='h4' gutterBottom>
@@ -176,46 +178,76 @@ export const CreateQuizPage: React.FC = () => {
             const isCorrect = selectedAnswers[term.key] === term.back;
             const choicesForTerm = choices[term.key];
             return (
-              <Box key={term.key} sx={{ width: '100%', marginBottom: 3 }}>
+              <Box
+                key={term.key}
+                sx={{
+                  width: '100%',
+                  marginBottom: 3,
+                  borderRadius: 1,
+                  border: '1px solid #e0e0e0',
+                  padding: 2,
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                    transform: 'translateY(-2px)',
+                  },
+                  backgroundColor: '#ffffff',
+                }}
+              >
                 <Typography variant='h6'>
                   {index + 1}: {term.front}
                 </Typography>
                 <Box
                   sx={{
                     display: 'flex',
-                    flexDirection: 'column',
-                    gap: 1,
-                    marginTop: 1,
+                    flexWrap: 'wrap',
+                    gap: 2,
+                    marginTop: 2,
                   }}
                 >
                   {choicesForTerm.map((choice, choiceIndex) => (
-                    <Button
+                    <Box
                       key={choiceIndex}
-                      variant='contained'
-                      onClick={() => handleAnswerSelect(term.key, choice.text)}
-                      // disabled={showFeedback} // Keep button highlighted after display results
-                      sx={{
-                        width: '100%',
-                        backgroundColor:
-                          showFeedback && choice.isCorrect
-                            ? 'green'
-                            : showFeedback &&
-                                choice.text === selectedAnswers[term.key] &&
-                                !isCorrect
-                              ? 'red'
-                              : selectedAnswers[term.key] === choice.text
-                                ? '#1565c0'
-                                : 'primary.main',
-                        color:
-                          selectedAnswers[term.key] === choice.text ||
-                          (showFeedback && choice.text === term.back)
-                            ? '#ffffff'
-                            : '#F2EBE3',
-                        opacity: showFeedback ? 0.8 : 1,
-                      }}
+                      sx={{ flexBasis: 'calc(50% - 8px)', flexGrow: 1 }}
                     >
-                      {choice.text} {choice.isLLM && '(LLM)'}
-                    </Button>
+                      <Button
+                        key={choiceIndex}
+                        variant='contained'
+                        onClick={() =>
+                          handleAnswerSelect(term.key, choice.text)
+                        }
+                        // disabled={showFeedback} // Keep button highlighted after display results
+                        sx={{
+                          height: '100%',
+                          width: '100%',
+                          backgroundColor:
+                            showFeedback && choice.isCorrect
+                              ? 'green'
+                              : showFeedback &&
+                                  choice.text === selectedAnswers[term.key] &&
+                                  !isCorrect
+                                ? 'red'
+                                : selectedAnswers[term.key] === choice.text
+                                  ? '#abdbe3'
+                                  : '#FFFFFF',
+                          color:
+                            selectedAnswers[term.key] === choice.text ||
+                            (showFeedback && choice.text === term.back)
+                              ? '#000000'
+                              : '#000000',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                          opacity: showFeedback ? 0.9 : 1,
+                          '&:hover': {
+                            backgroundColor: '#abdbe3', // This will maintain the current background color on hover
+                            opacity: 0.9, // This will slightly dim the button on hover
+                          },
+                        }}
+                      >
+                        {choice.text} {choice.isLLM && '(LLM)'}
+                      </Button>
+                    </Box>
                   ))}
                 </Box>
                 {showFeedback && !isCorrect && (
@@ -244,20 +276,21 @@ export const CreateQuizPage: React.FC = () => {
         )}
         <Button
           variant='contained'
-          color='success'
-          onClick={handleDisplayResults}
-          sx={{ marginTop: 3 }}
-        >
-          Display Results
-        </Button>
-        <Button
-          variant='contained'
           color='primary'
           onClick={handleBack}
-          sx={{ marginTop: 3 }}
+          sx={{ marginTop: 3, marginRight: 65}}
         >
           Back to Set
         </Button>
+        <Button
+          variant='contained'
+          color='success'
+          onClick={handleDisplayResults}
+          sx={{ marginTop: 3}}
+        >
+          Display Results
+        </Button>
+        
 
         {/* Results Modal */}
         <Dialog open={isResultsOpen} onClose={handleCloseResults}>

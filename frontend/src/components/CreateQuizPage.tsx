@@ -48,22 +48,6 @@ export const CreateQuizPage: React.FC = () => {
 
   const shuffleArray = (array: any[]) => array.sort(() => Math.random() - 0.5);
 
-  const handleSettingsConfirm = () => {
-    setIsSettingsModalOpen(false);
-    setQuizReady(true); // Allow the quiz to render only after settings are confirmed
-
-    const freeResponseSet = new Set<string>();
-    if (multipleChoiceEnabled && freeResponseEnabled) {
-      const startIndexForFreeResponse = Math.floor(terms.length / 2);
-      terms
-        .slice(startIndexForFreeResponse)
-        .forEach(term => freeResponseSet.add(term.key));
-    } else if (freeResponseEnabled) {
-      terms.forEach(term => freeResponseSet.add(term.key));
-    }
-    setFreeResponseTerms(freeResponseSet);
-  };
-
   const handleMultipleChoiceChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -109,7 +93,7 @@ export const CreateQuizPage: React.FC = () => {
     return incorrectAnswers;
   };
 
-  useEffect(() => {
+  const handleSettingsConfirm = () => {
     const accessToken = getToken();
     if (set.key) {
       callBackend('get', `card/${set.key}`, accessToken)
@@ -125,7 +109,6 @@ export const CreateQuizPage: React.FC = () => {
           const shuffledTerms = shuffleArray(data);
           const termsCopy = JSON.parse(JSON.stringify(data));
           setTerms(shuffledTerms);
-
           // Generate choices for each term using unique random options
           const initialChoices = shuffledTerms.reduce(
             (acc, term) => {
@@ -176,10 +159,22 @@ export const CreateQuizPage: React.FC = () => {
           );
 
           setChoices(initialChoices);
+          setIsSettingsModalOpen(false);
+          setQuizReady(true); // Allow the quiz to render only after settings are confirmed
+          const freeResponseSet = new Set<string>();
+          if (multipleChoiceEnabled && freeResponseEnabled) {
+            const startIndexForFreeResponse = Math.floor(termsCopy.length / 2);
+            termsCopy
+              .slice(startIndexForFreeResponse)
+              .forEach(term => freeResponseSet.add(term.key));
+          } else if (freeResponseEnabled) {
+            termsCopy.forEach(term => freeResponseSet.add(term.key));
+          }
+          setFreeResponseTerms(freeResponseSet);
         })
         .catch(error => console.error('Error fetching terms:', error));
     }
-  }, [set, navigate]);
+  };
 
   const handleAnswerSelect = (termKey: string, selectedAnswer: string) => {
     setSelectedAnswers(prevAnswers => ({

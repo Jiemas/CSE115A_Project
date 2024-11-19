@@ -151,6 +151,7 @@ myQueue.process(async (job) => {
   if (!card) return;
   const name = set.name;
   const {front, back} = card;
+  if (!front || !back) return;
   const prompt = requestType == 'wrong' ?
     wrongAnswerPrompt(name, front, back) :
     correctAnswerPrompt(name, front, back);

@@ -3,16 +3,18 @@ import {
   Box,
   Button,
   Typography,
+  TextField,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { SetContext } from './App';
 import { NavigationBar } from './home-page/NavigationBar';
 import { callBackend } from '../helper';
-
 export const CreateQuizPage: React.FC = () => {
   const context = useContext(SetContext);
   if (!context) {
@@ -36,10 +38,50 @@ export const CreateQuizPage: React.FC = () => {
   }>({});
   const [isResultsOpen, setIsResultsOpen] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [freeResponseTerms, setFreeResponseTerms] = useState<Set<string>>(
+    new Set()
+  );
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(true);
+  const [multipleChoiceEnabled, setMultipleChoiceEnabled] = useState(true);
+  const [freeResponseEnabled, setFreeResponseEnabled] = useState(false);
+  const [quizReady, setQuizReady] = useState(false);
 
-  // Function to shuffle an array
-  const shuffleArray = (array: any[]) => {
-    return array.sort(() => Math.random() - 0.5);
+  const shuffleArray = (array: any[]) => array.sort(() => Math.random() - 0.5);
+
+  const handleSettingsConfirm = () => {
+    setIsSettingsModalOpen(false);
+    setQuizReady(true); // Allow the quiz to render only after settings are confirmed
+
+    const freeResponseSet = new Set<string>();
+    if (multipleChoiceEnabled && freeResponseEnabled) {
+      const startIndexForFreeResponse = Math.floor(terms.length / 2);
+      terms
+        .slice(startIndexForFreeResponse)
+        .forEach(term => freeResponseSet.add(term.key));
+    } else if (freeResponseEnabled) {
+      terms.forEach(term => freeResponseSet.add(term.key));
+    }
+    setFreeResponseTerms(freeResponseSet);
+  };
+
+  const handleMultipleChoiceChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (event.target.checked) {
+      setMultipleChoiceEnabled(true);
+    } else if (freeResponseEnabled) {
+      setMultipleChoiceEnabled(false);
+    }
+  };
+
+  const handleFreeResponseChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (event.target.checked) {
+      setFreeResponseEnabled(true);
+    } else if (multipleChoiceEnabled) {
+      setFreeResponseEnabled(false);
+    }
   };
 
   const getToken = () => {
@@ -100,10 +142,19 @@ export const CreateQuizPage: React.FC = () => {
                 );
                 numLLMTerms = numDesiredLLMTerms;
               }
-              const chanceOfLLMCorrect = 0.25;
+              const chanceOfLLMCorrect = 0.75;
               let correctAnswerIsLLM = false;
-              if (term.correct && Math.random() < chanceOfLLMCorrect) {
-                term.back = randomlySelect(term.correct, numDesiredLLMTerms, true)[0].text;
+              if (
+                term.correct &&
+                Math.random() < chanceOfLLMCorrect &&
+                multipleChoiceEnabled &&
+                !freeResponseEnabled
+              ) {
+                term.back = randomlySelect(
+                  term.correct,
+                  numDesiredLLMTerms,
+                  true
+                )[0].text;
                 correctAnswerIsLLM = true;
               }
               incorrectAnswers = incorrectAnswers.concat(
@@ -150,133 +201,187 @@ export const CreateQuizPage: React.FC = () => {
     navigate('/create-set');
   };
 
-  // Calculate the number of correct answers
   const correctCount = terms.reduce((count, term) => {
-    const isCorrect = selectedAnswers[term.key] === term.back;
+    const userAnswer = selectedAnswers[term.key] || '';
+    const isCorrect = freeResponseTerms.has(term.key)
+      ? userAnswer.trim().toLowerCase() === term.back.trim().toLowerCase()
+      : userAnswer === term.back;
     return isCorrect ? count + 1 : count;
   }, 0);
 
   return (
-    <>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: 2,
+        gap: 2,
+      }}
+    >
       <NavigationBar />
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: 2,
-          gap: 2,
-        }}
-      >
-        <Typography variant='h4' gutterBottom>
-          Quiz on {set.name}
-        </Typography>
-        {terms.length > 0 ? (
-          terms.map((term, index) => {
-            const isCorrect = selectedAnswers[term.key] === term.back;
-            const choicesForTerm = choices[term.key];
-            return (
-              <Box key={term.key} sx={{ width: '100%', marginBottom: 3 }}>
-                <Typography variant='h6'>
-                  {index + 1}: {term.front}
-                </Typography>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 1,
-                    marginTop: 1,
-                  }}
-                >
-                  {choicesForTerm.map((choice, choiceIndex) => (
-                    <Button
-                      key={choiceIndex}
-                      variant='contained'
-                      onClick={() => handleAnswerSelect(term.key, choice.text)}
-                      // disabled={showFeedback} // Keep button highlighted after display results
+      {/* Settings Modal */}
+      <Dialog open={isSettingsModalOpen} onClose={() => {}}>
+        <DialogTitle>Choose Question Types</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={multipleChoiceEnabled}
+                  onChange={handleMultipleChoiceChange}
+                />
+              }
+              label='Multiple Choice'
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={freeResponseEnabled}
+                  onChange={handleFreeResponseChange}
+                />
+              }
+              label='Free Response'
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSettingsConfirm} color='primary'>
+            Start Test
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {quizReady ? (
+        <>
+          <Typography variant='h4' gutterBottom>
+            Quiz on {set.name}
+          </Typography>
+          {terms.length > 0 ? (
+            terms.map((term, index) => {
+              const userAnswer = selectedAnswers[term.key] || '';
+              const isCorrect = freeResponseTerms.has(term.key)
+                ? userAnswer.trim().toLowerCase() ===
+                  term.back.trim().toLowerCase()
+                : userAnswer === term.back;
+              const choicesForTerm = choices[term.key];
+
+              return (
+                <Box key={term.key} sx={{ width: '100%', marginBottom: 3 }}>
+                  <Typography variant='h6'>
+                    {index + 1}: {term.front}
+                  </Typography>
+                  {freeResponseTerms.has(term.key) ? (
+                    <TextField
+                      label='Your Answer'
+                      variant='outlined'
+                      value={selectedAnswers[term.key] || ''}
+                      onChange={e =>
+                        handleAnswerSelect(term.key, e.target.value)
+                      }
+                      fullWidth
+                    />
+                  ) : (
+                    <Box
                       sx={{
-                        width: '100%',
-                        backgroundColor:
-                          showFeedback && choice.isCorrect
-                            ? 'green'
-                            : showFeedback &&
-                                choice.text === selectedAnswers[term.key] &&
-                                !isCorrect
-                              ? 'red'
-                              : selectedAnswers[term.key] === choice.text
-                                ? '#1565c0'
-                                : 'primary.main',
-                        color:
-                          selectedAnswers[term.key] === choice.text ||
-                          (showFeedback && choice.text === term.back)
-                            ? '#ffffff'
-                            : '#F2EBE3',
-                        opacity: showFeedback ? 0.8 : 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
+                        marginTop: 1,
                       }}
                     >
-                      {choice.text} {choice.isLLM && '(LLM)'}
-                    </Button>
-                  ))}
+                      {choicesForTerm.map((choice, choiceIndex) => (
+                        <Button
+                          key={choiceIndex}
+                          variant='contained'
+                          onClick={() =>
+                            handleAnswerSelect(term.key, choice.text)
+                          }
+                          sx={{
+                            width: '100%',
+                            backgroundColor:
+                              showFeedback && choice.text === term.back
+                                ? 'green'
+                                : showFeedback &&
+                                    choice.text === selectedAnswers[term.key] &&
+                                    !isCorrect
+                                  ? 'red'
+                                  : selectedAnswers[term.key] === choice.text
+                                    ? '#1565c0'
+                                    : 'primary.main',
+                            color:
+                              selectedAnswers[term.key] === choice.text ||
+                              (showFeedback && choice.text === term.back)
+                                ? '#ffffff'
+                                : '#F2EBE3',
+                            opacity: showFeedback ? 0.8 : 1,
+                          }}
+                        >
+                          {choice.text} {choice.isLLM && '(LLM)'}
+                        </Button>
+                      ))}
+                    </Box>
+                  )}
+                  {showFeedback && !isCorrect && (
+                    <Typography
+                      variant='body2'
+                      color='error'
+                      sx={{ marginTop: 1 }}
+                    >
+                      Incorrect. Correct answer: {term.back}
+                    </Typography>
+                  )}
+                  {showFeedback && isCorrect && (
+                    <Typography
+                      variant='body2'
+                      color='green'
+                      sx={{ marginTop: 1 }}
+                    >
+                      Correct!
+                    </Typography>
+                  )}
                 </Box>
-                {showFeedback && !isCorrect && (
-                  <Typography
-                    variant='body2'
-                    color='error'
-                    sx={{ marginTop: 1 }}
-                  >
-                    Incorrect. Correct answer: {term.back} Original answer:
-                  </Typography>
-                )}
-                {showFeedback && isCorrect && (
-                  <Typography
-                    variant='body2'
-                    color='green'
-                    sx={{ marginTop: 1 }}
-                  >
-                    Correct!
-                  </Typography>
-                )}
-              </Box>
-            );
-          })
-        ) : (
-          <Typography>Loading terms...</Typography>
-        )}
-        <Button
-          variant='contained'
-          color='success'
-          onClick={handleDisplayResults}
-          sx={{ marginTop: 3 }}
-        >
-          Display Results
-        </Button>
-        <Button
-          variant='contained'
-          color='primary'
-          onClick={handleBack}
-          sx={{ marginTop: 3 }}
-        >
-          Back to Set
-        </Button>
+              );
+            })
+          ) : (
+            <Typography>Loading terms...</Typography>
+          )}
+          <Button
+            variant='contained'
+            color='success'
+            onClick={handleDisplayResults}
+            sx={{ marginTop: 3 }}
+          >
+            Display Results
+          </Button>
+          <Button
+            variant='contained'
+            color='primary'
+            onClick={handleBack}
+            sx={{ marginTop: 3 }}
+          >
+            Back to Set
+          </Button>
+        </>
+      ) : null}
 
-        {/* Results Modal */}
-        <Dialog open={isResultsOpen} onClose={handleCloseResults}>
-          <DialogTitle>Quiz Results</DialogTitle>
-          <DialogContent>
-            <Typography variant='h6' fontWeight='bold'>
-              {Math.floor((100 * correctCount) / terms.length)}%
-            </Typography>
-            <Typography variant='h6'>
-              You got {correctCount} out of {terms.length} correct!
-            </Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseResults} color='primary'>
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Box>
-    </>
+      {/* Results Modal */}
+      <Dialog open={isResultsOpen} onClose={handleCloseResults}>
+        <DialogTitle>Quiz Results</DialogTitle>
+        <DialogContent>
+          <Typography variant='h6' fontWeight='bold'>
+            {(100 * correctCount) / terms.length}%
+          </Typography>
+          <Typography variant='h6'>
+            You got {correctCount} out of {terms.length} correct!
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseResults} color='primary'>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };

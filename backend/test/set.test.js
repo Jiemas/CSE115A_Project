@@ -2,7 +2,7 @@ const supertest = require('supertest');
 const http = require('http');
 require('dotenv').config();
 const app = require('../src/app');
-
+const myQueue = require('../src/jobQueue');
 let server;
 
 // https://www.sitepoint.com/delay-sleep-pause-wait/
@@ -23,6 +23,7 @@ beforeAll(() => {
 
 afterAll((done) => {
   server.close(done);
+  myQueue.close();
 });
 
 setKey = 'bd24a693-5256-4414-9321-c4a3480ad96g';
@@ -157,7 +158,7 @@ test('PUT new, returns string key', async () => {
 });
 
 test('PUT new, after valid request, GET contains set', async () => {
-  await sleep(400).then(async () => {
+  await sleep(700).then(async () => {
     await request.get(path)
       .set('Authorization', `Bearer ${accessToken}`)
       .then((data) => {
@@ -234,7 +235,7 @@ test('PUT update, expect 201, body, known set', async () => {
 });
 
 test('PUT update, after valid request, GET contains updated set', async () => {
-  await sleep(500).then(async () => {
+  await sleep(700).then(async () => {
     await request.get(path)
       .set('Authorization', `Bearer ${accessToken}`)
       .then((data) => {

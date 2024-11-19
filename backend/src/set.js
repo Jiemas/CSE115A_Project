@@ -1,9 +1,21 @@
 const db = require('./db');
 const crypto = require('crypto');
 
+const isSetIdValidAndAllowed = async (setId, userKey, res) => {
+  const set = await db.getSet_id(setId);
+  if (!set) {
+    res.status(404).send();
+    return false;
+  }
+  if (set.owner !== userKey) {
+    res.status(403).send();
+    return false;
+  }
+  return set;
+};
+
 // Called by PUT '/v0/set' (Create Set)
 exports.add = async (req, res) => {
-  // Gets set name from request parameter
   const setName = req.body.name;
 
   // Checks if a set is already using the name
@@ -27,61 +39,33 @@ exports.add = async (req, res) => {
 
 // Called by GET '/v0/set' (Read Sets)
 exports.getAll = async (req, res) => {
-  // When login is implemented, 'global' will have to become variable
-  // Will then have to add cases where fetch returns nothing
   const sets = await db.getAllSets(req.user.key);
   if (!sets) {
     res.status(404).send();
+    return;
   }
   res.status(200).json(sets);
 };
 
 // Called by PUT '/v0/set/:id' (Update Set)
 exports.update = async (req, res) => {
-  // Gets set id from request parameter
   const id = req.params.id;
-
-  // Checks that set id is valid
-  const exists = await db.getSet_id(id);
-  if (exists == null) {
-    res.status(404).send();
-    return;
-  }
-
-  // If user does not own the requested set, return 403
-  if (exists.owner !== req.user.key) {
-    res.status(403).send();
-    return;
-  }
+  const set = await isSetIdValidAndAllowed(id, req.user.key, res);
+  if (!set) return;
 
   // Updates specified set with new data
   const newObj = {};
   newObj[id] = req.body;
   req.body.key = id;
-  req.body.owner = exists.owner;
+  req.body.owner = set.owner;
   db.addSet(newObj, null);
   res.status(201).send();
 };
 
 // Called by DELETE '/v0/set/:id' (Delete Set)
 exports.delete = async (req, res) => {
-  // Gets set id from request parameter
   const id = req.params.id;
-
-  // Checks that set id is valid
-  const exists = await db.getSet_id(id);
-  if (exists == null) {
-    res.status(404).send();
-    return;
-  }
-
-  // If user does not own the requested set, return 403
-  if (exists.owner !== req.user.key) {
-    res.status(403).send();
-    return;
-  }
-
-  // Deletes set
+  if (!(await isSetIdValidAndAllowed(id, req.user.key, res))) return;
   db.deleteSet(id);
   res.status(200).send();
 };
@@ -91,17 +75,7 @@ exports.import = async (req, res) => {
     const setId = req.params.setId;
     const cards = req.body;
 
-    // Check if the set exists
-    const setExists = await db.getSet_id(setId);
-    if (!setExists) {
-      return res.status(404).send();
-    }
-
-    // If the user doesnt have the correct authorization
-    if (setExists.owner != req.user.key) {
-      res.status(403).send();
-      return;
-    }
+    if (!(await isSetIdValidAndAllowed(setId, req.user.key, res))) return;
 
     const lines = cards.split('\n');
     const newCards = {};

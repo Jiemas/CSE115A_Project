@@ -13,9 +13,19 @@ export const CreateQuizPage: React.FC = () => {
 
   const { set } = context;
   const navigate = useNavigate();
-  const [terms, setTerms] = useState<{ front: string; back: string; key: string }[]>([]);
-  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: string]: string }>({});
-  const [choices, setChoices] = useState<{ [key: string]: string[] }>({});
+  const [terms, setTerms] = useState<
+    { front: string; back: string; key: string }[] //; llm: boolean
+  >([]);
+  const [selectedAnswers, setSelectedAnswers] = useState<{
+    [key: string]: string;
+  }>({});
+  const [choices, setChoices] = useState<{
+    [key: string]: {
+      isCorrect: boolean;
+      text: string;
+      isLLM: boolean;
+    }[]; // changed this, used to be string[]
+  }>({});
   const [isResultsOpen, setIsResultsOpen] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [freeResponseTerms, setFreeResponseTerms] = useState<Set<string>>(new Set());
@@ -74,34 +84,91 @@ export const CreateQuizPage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+  const getToken = () => {
     let accessToken = sessionStorage.getItem('accessToken');
     if (!accessToken) {
       navigate('/login');
-      return;
     }
-    accessToken = JSON.parse(accessToken);
+    return JSON.parse(accessToken);
+  };
 
+  // edited with isLLM property
+  const randomlySelect = (
+    otherBacks: string[],
+    selectNum: number,
+    isLLM: boolean
+  ) => {
+    const incorrectAnswers: { text: string; isLLM: boolean }[] = [];
+    while (incorrectAnswers.length < selectNum) {
+      const randomBack =
+        otherBacks[Math.floor(Math.random() * otherBacks.length)];
+      if (!incorrectAnswers.some(answer => answer.text === randomBack)) {
+        incorrectAnswers.push({ text: randomBack, isLLM });
+      }
+    }
+    return incorrectAnswers;
+  };
+
+  useEffect(() => {
+    const accessToken = getToken();
     if (set.key) {
-      fetch(`${path}/card/${set.key}`, {
-        method: 'get',
-        headers: new Headers({
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        }),
-      })
-      .then(res => {
-        if (res.status === 403 || res.status === 401) {
-          navigate('/login');
-          throw new Error('Unauthorized');
-        }
-        return res.json();
-      })
-      .then(data => {
-        const shuffledTerms = shuffleArray(data);
-        setTerms(shuffledTerms);
-      })
-      .catch(error => console.error('Error fetching terms:', error));
+      callBackend('get', `card/${set.key}`, accessToken)
+        .then(res => {
+          if (res.status === 403 || res.status === 401) {
+            navigate('/login');
+            throw new Error('Unauthorized');
+          }
+          return res.json();
+        })
+        .then(data => {
+          // Shuffle terms before setting them in state
+          const shuffledTerms = shuffleArray(data);
+          const termsCopy = JSON.parse(JSON.stringify(data));
+          setTerms(shuffledTerms);
+
+          // Generate choices for each term using unique random options
+          const initialChoices = shuffledTerms.reduce(
+            (acc, term) => {
+              // Filter out the current term's `back` value to avoid duplication
+              const otherBacks = termsCopy
+                .map((t: { back: any }) => t.back)
+                .filter((back: string) => back !== term.back);
+              let numLLMTerms = 0;
+              const numDesiredLLMTerms = 1;
+              let incorrectAnswers: { text: string; isLLM: boolean }[] = [];
+              if (term.wrong && numDesiredLLMTerms > 0) {
+                incorrectAnswers = incorrectAnswers.concat(
+                  randomlySelect(term.wrong, numDesiredLLMTerms, true)
+                );
+                numLLMTerms = numDesiredLLMTerms;
+              }
+              const chanceOfLLMCorrect = 0.25;
+              let correctAnswerIsLLM = false;
+              if (term.correct && Math.random() < chanceOfLLMCorrect) {
+                term.back = randomlySelect(term.correct, numDesiredLLMTerms, true)[0].text;
+                correctAnswerIsLLM = true;
+              }
+              incorrectAnswers = incorrectAnswers.concat(
+                randomlySelect(otherBacks, 3 - numLLMTerms, false)
+              );
+              const options = [
+                {
+                  text: term.back,
+                  isLLM: correctAnswerIsLLM,
+                  isCorrect: true,
+                },
+                ...incorrectAnswers,
+              ].sort(() => Math.random() - 0.5);
+              acc[term.key] = options;
+              return acc;
+            },
+            // {} as { [key: string]: string[] }
+            {} as { [key: string]: { text: string; isLLM: boolean }[] }
+          );
+
+          setChoices(initialChoices);
+        })
+        .catch(error => console.error('Error fetching terms:', error));
     }
   }, [set, navigate]);
 
@@ -131,6 +198,7 @@ export const CreateQuizPage: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2, gap: 2 }}>
+      <NavigationBar />
       {/* Settings Modal */}
       <Dialog open={isSettingsModalOpen} onClose={() => {}}>
         <DialogTitle>Choose Question Types</DialogTitle>
@@ -188,11 +256,11 @@ export const CreateQuizPage: React.FC = () => {
                               showFeedback && choice === term.back ? 'green' :
                               showFeedback && choice === selectedAnswers[term.key] && !isCorrect ? 'red' :
                               selectedAnswers[term.key] === choice ? '#1565c0' : 'primary.main',
-                            color: selectedAnswers[term.key] === choice || (showFeedback && choice === term.back) ? '#ffffff' : 'inherit',
+                            color: selectedAnswers[term.key] === choice || (showFeedback && choice === term.back) ? '#ffffff' : '#F2EBE3',
                             opacity: showFeedback ? 0.8 : 1,
                           }}
                         >
-                          {choice}
+                          {choice.text} {choice.isLLM && '(LLM)'}
                         </Button>
                       ))}
                     </Box>
@@ -215,6 +283,14 @@ export const CreateQuizPage: React.FC = () => {
           )}
           <Button variant="contained" color="success" onClick={handleDisplayResults} sx={{ marginTop: 3 }}>
             Display Results
+          </Button>
+          <Button
+            variant='contained'
+            color='primary'
+            onClick={handleBack}
+            sx={{ marginTop: 3 }}
+          >
+            Back to Set
           </Button>
         </>
       ) : null}

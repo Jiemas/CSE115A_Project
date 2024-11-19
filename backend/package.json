@@ -16,6 +16,7 @@
     "bcrypt": "*",
     "bcryptjs": "^2.4.3",
     "body-parser": "*",
+    "bull": "*",
     "cors": "^2.8.5",
     "dotenv": "*",
     "express": "*",
@@ -23,6 +24,8 @@
     "js-yaml": "*",
     "jsonwebtoken": "*",
     "openai": "*",
+    "pm2": "^5.4.2",
+    "redis": "^4.7.0",
     "swagger-ui-express": "*"
   },
   "jest": {
@@ -49,6 +52,7 @@
     ]
   },
   "scripts": {
+    "lstart": "redis-server & nodemon src/server.js",
     "start": "nodemon src/server.js",
     "test": "jest --testTimeout=10000 --runInBand --coverage --verbose --forceExit --detectOpenHandles",
     "lint": "eslint . --no-inline-config --max-warnings 0"

@@ -320,7 +320,20 @@ test('Import with tab delim and newline row delim, expect 200', async () => {
     .send('EnergyME\tthe ability to do work\n')
     .set('Content-Type', 'text/plain')
     .expect(200);
-}, 10000); // Increase timeout to 10 seconds
+
+  // Clean up after the test
+  const response = await request.get(`/v0/card/${setKey}`)
+    .set('Authorization', `Bearer ${accessToken}`);
+
+  // Delete the imported card (checks all cards in the set for the front 'EnergyME')
+  const cards = response.body;
+  for (const card of cards) {
+    if (card.front === 'EnergyME') {
+      await request.delete(`/v0/card/${setKey}?cardId=${card.key}`)
+        .set('Authorization', `Bearer ${accessToken}`);
+    }
+  }
+}, 10000);
 
 test('Import w/ missing term or def, expect 200, no cards added', async () => {
   await request.post(`/v0/import/${setKey}`)

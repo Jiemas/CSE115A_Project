@@ -241,6 +241,7 @@ it('successfully updates the set name, description, and terms', async () => {
 
 // });
 it('successfully deletes set', async () => {
+  set.name = 'Update Set Name'
   server.use(
     http.get(`${path}/card/12345`, async () => {
         return HttpResponse.json({ status: 200 });

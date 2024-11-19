@@ -40,15 +40,70 @@ const setSet = async () => {
  * @return {object}
  */
 function renderCreateSetPage() {
-  return <MemoryRouter> 
+  return <MemoryRouter initialEntries={['/create-set']}> 
   <SetContext.Provider value={{set, setSet}}>
     <Routes>
-      <Route path="/" element={<CreateSetPage />} /> 
-      <Route path="/" element={<Home/>} /> 
+      <Route path="/create-set" element={<CreateSetPage />} /> 
+      <Route path="/" element={<div>Worked</div>} /> 
     </Routes>
   </SetContext.Provider> 
 </MemoryRouter>;
 };
+
+const serverMockGetCards = () => {
+  server.use(
+    http.get(`${path}/card/*`, async () => {
+        return HttpResponse.json([
+          {
+            "front": "string",
+            "back": "string",
+            "starred": true,
+            "key": "string"
+          }
+        ], { status: 200 });
+    }),
+  );
+};
+
+const serverMockGetSet = () => {
+  server.use(
+    http.get(`${URL_set}`, async () => {
+        return HttpResponse.json([
+          {
+            "card_num": 0,
+            "description": "string",
+            "name": "string",
+            "owner": "string",
+            "key": "12345"
+          }
+        ], { status: 200 });
+    }),
+  );
+};
+
+const serverMockPutSet = () => {
+  server.use(
+    http.put(`${URL_set}`, async () => {
+        return HttpResponse.json('12345', { status: 201 });
+    }),
+  );
+};
+
+const serverMockPutCards = () => {
+  server.use(
+    http.put(`${path}/card/12345`, async () => {
+        return HttpResponse.json([
+          {
+            "front": "string",
+            "back": "string",
+            "starred": true,
+            "key": "string"
+          }
+        ], { status: 201 });
+    }),
+  );
+};
+
 window.sessionStorage.setItem('accessToken', JSON.stringify('random'));
 
 it('renders Create Set page', async () => {
@@ -59,36 +114,9 @@ it('renders Create Set page', async () => {
 }); 
 
 it('success create set', async () => { 
-    server.use(
-        http.put(`${URL_set}`, async () => {
-            return HttpResponse.json('12345', { status: 201 });
-        }),
-    );
-    server.use(
-      http.get(`${path}/card/12345`, async () => {
-          return HttpResponse.json([
-            {
-              "front": "string",
-              "back": "string",
-              "starred": true,
-              "key": "string"
-            }
-          ], { status: 200 });
-      }),
-    );
-    server.use(
-      http.get(`${URL_set}`, async () => {
-          return HttpResponse.json([
-            {
-              "card_num": 0,
-              "description": "string",
-              "name": "string",
-              "owner": "string",
-              "key": "12345"
-            }
-          ], { status: 200 });
-      }),
-    );
+    serverMockPutSet();
+    serverMockGetCards();
+    serverMockGetSet();
     render(renderCreateSetPage());
     
     await waitFor(() => {
@@ -105,36 +133,9 @@ it('success create set', async () => {
   
 it('success add another term', async () => { 
   set.name = ''
-  server.use(
-      http.put(`${URL_set}`, async () => {
-          return HttpResponse.json('12345', { status: 201 });
-      }),
-  );
-  server.use(
-    http.get(`${path}/card/12345`, async () => {
-        return HttpResponse.json([
-          {
-            "front": "string",
-            "back": "string",
-            "starred": true,
-            "key": "string"
-          }
-        ], { status: 200 });
-    }),
-  );
-  server.use(
-    http.get(`${URL_set}`, async () => {
-        return HttpResponse.json([
-          {
-            "card_num": 0,
-            "description": "string",
-            "name": "string",
-            "owner": "string",
-            "key": "12345"
-          }
-        ], { status: 200 });
-    }),
-  );
+  serverMockPutSet();
+  serverMockGetCards();
+  serverMockGetSet();
   render(renderCreateSetPage());
   
   await waitFor(() => {
@@ -160,18 +161,7 @@ it('success add another term', async () => {
 }); 
 
 it('successfully updates the set name, description, and terms', async () => {
-  server.use(
-    http.put(`${path}/card/12345`, async () => {
-        return HttpResponse.json([
-          {
-            "front": "string",
-            "back": "string",
-            "starred": true,
-            "key": "string"
-          }
-        ], { status: 201 });
-    }),
-  );
+  serverMockPutCards();
   server.use(
     http.put(`${URL_set}`, async () => {
         return HttpResponse.json([
@@ -185,7 +175,7 @@ it('successfully updates the set name, description, and terms', async () => {
         ], { status: 201 });
     }),
   );
-  //set.name = 'Set Name'
+  serverMockGetCards();
   render(renderCreateSetPage()); 
   await waitFor(() => {
     expect(screen.getByText('Edit Flashcard Set')).toBeInTheDocument();
@@ -240,15 +230,14 @@ it('successfully updates the set name, description, and terms', async () => {
 //   }, {timeout: 2000});
 
 // });
+
 it('successfully deletes set', async () => {
-  set.name = 'Update Set Name'
+  set.name = 'Update Set Name';
+  set.key = '12345';
+  serverMockGetCards();
+  serverMockPutCards();
   server.use(
-    http.get(`${path}/card/12345`, async () => {
-        return HttpResponse.json({ status: 200 });
-    }),
-  ); 
-  server.use(
-    http.delete(`${URL_set}`, async () => {
+    http.delete(`${URL_set}/*`, async () => {
         return HttpResponse.json({ status: 200 });
     }),
   );
@@ -277,6 +266,6 @@ it('successfully deletes set', async () => {
   // );
   // render(renderCreateSetPage()); 
   await waitFor(() => {
-    expect(screen.getByText('My Flashcards')).toBeInTheDocument(); 
+    expect(screen.getByText('Worked')).toBeInTheDocument(); 
   }, {timeout: 2000});
 });

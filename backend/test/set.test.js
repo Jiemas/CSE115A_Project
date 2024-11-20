@@ -2,7 +2,7 @@ const supertest = require('supertest');
 const http = require('http');
 require('dotenv').config();
 const app = require('../src/app');
-
+const myQueue = require('../src/jobQueue');
 let server;
 
 // https://www.sitepoint.com/delay-sleep-pause-wait/
@@ -23,6 +23,7 @@ beforeAll(() => {
 
 afterAll((done) => {
   server.close(done);
+  myQueue.close();
 });
 
 setKey = 'bd24a693-5256-4414-9321-c4a3480ad96g';
@@ -157,7 +158,7 @@ test('PUT new, returns string key', async () => {
 });
 
 test('PUT new, after valid request, GET contains set', async () => {
-  await sleep(400).then(async () => {
+  await sleep(700).then(async () => {
     await request.get(path)
       .set('Authorization', `Bearer ${accessToken}`)
       .then((data) => {
@@ -234,7 +235,7 @@ test('PUT update, expect 201, body, known set', async () => {
 });
 
 test('PUT update, after valid request, GET contains updated set', async () => {
-  await sleep(500).then(async () => {
+  await sleep(700).then(async () => {
     await request.get(path)
       .set('Authorization', `Bearer ${accessToken}`)
       .then((data) => {
@@ -319,7 +320,20 @@ test('Import with tab delim and newline row delim, expect 200', async () => {
     .send('EnergyME\tthe ability to do work\n')
     .set('Content-Type', 'text/plain')
     .expect(200);
-}, 10000); // Increase timeout to 10 seconds
+
+  // Clean up after the test
+  const response = await request.get(`/v0/card/${setKey}`)
+    .set('Authorization', `Bearer ${accessToken}`);
+
+  // Delete the imported card (checks all cards in the set for the front 'EnergyME')
+  const cards = response.body;
+  for (const card of cards) {
+    if (card.front === 'EnergyME') {
+      await request.delete(`/v0/card/${setKey}?cardId=${card.key}`)
+        .set('Authorization', `Bearer ${accessToken}`);
+    }
+  }
+}, 10000);
 
 test('Import w/ missing term or def, expect 200, no cards added', async () => {
   await request.post(`/v0/import/${setKey}`)

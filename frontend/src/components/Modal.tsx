@@ -39,12 +39,16 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div style={modalStyles.overlay}>
       <div style={modalStyles.content}>
-        <button style={modalStyles.closeButton} onClick={onClose}>×</button>
+        <button style={modalStyles.closeButton} onClick={onClose}>
+          ×
+        </button>
         {children}
       </div>
     </div>

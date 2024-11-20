@@ -1,10 +1,10 @@
 import React from 'react';
-import {it, beforeAll, afterAll, afterEach} from 'vitest';
-import {render, screen, fireEvent, waitFor} from '@testing-library/react';
-import {setupServer} from 'msw/node';
-import {http, HttpResponse} from 'msw';
+import { it, beforeAll, afterAll, afterEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
 import { MemoryRouter, Routes, Route, sessionStorage } from 'react-router-dom';
-import { Home } from '../components/home-page/HomePage'; 
+import { Home } from '../components/home-page/HomePage';
 import { expect } from 'vitest';
 import { SetContext } from '../components/App';   
 
@@ -14,23 +14,24 @@ const URL_set = `${path}/set`;
 async function inputToField(label, value) {
   // https://allmaddesigns.com/test-text-input-in-jest-with-fireevent/
   await fireEvent.change(screen.getByLabelText(label), {
-    target: {value}});
+    target: { value },
+  });
 }
 
 const server = setupServer();
 
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
-afterAll(() => server.close());  
+afterAll(() => server.close());
 
 let set = {
-    card_num: 0,
-    description: '',
-    name: '',
-    owner: '',
-    key: ''
+  card_num: 0,
+  description: '',
+  name: '',
+  owner: '',
+  key: '',
 };
-const setSet = (elem) => {
+const setSet = elem => {
   set = elem;
 };
 
@@ -38,14 +39,16 @@ const setSet = (elem) => {
  * @return {object}
  */
 function renderHome() {
-  return <MemoryRouter> 
-  <SetContext.Provider value={{set, setSet}}>
-    <Routes>
-      <Route path="/" element={<Home />} />
-    </Routes>
-  </SetContext.Provider> 
-</MemoryRouter>;
-};
+  return (
+    <MemoryRouter>
+      <SetContext.Provider value={{ set, setSet }}>
+        <Routes>
+          <Route path='/' element={<Home />} />
+        </Routes>
+      </SetContext.Provider>
+    </MemoryRouter>
+  );
+}
 
 it('renders homepage', async () => {
   window.sessionStorage.setItem('accessToken', JSON.stringify('random'));
@@ -66,7 +69,7 @@ it('renders homepage', async () => {
   await waitFor(() => {
     expect(screen.getByText('My Flashcards')).toBeInTheDocument();
   });
-}); 
+});
 
 it('create set button works', async () => {    
   server.use(
@@ -83,14 +86,15 @@ it('create set button works', async () => {
     }),
   );
   render(
-    <MemoryRouter> 
-      <SetContext.Provider value={{set, setSet}}>
+    <MemoryRouter>
+      <SetContext.Provider value={{ set, setSet }}>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/create-set" element={<div>Worked</div>} />
+          <Route path='/' element={<Home />} />
+          <Route path='/create-set' element={<div>Worked</div>} />
         </Routes>
-      </SetContext.Provider> 
-</MemoryRouter>); 
+      </SetContext.Provider>
+    </MemoryRouter>
+  );
 
   await waitFor(() => {
     expect(screen.getByText('My Flashcards')).toBeInTheDocument();
@@ -98,7 +102,7 @@ it('create set button works', async () => {
 
   await waitFor(() => {
     fireEvent.click(screen.getByText('Create New Set'));
-  }); 
+  });
 
   await waitFor(() => {
     expect(screen.getByText('Worked')).toBeInTheDocument();

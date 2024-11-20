@@ -1,8 +1,7 @@
 # Rapid Review
 
-Welcome to the frontend of Rapid Review! This frontend
-application is built with [React](https://reactjs.org/) and
-[MUI](https://mui.com/).
+Welcome to the frontend of Rapid Review! This frontend application is built with
+[React](https://reactjs.org/) and [MUI](https://mui.com/).
 
 _Note: This website is a work in progress. The content is not final._
 
@@ -35,8 +34,8 @@ Please install/update the following software before moving on:
 
 - Clone this repository
 
-- Install/update [pnpm](https://pnpm.io/) v7.30.0 (Faster, more disk space efficient
-  package manager than `npm`).
+- Install/update [pnpm](https://pnpm.io/) v7.30.0 (Faster, more disk space
+  efficient package manager than `npm`).
 
 - Run `pnpm install` in the cloned repo to install project dependencies.
 
@@ -100,4 +99,6 @@ When you try to make a Git commit, the following happens in the background:
 
   ## Run unit tests
 
-pnpm run test
+`pnpm test` Runs all the tests in Test folder
+
+`pnpm coverage` Checks code coverage across files in frontend

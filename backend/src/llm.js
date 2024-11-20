@@ -37,10 +37,12 @@ const wrongAnswerPrompt = (setName, front, back) => {
 const correctAnswerPrompt = (setName, front, back) => {
   const prompt = `In a multiple-choice/free-response quiz on ${setName}, ` +
     `the question is: "${front}" and the correct answer is "${back}". ` +
-    `Generate exactly ${Math.floor(numOfAnswers / 3)} unique correct answers ` +
-    'similar in style to the correct answer, similar in length and ' +
-    'complexity, but distinct from the correct answer. Ensure the answers ' +
-    'are valid and correct. Also, ensure the JSON is ' +
+    `Generate exactly ${Math.floor(numOfAnswers / 3)} alternative correct ` +
+    'answers that must be semantically equivalent to the original correct ' +
+    'answer, different in wording but expressing the same concept, similar ' +
+    'in length and complexity to the original answer, and still maintaining ' +
+    'the same level of technical accuracy. Ensure each answer rephrases the ' +
+    'same correct concept in a unique way. Also, ensure the JSON is ' +
     'complete and properly formatted, with no surrounding text, quotes, or ' +
     'backticks and the JSON should have the following structure:' +
     `

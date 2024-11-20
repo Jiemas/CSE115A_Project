@@ -52,7 +52,6 @@ export const CreateSetPage: React.FC = () => {
 
   React.useEffect(() => {
     const accessToken = getToken();
-
     if (set.name && !setDeleted && !changed) {
       callBackend('get', `card/${set.key}`, accessToken)
         .then(res => {
@@ -123,15 +122,15 @@ export const CreateSetPage: React.FC = () => {
   };
 
   const updateSet = async (accessToken: string) => {
-    const updated_set = JSON.parse(JSON.stringify(set));
-    delete updated_set.key;
-    delete updated_set.owner;
-    updated_set.name = setName;
-    updated_set.description = setDescription;
-    updated_set.card_num = terms.filter(
-      term => term.delete < 2 || !term.delete
-    ).length;
+    const updated_set = {
+      name: setName,
+      description: setDescription,
+      card_num: terms.filter(term => term.delete < 2 || !term.delete).length,
+    };
     await callBackend('put', `set/${set.key}`, accessToken, updated_set);
+    updated_set.key = set.key;
+    updated_set.owner = set.owner;
+    setSet(updated_set);
   };
 
   const checkForDuplicates = () => {
@@ -458,23 +457,34 @@ export const CreateSetPage: React.FC = () => {
                 width: '100%',
               }}
             >
-            <Button
-              variant='contained'
-              color='primary'
-              onClick={handleQuizMe}
-              sx={{ marginTop: 1 }}
-              disabled={setDeleted}
-            >
-              Quiz Me
-            </Button>
-            <Button
-              variant='contained'
-              color='primary'
-              onClick={handleLLM}
-              sx={{ marginTop: 1 }}
-            >
-              LLM
-            </Button>
+              {set.card_num && set.card_num > 3 ? (
+                <>
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    onClick={handleQuizMe}
+                    sx={{ marginTop: 1 }}
+                    disabled={setDeleted}
+                  >
+                    Quiz Me
+                  </Button>
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    onClick={handleLLM}
+                    sx={{ marginTop: 1 }}
+                    disabled={
+                      setDeleted || (set.card_num && set.card_num > 10)
+                        ? true
+                        : false
+                    }
+                  >
+                    LLM
+                  </Button>
+                </>
+              ) : (
+                ''
+              )}
             </Box>
           </>
         ) : (
@@ -482,24 +492,24 @@ export const CreateSetPage: React.FC = () => {
         )}
         {set.name ? (
           <Box
-          sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'right',
-            gap: 2,
-            width: '100%',
-          }}
-        >
-          <Button
-            variant='contained'
-            color={confirmSetDelete ? 'error' : 'primary'}
-            onClick={handleDeleteSet}
-            sx={{ marginTop: 1 }}
-            disabled={setDeleted}
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'right',
+              gap: 2,
+              width: '100%',
+            }}
           >
-            {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
-          </Button>
-        </Box>
+            <Button
+              variant='contained'
+              color={confirmSetDelete ? 'error' : 'primary'}
+              onClick={handleDeleteSet}
+              sx={{ marginTop: 1 }}
+              disabled={setDeleted}
+            >
+              {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
+            </Button>
+          </Box>
         ) : (
           ''
         )}

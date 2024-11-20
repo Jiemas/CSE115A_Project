@@ -15,11 +15,13 @@ numOfAnswers = 9;
 const wrongAnswerPrompt = (setName, front, back) => {
   const prompt = `In a multiple-choice/free-response quiz on ${setName}, ` +
     `the question is: "${front}" and the correct answer is "${back}". ` +
-    `Generate exactly ${numOfAnswers} unique incorrect answers similar in ` +
-    'style to the correct answer, similar in length and complexity, but ' +
-    'distinct from the correct answer. Ensure the answers are wrong and ' +
-    'incorrect. Also, ensure the JSON is complete and ' +
-    'properly formatted, with no surrounding text, quotes, or backticks ' +
+    `Generate exactly ${Math.floor(numOfAnswers / 2)} INCORRECT answers ` +
+    'that MUST be completely distinct from eachother, be factually wrong ' +
+    'and contradict the correct answer, never be synonymous or partially ' +
+    `correct versions of "${back}", and maintain similar length and ` +
+    `complexity to "${back}". Ensure the JSON is complete and properly ` +
+    'formatted, with no surrounding text, quotes, or backticks, ' +
+    'properly formatted, with no surrounding text, quotes, or backticks, ' +
     'and the JSON should have the following structure:' +
     `
     {

@@ -134,13 +134,9 @@ export const CreateQuizPage: React.FC = () => {
                 !freeResponseEnabled
               ) {
                 term.back = randomlySelect(
-                  
                   term.correct,
-                 
                   numDesiredLLMTerms,
-                 
                   true
-                
                 )[0].text;
                 correctAnswerIsLLM = true;
               }
@@ -209,178 +205,210 @@ export const CreateQuizPage: React.FC = () => {
   }, 0);
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: 2,
-        gap: 2,
-      }}
-    >
+    <>
       <NavigationBar />
-      {/* Settings Modal */}
-      <Dialog open={isSettingsModalOpen} onClose={() => {}}>
-        <DialogTitle>Choose Question Types</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={multipleChoiceEnabled}
-                  onChange={handleMultipleChoiceChange}
-                />
-              }
-              label='Multiple Choice'
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={freeResponseEnabled}
-                  onChange={handleFreeResponseChange}
-                />
-              }
-              label='Free Response'
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleSettingsConfirm} color='primary'>
-            Start Test
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <Box
+        sx={{
+          padding: 2,
+          maxWidth: 800,
+          margin: '0 auto',
+        }}
+      >
+        {/* Settings Modal */}
+        <Dialog open={isSettingsModalOpen} onClose={() => {}}>
+          <DialogTitle>Choose Question Types</DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={multipleChoiceEnabled}
+                    onChange={handleMultipleChoiceChange}
+                  />
+                }
+                label='Multiple Choice'
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={freeResponseEnabled}
+                    onChange={handleFreeResponseChange}
+                  />
+                }
+                label='Free Response'
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleSettingsConfirm} color='primary'>
+              Start Test
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-      {quizReady ? (
-        <>
-          <Typography variant='h4' gutterBottom>
-            Quiz on {set.name}
-          </Typography>
-          {terms.length > 0 ? (
-            terms.map((term, index) => {
-              const userAnswer = selectedAnswers[term.key] || '';
-              const isCorrect = freeResponseTerms.has(term.key)
-                ? userAnswer.trim().toLowerCase() ===
-                  term.back.trim().toLowerCase()
-                : userAnswer === term.back;
-              const choicesForTerm = choices[term.key];
+        {quizReady ? (
+          <>
+            <Typography variant='h4' gutterBottom>
+              Quiz on {set.name}
+            </Typography>
+            {terms.length > 0 ? (
+              terms.map((term, index) => {
+                const userAnswer = selectedAnswers[term.key] || '';
+                const isCorrect = freeResponseTerms.has(term.key)
+                  ? userAnswer.trim().toLowerCase() ===
+                    term.back.trim().toLowerCase()
+                  : userAnswer === term.back;
+                const choicesForTerm = choices[term.key];
 
-              return (
-                <Box key={term.key} sx={{ width: '100%', marginBottom: 3 }}>
-                  <Typography variant='h6'>
-                    {index + 1}: {term.front}
-                  </Typography>
-                  {freeResponseTerms.has(term.key) ? (
-                    <TextField
-                      label='Your Answer'
-                      variant='outlined'
-                      value={selectedAnswers[term.key] || ''}
-                      onChange={e =>
-                        handleAnswerSelect(term.key, e.target.value)
-                      }
-                      fullWidth
-                    />
-                  ) : (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 1,
-                        marginTop: 1,
-                      }}
-                    >
-                      {choicesForTerm.map((choice, choiceIndex) => (
-                        <Button
-                          key={choiceIndex}
-                          variant='contained'
-                          onClick={() =>
-                            handleAnswerSelect(term.key, choice.text)
-                          }
-                          sx={{
-                            width: '100%',
-                            backgroundColor:
-                              showFeedback && choice.text === term.back
-                                ? 'green'
-                                : showFeedback &&
-                                    choice.text === selectedAnswers[term.key] &&
-                                    !isCorrect
-                                  ? 'red'
-                                  : selectedAnswers[term.key] === choice.text
-                                    ? '#1565c0'
-                                    : 'primary.main',
-                            color:
-                              selectedAnswers[term.key] === choice.text ||
-                              (showFeedback && choice.text === term.back)
-                                ? '#ffffff'
-                                : '#F2EBE3',
-                            opacity: showFeedback ? 0.8 : 1,
-                          }}
-                        >
-                          {choice.text} {choice.isLLM && '(LLM)'}
-                        </Button>
-                      ))}
-                    </Box>
-                  )}
-                  {showFeedback && !isCorrect && (
-                    <Typography
-                      variant='body2'
-                      color='error'
-                      sx={{ marginTop: 1 }}
-                    >
-                      Incorrect. Correct answer: {term.back}
+                return (
+                  <Box
+                    key={term.key}
+                    sx={{
+                      width: '100%',
+                      marginBottom: 3,
+                      borderRadius: 1,
+                      border: '1px solid #e0e0e0',
+                      padding: 2,
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                        transform: 'translateY(-2px)',
+                      },
+                      backgroundColor: '#ffffff',
+                    }}
+                  >
+                    <Typography variant='h6'>
+                      {index + 1}: {term.front}
                     </Typography>
-                  )}
-                  {showFeedback && isCorrect && (
-                    <Typography
-                      variant='body2'
-                      color='green'
-                      sx={{ marginTop: 1 }}
-                    >
-                      Correct!
-                    </Typography>
-                  )}
-                </Box>
-              );
-            })
-          ) : (
-            <Typography>Loading terms...</Typography>
-          )}
-          <Button
-            variant='contained'
-            color='success'
-            onClick={handleDisplayResults}
-            sx={{ marginTop: 3 }}
-          >
-            Display Results
-          </Button>
-          <Button
-            variant='contained'
-            color='primary'
-            onClick={handleBack}
-            sx={{ marginTop: 3 }}
-          >
-            Back to Set
-          </Button>
-        </>
-      ) : null}
+                    {freeResponseTerms.has(term.key) ? (
+                      <TextField
+                        label='Your Answer'
+                        variant='outlined'
+                        value={selectedAnswers[term.key] || ''}
+                        onChange={e =>
+                          handleAnswerSelect(term.key, e.target.value)
+                        }
+                        fullWidth
+                      />
+                    ) : (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: 2,
+                          marginTop: 2,
+                        }}
+                      >
+                        {choicesForTerm.map((choice, choiceIndex) => (
+                          <Box
+                            key={choiceIndex}
+                            sx={{ flexBasis: 'calc(50% - 8px)', flexGrow: 1 }}
+                          >
+                            <Button
+                              key={choiceIndex}
+                              variant='contained'
+                              onClick={() =>
+                                handleAnswerSelect(term.key, choice.text)
+                              }
+                              sx={{
+                                width: '100%',
+                                height: '100%',
+                                backgroundColor:
+                                  showFeedback && choice.text === term.back
+                                    ? 'green'
+                                    : showFeedback &&
+                                        choice.text ===
+                                          selectedAnswers[term.key] &&
+                                        !isCorrect
+                                      ? 'red'
+                                      : selectedAnswers[term.key] ===
+                                          choice.text
+                                        ? '#abdbe3'
+                                        : '#FFFFFF',
+                                color:
+                                  selectedAnswers[term.key] === choice.text ||
+                                  (showFeedback && choice.text === term.back)
+                                    ? '#000000'
+                                    : '#000000',
+                                transition: 'all 0.3s ease',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                opacity: showFeedback ? 0.9 : 1,
+                                '&:hover': {
+                                  backgroundColor: '#abdbe3', // This will maintain the current background color on hover
+                                  opacity: 0.9, // This will slightly dim the button on hover
+                                },
+                              }}
+                            >
+                              {choice.text} {choice.isLLM && '(LLM)'}
+                            </Button>
+                          </Box>
+                        ))}
+                      </Box>
+                    )}
+                    {showFeedback && !isCorrect && (
+                      <Typography
+                        variant='body2'
+                        color='error'
+                        sx={{ marginTop: 1 }}
+                      >
+                        Incorrect. Correct answer: {term.back}
+                      </Typography>
+                    )}
+                    {showFeedback && isCorrect && (
+                      <Typography
+                        variant='body2'
+                        color='green'
+                        sx={{ marginTop: 1 }}
+                      >
+                        Correct!
+                      </Typography>
+                    )}
+                  </Box>
+                );
+              })
+            ) : (
+              <Typography>Loading terms...</Typography>
+            )}
+            
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={handleBack}
+              sx={{ marginTop: 3, marginRight: 64}}
+            >
+              Back to Set
+            </Button>
 
-      {/* Results Modal */}
-      <Dialog open={isResultsOpen} onClose={handleCloseResults}>
-        <DialogTitle>Quiz Results</DialogTitle>
-        <DialogContent>
-          <Typography variant='h6' fontWeight='bold'>
-            {(100 * correctCount) / terms.length}%
-          </Typography>
-          <Typography variant='h6'>
-            You got {correctCount} out of {terms.length} correct!
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseResults} color='primary'>
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+            <Button
+              variant='contained'
+              color='success'
+              onClick={handleDisplayResults}
+              sx={{ marginTop: 3, }}
+            >
+              Display Results
+            </Button>
+          </>
+        ) : null}
+
+        {/* Results Modal */}
+        <Dialog open={isResultsOpen} onClose={handleCloseResults}>
+          <DialogTitle>Quiz Results</DialogTitle>
+          <DialogContent>
+            <Typography variant='h6' fontWeight='bold'>
+              {(100 * correctCount) / terms.length}%
+            </Typography>
+            <Typography variant='h6'>
+              You got {correctCount} out of {terms.length} correct!
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseResults} color='primary'>
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </>
   );
 };

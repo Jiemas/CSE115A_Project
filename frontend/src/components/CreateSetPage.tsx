@@ -107,6 +107,9 @@ export const CreateSetPage: React.FC = () => {
     setError('');
     const new_set = { description: setDescription, name: setName };
     const answer = await callBackend('put', 'set', accessToken, new_set);
+    if (!answer.ok) {
+      setError('Set name already used');
+    }
     const setKey = await answer.json();
     new_set.key = setKey;
     setSetDeleted(true);
@@ -127,10 +130,19 @@ export const CreateSetPage: React.FC = () => {
       description: setDescription,
       card_num: terms.filter(term => term.delete < 2 || !term.delete).length,
     };
-    await callBackend('put', `set/${set.key}`, accessToken, updated_set);
+    const answer = await callBackend(
+      'put',
+      `set/${set.key}`,
+      accessToken,
+      updated_set
+    );
+    if (!answer.ok) {
+      return true;
+    }
     updated_set.key = set.key;
     updated_set.owner = set.owner;
     setSet(updated_set);
+    return false;
   };
 
   const checkForDuplicates = () => {
@@ -163,7 +175,10 @@ export const CreateSetPage: React.FC = () => {
     }
 
     setError('');
-    await updateSet(accessToken);
+    if (await updateSet(accessToken)) {
+      setError('Set name already used');
+      return;
+    }
     const err409 = checkForDuplicates();
 
     terms.map(term => {

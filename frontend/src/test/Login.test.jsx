@@ -1,11 +1,11 @@
 import React from 'react';
-import {it, beforeAll, afterAll, afterEach} from 'vitest';
-import {render, screen, fireEvent, waitFor} from '@testing-library/react';
-import {setupServer} from 'msw/node';
-import {http, HttpResponse} from 'msw';
-import { MemoryRouter, Routes, Route } from 'react-router-dom'; 
-import { expect } from 'vitest'; 
-import { LoginPage } from '../components/LoginPage';  
+import { it, beforeAll, afterAll, afterEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { expect } from 'vitest';
+import { LoginPage } from '../components/LoginPage';
 
 import { path } from '../helper';
 
@@ -27,16 +27,16 @@ const server = setupServer();
 
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
-afterAll(() => server.close());  
+afterAll(() => server.close());
 
-it('renders the LoginPage by default', () => { 
+it('renders the LoginPage by default', () => {
   render(
     <MemoryRouter>
       <LoginPage create={false} loading={false} />
     </MemoryRouter>
   );
-  expect(screen.getByText('Log In')).toBeInTheDocument(); 
-  expect(screen.getByText('Create Account')).toBeInTheDocument(); 
+  expect(screen.getByText('Log In')).toBeInTheDocument();
+  expect(screen.getByText('Create Account')).toBeInTheDocument();
 });
 
 it('Create Account button works', async () => {

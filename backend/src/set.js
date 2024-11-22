@@ -14,13 +14,18 @@ const isSetIdValidAndAllowed = async (setId, userKey, res) => {
   return set;
 };
 
-// Called by PUT '/v0/set' (Create Set)
-exports.add = async (req, res) => {
-  const setName = req.body.name;
-
+const isSetNameDuplicate = async (setName, userKey) => {
   // Checks if a set is already using the name
   const duplicate = await db.getSet_name(setName);
-  if (duplicate.length) {
+  if (duplicate.length && duplicate[0].owner == userKey) {
+    return duplicate;
+  }
+  return false;
+};
+
+// Called by PUT '/v0/set' (Create Set)
+exports.add = async (req, res) => {
+  if (await isSetNameDuplicate(req.body.name, req.user.key, res)) {
     res.status(409).send();
     return;
   }
@@ -52,7 +57,11 @@ exports.update = async (req, res) => {
   const id = req.params.id;
   const set = await isSetIdValidAndAllowed(id, req.user.key, res);
   if (!set) return;
-
+  const duplicate = await isSetNameDuplicate(req.body.name, req.user.key, res);
+  if (duplicate && duplicate[0].key !== set.key) {
+    res.status(409).send();
+    return;
+  }
   // Updates specified set with new data
   const newObj = {};
   newObj[id] = req.body;

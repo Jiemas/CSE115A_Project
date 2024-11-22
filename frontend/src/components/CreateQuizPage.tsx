@@ -284,6 +284,7 @@ export const CreateQuizPage: React.FC = () => {
                     </Typography>
                     {freeResponseTerms.has(term.key) ? (
                       <TextField
+                        multiline
                         label='Your Answer'
                         variant='outlined'
                         value={selectedAnswers[term.key] || ''}
@@ -308,14 +309,18 @@ export const CreateQuizPage: React.FC = () => {
                           >
                             <Button
                               key={choiceIndex}
-                              variant='contained'
+                              variant='outlined'
                               onClick={() =>
                                 handleAnswerSelect(term.key, choice.text)
                               }
                               sx={{
                                 width: '100%',
                                 height: '100%',
-                                backgroundColor:
+                                backgroundColor: '#FFFFFF',
+                                borderWidth: 3,
+                                borderStyle: 'solid',
+                                textTransform: 'none',
+                                borderColor:
                                   showFeedback && choice.text === term.back
                                     ? 'green'
                                     : showFeedback &&
@@ -371,23 +376,23 @@ export const CreateQuizPage: React.FC = () => {
             ) : (
               <Typography>Loading terms...</Typography>
             )}
-            
-            <Button
-              variant='contained'
-              color='primary'
-              onClick={handleBack}
-              sx={{ marginTop: 3, marginRight: 64}}
-            >
-              Back to Set
-            </Button>
 
             <Button
               variant='contained'
               color='success'
               onClick={handleDisplayResults}
-              sx={{ marginTop: 3, }}
+              sx={{ marginTop: 3 }}
             >
               Display Results
+            </Button>
+
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={handleBack}
+              sx={{ marginTop: 3, marginRight: 64 }}
+            >
+              Back to Set
             </Button>
           </>
         ) : null}
@@ -397,7 +402,7 @@ export const CreateQuizPage: React.FC = () => {
           <DialogTitle>Quiz Results</DialogTitle>
           <DialogContent>
             <Typography variant='h6' fontWeight='bold'>
-              {(100 * correctCount) / terms.length}%
+              {Math.round((100 * correctCount) / terms.length)}%
             </Typography>
             <Typography variant='h6'>
               You got {correctCount} out of {terms.length} correct!

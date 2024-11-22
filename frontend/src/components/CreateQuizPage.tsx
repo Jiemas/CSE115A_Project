@@ -119,7 +119,7 @@ export const CreateQuizPage: React.FC = () => {
               let numLLMTerms = 0;
               const numDesiredLLMTerms = 1;
               let incorrectAnswers: { text: string; isLLM: boolean }[] = [];
-              if (term.wrong && numDesiredLLMTerms > 0) {
+              if (term.wrong && term.wrong != 2 && numDesiredLLMTerms > 0) {
                 incorrectAnswers = incorrectAnswers.concat(
                   randomlySelect(term.wrong, numDesiredLLMTerms, true)
                 );
@@ -129,6 +129,7 @@ export const CreateQuizPage: React.FC = () => {
               let correctAnswerIsLLM = false;
               if (
                 term.correct &&
+                term.correct != 2 &&
                 Math.random() < chanceOfLLMCorrect &&
                 multipleChoiceEnabled &&
                 !freeResponseEnabled

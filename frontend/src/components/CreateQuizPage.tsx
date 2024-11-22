@@ -21,7 +21,7 @@ export const CreateQuizPage: React.FC = () => {
     throw new Error('CreateQuizPage must be used within a SetProvider');
   }
 
-  const { set, setSet } = context;
+  const { set } = context;
   const navigate = useNavigate();
   const [terms, setTerms] = useState<
     { front: string; back: string; key: string }[] //; llm: boolean
@@ -93,23 +93,10 @@ export const CreateQuizPage: React.FC = () => {
     return incorrectAnswers;
   };
 
-  const getSet = () => {
-    const storageSet = sessionStorage.getItem('set');
-    if (!storageSet) {
-      navigate('/login');
-    }
-    const savedSet = JSON.parse(storageSet);
-    if (savedSet.name !== set.name) {
-      setSet(savedSet);
-    }
-    return savedSet;
-  };
-
   const handleSettingsConfirm = () => {
     const accessToken = getToken();
-    const savedSet = getSet();
-    if (savedSet.key) {
-      callBackend('get', `card/${savedSet.key}`, accessToken)
+    if (set.key) {
+      callBackend('get', `card/${set.key}`, accessToken)
         .then(res => {
           if (res.status === 403 || res.status === 401) {
             navigate('/login');
@@ -384,7 +371,7 @@ export const CreateQuizPage: React.FC = () => {
             ) : (
               <Typography>Loading terms...</Typography>
             )}
-
+            
             <Button
               variant='contained'
               color='primary'

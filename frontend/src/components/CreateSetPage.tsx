@@ -15,13 +15,6 @@ import { SetContext } from './App';
 import ImportModal from './ImportModal';
 import { callBackend, waitTime } from '../helper';
 
-const blankSet = {
-  name: '',
-  description: '',
-  card_num: 0,
-  key: 0,
-};
-
 export const CreateSetPage: React.FC = () => {
   const context = React.useContext(SetContext);
   if (!context) {
@@ -57,25 +50,10 @@ export const CreateSetPage: React.FC = () => {
     return JSON.parse(accessToken);
   };
 
-  const getSet = () => {
-    const storageSet = sessionStorage.getItem('set');
-    if (!storageSet) {
-      return set;
-    }
-    const savedSet = JSON.parse(storageSet);
-    if (savedSet.name !== set.name) {
-      setSet(savedSet);
-      setSetName(savedSet.name);
-      setSetDescription(savedSet.description);
-    }
-    return savedSet;
-  };
-
   React.useEffect(() => {
-    const savedSet = getSet();
-    if (savedSet.name && !setDeleted && !changed) {
-      const accessToken = getToken();
-      callBackend('get', `card/${savedSet.key}`, accessToken)
+    const accessToken = getToken();
+    if (set.name && !setDeleted && !changed) {
+      callBackend('get', `card/${set.key}`, accessToken)
         .then(res => {
           if (res.status == 403 || res.status == 401) {
             navigate('/login');
@@ -88,7 +66,7 @@ export const CreateSetPage: React.FC = () => {
           }
         });
     }
-  });
+  }, [terms]);
 
   const handleImport = async (text: string) => {
     setChanged(true);
@@ -137,7 +115,6 @@ export const CreateSetPage: React.FC = () => {
     setSetDeleted(true);
     setTimeout(async () => {
       setSet(new_set);
-      sessionStorage.setItem('set', JSON.stringify(new_set));
       await callBackend('get', `card/${new_set.key}`, accessToken)
         .then(res => res.json())
         .then(async json => {
@@ -203,7 +180,7 @@ export const CreateSetPage: React.FC = () => {
       return;
     }
     const err409 = checkForDuplicates();
-    console.log(terms);
+
     terms.map(term => {
       if (term.changed) {
         if (term.delete < 2) {
@@ -296,8 +273,6 @@ export const CreateSetPage: React.FC = () => {
     if (confirmSetDelete) {
       const accessToken = getToken();
       callBackend('delete', `set/${set.key}`, accessToken);
-      setSet(blankSet);
-      sessionStorage.removeItem('set');
       setSetDeleted(true);
       setTimeout(() => navigate('/'), waitTime);
     } else {

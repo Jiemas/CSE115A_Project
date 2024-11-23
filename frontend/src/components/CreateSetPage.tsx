@@ -203,7 +203,6 @@ export const CreateSetPage: React.FC = () => {
       return;
     }
     const err409 = checkForDuplicates();
-    console.log(terms);
     terms.map(term => {
       if (term.changed) {
         if (term.delete < 2) {

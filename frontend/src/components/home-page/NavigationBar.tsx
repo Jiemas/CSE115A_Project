@@ -41,10 +41,12 @@ export const NavigationBar: React.FC = () => {
 
   const handleLogout = () => {
     sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('set');
     navigate('/login');
   };
 
   const handleClick = () => {
+    sessionStorage.removeItem('set');
     navigate('/');
   };
 

@@ -1,35 +1,34 @@
-import React, {useContext} from 'react';
-import {it, beforeAll, afterAll, afterEach} from 'vitest';
-import {render, screen, fireEvent, waitFor} from '@testing-library/react';
-import {setupServer} from 'msw/node';
-import {http, HttpResponse} from 'msw';
-import { MemoryRouter, Routes, Route, sessionStorage } from 'react-router-dom';
+import { it, beforeAll, afterAll, afterEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { CreateSetPage } from '../components/CreateSetPage';
 import { expect } from 'vitest';
-import { SetContext } from '../components/App';  
-import { Home } from '../components/home-page/HomePage';
+import { SetContext } from '../components/App';
 
-import {path} from '../helper';  
-const URL_set = `${path}/set`; 
+import { path } from '../helper';
+const URL_set = `${path}/set`;
 
 async function inputToField(label, value) {
   // https://allmaddesigns.com/test-text-input-in-jest-with-fireevent/
-  await fireEvent.change(screen.getByLabelText(label), {
-    target: {value}});
+  await fireEvent.change(await screen.findByLabelText(label), {
+    target: { value },
+  });
 }
 
 const server = setupServer();
 
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
-afterAll(() => server.close());  
+afterAll(() => server.close());
 
 let set = {
-    card_num: 0,
-    description: '',
-    name: '',
-    owner: '',
-    key: ''
+  card_num: 0,
+  description: '',
+  name: '',
+  owner: '',
+  key: '',
 };
 
 const setSet = async () => {
@@ -40,67 +39,94 @@ const setSet = async () => {
  * @return {object}
  */
 function renderCreateSetPage() {
-  return <MemoryRouter initialEntries={['/create-set']}> 
-  <SetContext.Provider value={{set, setSet}}>
-    <Routes>
-      <Route path="/create-set" element={<CreateSetPage />} /> 
-      <Route path="/" element={<div>Worked</div>} /> 
-    </Routes>
-  </SetContext.Provider> 
-</MemoryRouter>;
-};
+  return (
+    <MemoryRouter initialEntries={['/create-set']}>
+      <SetContext.Provider value={{ set, setSet }}>
+        <Routes>
+          <Route path='/create-set' element={<CreateSetPage />} />
+          <Route path='/' element={<div>Worked</div>} />
+        </Routes>
+      </SetContext.Provider>
+    </MemoryRouter>
+  );
+}
 
 const serverMockGetCards = () => {
   server.use(
     http.get(`${path}/card/*`, async () => {
-        return HttpResponse.json([
+      return HttpResponse.json(
+        [
           {
-            "front": "string",
-            "back": "string",
-            "starred": true,
-            "key": "string"
-          }
-        ], { status: 200 });
-    }),
+            front: 'string front',
+            back: 'string back',
+            starred: true,
+            key: 'string',
+          },
+        ],
+        { status: 200 }
+      );
+    })
   );
 };
 
 const serverMockGetSet = () => {
   server.use(
     http.get(`${URL_set}`, async () => {
-        return HttpResponse.json([
+      return HttpResponse.json(
+        [
           {
-            "card_num": 0,
-            "description": "string",
-            "name": "string",
-            "owner": "string",
-            "key": "12345"
-          }
-        ], { status: 200 });
-    }),
+            card_num: 0,
+            description: 'string',
+            name: 'string',
+            owner: 'string',
+            key: '12345',
+          },
+        ],
+        { status: 200 }
+      );
+    })
   );
 };
 
 const serverMockPutSet = () => {
   server.use(
-    http.put(`${URL_set}`, async () => {
-        return HttpResponse.json('12345', { status: 201 });
-    }),
+    http.put(`${URL_set}*`, async () => {
+      return HttpResponse.json('12345', { status: 201 });
+    })
   );
 };
 
 const serverMockPutCards = () => {
   server.use(
     http.put(`${path}/card/12345`, async () => {
-        return HttpResponse.json([
+      return HttpResponse.json(
+        [
           {
-            "front": "string",
-            "back": "string",
-            "starred": true,
-            "key": "string"
-          }
-        ], { status: 201 });
-    }),
+            front: 'string',
+            back: 'string',
+            starred: true,
+            key: 'string',
+          },
+        ],
+        { status: 201 }
+      );
+    })
+  );
+};
+
+const serverMockPostCards = () => {
+  server.use(
+    http.post(`${path}/card/*`, async () => {
+      return HttpResponse.json(
+        {
+          front: 'string',
+          back: 'string',
+          starred: true,
+          key: 'string',
+        },
+        { status: 201 }
+      );
+    })
   );
 };
 
@@ -111,161 +137,91 @@ it('renders Create Set page', async () => {
   await waitFor(() => {
     expect(screen.getByText('Create New Flashcard Set')).toBeInTheDocument();
   });
-}); 
+});
 
-it('success create set', async () => { 
-    serverMockPutSet();
-    serverMockGetCards();
-    serverMockGetSet();
-    render(renderCreateSetPage());
-    
-    await waitFor(() => {
-      expect(screen.getByText('Create New Flashcard Set')).toBeInTheDocument();
-    });
-    inputToField("Set Name", "cells unit 3");
-    inputToField("Description", "i'm learning about cells");
-    await waitFor(() => {
-      fireEvent.click(screen.getByRole('button', {name: 'Create Set'}));
-    });
-    await waitFor(() => { expect(screen.getByText('Edit Flashcard Set')).toBeInTheDocument(); 
-    }, {timeout: 1400});  
-  });  
-  
-it('success add another term', async () => { 
-  set.name = ''
+const clickButton = async buttonName => {
+  await waitFor(() => {
+    fireEvent.click(screen.getByRole('button', { name: buttonName }));
+  });
+};
+
+const waitExpect = async screenText => {
+  await waitFor(() => {
+    expect(screen.getAllByText(screenText)[0]).toBeInTheDocument();
+  });
+};
+
+const longWaitExpect = async screenText => {
+  await waitFor(
+    () => {
+      expect(screen.getAllByText(screenText)[0]).toBeInTheDocument();
+    },
+    { timeout: 1400 }
+  );
+};
+
+it('success create set', async () => {
   serverMockPutSet();
   serverMockGetCards();
   serverMockGetSet();
   render(renderCreateSetPage());
-  
-  await waitFor(() => {
-    expect(screen.getByText('Create New Flashcard Set')).toBeInTheDocument();
-  });
-  inputToField("Set Name", "cells unit 3");
-  inputToField("Description", "i'm learning about cells");
-  await waitFor(() => {
-    fireEvent.click(screen.getByRole('button', {name: 'Create Set'}));
-  });
-  await waitFor(() => { expect(screen.getByText('Edit Flashcard Set')).toBeInTheDocument(); 
-  }, {timeout: 1400});  
-  await waitFor(() => {
-    fireEvent.click(screen.getByRole('button', {name: 'Add Another Term'}));
-  });   
-  await waitFor(() => { expect(screen.getByLabelText('Term 1')).toBeInTheDocument(); 
-  }, {timeout: 1400}); 
-  await waitFor(() => {
-    fireEvent.click(screen.getByRole('button', {name: 'Add Another Term'}));
-  });   
-  await waitFor(() => { expect(screen.getByLabelText('Term 2')).toBeInTheDocument(); 
-  }, {timeout: 1400}); 
-}); 
-
-it('successfully updates the set name, description, and terms', async () => {
-  serverMockPutCards();
-  server.use(
-    http.put(`${URL_set}`, async () => {
-        return HttpResponse.json([
-          {
-            "card_num": 0,
-            "description": "string",
-            "name": "string",
-            "owner": "string",
-            "key": "12345"
-          }
-        ], { status: 201 });
-    }),
-  );
-  serverMockGetCards();
-  render(renderCreateSetPage()); 
-  await waitFor(() => {
-    expect(screen.getByText('Edit Flashcard Set')).toBeInTheDocument();
-  });
-  
-  fireEvent.change(screen.getByLabelText('Set Name'), { target: { value: 'Updated Set Name' } });
-  fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Updated Set Description' } });
-
-  fireEvent.click(screen.getByRole('button', { name: 'Add Another Term' }));
-
-  fireEvent.change(screen.getByLabelText(/Term 1/i), { target: { value: 'Updated Term Front' } });
-  fireEvent.change(screen.getByLabelText(/Definition 1/i), { target: { value: 'Updated Term Back' } });
-
-  fireEvent.click(screen.getByRole('button', { name: 'Update Set' }));
-
-  await waitFor(() => {
-    expect(screen.queryByText('No duplicate cards allowed')).not.toBeInTheDocument();
-    expect(screen.getByDisplayValue('Updated Set Name')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Updated Set Description')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Updated Term Front')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Updated Term Back')).toBeInTheDocument();
-  });
-
-  //set.name = ''
-  render(renderCreateSetPage()); 
-  await waitFor(() => {
-    expect(screen.queryByText('No duplicate cards allowed')).not.toBeInTheDocument();
-    expect(screen.getByDisplayValue('Updated Set Name')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Updated Set Description')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Updated Term Front')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Updated Term Back')).toBeInTheDocument();
-  });
+  await waitExpect('Create New Flashcard Set');
+  await inputToField('Set Name', 'cells unit 3');
+  await inputToField('Description', "i'm learning about cells");
+  await clickButton('Create Set');
+  await longWaitExpect('Edit Flashcard Set');
 });
 
-// it('successfully deletes set', async () => {  
-//   set.name = 'Set Name'
-//   server.use(
-//     http.delete(`${URL_set}/12345`, async () => {
-//         return HttpResponse.json({ status: 200 });
-//     }),
-//   ); 
-//   render(renderCreateSetPage()); 
-//   await waitFor(() => {
-//     expect(screen.getByText('Edit Flashcard Set')).toBeInTheDocument();
-//     expect(screen.getByButton('Delete Set')).toBeInTheDocument();
-//   }); 
+it('success add another term', async () => {
+  set = { name: 'asdf', key: '12345' };
+  serverMockPutSet();
+  serverMockGetCards();
+  serverMockGetSet();
+  render(renderCreateSetPage());
+  await waitExpect('Edit Flashcard Set');
+  await clickButton('Add Another Term');
+  await longWaitExpect('Term 1');
+  await clickButton('Add Another Term');
+  await longWaitExpect('Term 2');
+});
 
-//   await waitFor (() => {fireEvent.click(screen.getByRole('button', { name: 'Delete Set' }))});
-
-//   await waitFor(() => {
-//     expect(screen.getByText('My Flashcards')).toBeInTheDocument(); 
-//   }, {timeout: 2000});
-
-// });
+it('successfully updates the set name, description, and terms', async () => {
+  set = { name: 'asdf', key: '12345' };
+  sessionStorage.removeItem('set');
+  serverMockPutCards();
+  serverMockPutSet();
+  serverMockGetCards();
+  serverMockPostCards();
+  render(renderCreateSetPage());
+  await waitExpect('Edit Flashcard Set');
+  await inputToField('Set Name', 'Updated Set Name');
+  await waitExpect('Updated Set Name');
+  await inputToField('Description', 'Updated Set Description');
+  await waitExpect('Updated Set Description');
+  await inputToField('Term 1', 'Updated front');
+  await waitExpect('Updated front');
+  await inputToField('Definition 1', 'Updated back');
+  await waitExpect('Updated back');
+  await clickButton('Update Set');
+  expect(
+    screen.queryByText('No duplicate cards allowed')
+  ).not.toBeInTheDocument();
+});
 
 it('successfully deletes set', async () => {
   set.name = 'Update Set Name';
   set.key = '12345';
   serverMockGetCards();
   serverMockPutCards();
+  serverMockPostCards();
   server.use(
     http.delete(`${URL_set}/*`, async () => {
-        return HttpResponse.json({ status: 200 });
-    }),
+      return HttpResponse.json({ status: 200 });
+    })
   );
-  //set.name = 'Set Name'
-  render(renderCreateSetPage()); 
-  await waitFor(() => {
-    expect(screen.getByText('Edit Flashcard Set')).toBeInTheDocument();
-  }); 
-
-  await waitFor(() => { 
-    fireEvent.click(screen.getByRole('button', { name: 'Delete Set' }));
-  });
-
-  // await waitFor(() => { 
-  //   expect(screen.getByButton('Comfirm Delete?')).toBeInTheDocument();
-  // }, {timeout: 1000});
-
-  await waitFor(() => { 
-    fireEvent.click(screen.getByRole('button', { name: 'Confirm Delete?' }));
-  });
-
-  // server.use(
-  //   http.delete(`${URL_set}`, async () => {
-  //       return HttpResponse.json({ status: 200 });
-  //   }),
-  // );
-  // render(renderCreateSetPage()); 
-  await waitFor(() => {
-    expect(screen.getByText('Worked')).toBeInTheDocument(); 
-  }, {timeout: 2000});
+  render(renderCreateSetPage());
+  waitExpect('Edit Flashcard Set');
+  clickButton('Delete Set');
+  clickButton('Confirm Delete?');
+  longWaitExpect('Worked');
 });

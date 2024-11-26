@@ -135,6 +135,7 @@ export const CreateSetPage: React.FC = () => {
     }
     const setKey = await answer.json();
     new_set.key = setKey;
+    new_set.card_num = 1;
     setSetDeleted(true);
     setTimeout(async () => {
       setSet(new_set);
@@ -317,6 +318,7 @@ export const CreateSetPage: React.FC = () => {
     if (!updatedTerms[index]['delete']) {
       updatedTerms[index]['delete'] = 1;
     } else {
+      console.log(set);
       if (set.card_num == 1) {
         deleteSet();
       }

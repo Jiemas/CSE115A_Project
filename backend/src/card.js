@@ -14,9 +14,9 @@ const isSetIdValidAndAllowed = async (setId, userKey, res) => {
   return set;
 };
 
-const isDuplicateCard = async (front, setId, res) => {
+const isDuplicateCard = async (front, setId, cardId, res) => {
   const card = await db.getCard_front(front, setId, res);
-  if (card) {
+  if (card && card.key !== cardId) {
     res.status(409).send();
     return true;
   }
@@ -29,7 +29,7 @@ exports.add = async (req, res) => {
   const setId = req.params.setId;
 
   if (! (await isSetIdValidAndAllowed(setId, req.user.key, res))) return;
-  if (await isDuplicateCard(req.body.front, setId, res)) return;
+  if (await isDuplicateCard(req.body.front, setId, null, res)) return;
 
   // Sets up data for new card and adds it to db
   req.body.key = crypto.randomUUID();
@@ -73,7 +73,7 @@ exports.update = async (req, res) => {
   const cardId = req.query.cardId;
 
   if (! (await isSetIdValidAndAllowed(setId, req.user.key, res))) return;
-  if (await isDuplicateCard(req.body.front, setId, res)) return;
+  if (await isDuplicateCard(req.body.front, setId, cardId, res)) return;
 
   // Checks validity of cardId
   // was supposed to be above checking duplicate

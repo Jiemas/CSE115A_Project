@@ -151,7 +151,9 @@ export const CreateSetPage: React.FC = () => {
     const updated_set = {
       name: setName,
       description: setDescription,
-      card_num: terms.filter(term => term.delete < 2 || !term.delete).length,
+      card_num: terms.filter(
+        term => (term.delete < 2 || !term.delete) && !term.duplicate
+      ).length,
     };
     const answer = await callBackend(
       'put',
@@ -196,13 +198,12 @@ export const CreateSetPage: React.FC = () => {
     if (!changed) {
       return;
     }
-
+    const err409 = checkForDuplicates();
     setError('');
     if (await updateSet(accessToken)) {
       setError('Set name already used');
       return;
     }
-    const err409 = checkForDuplicates();
     terms.map(term => {
       if (term.changed) {
         if (term.delete < 2) {
@@ -373,53 +374,58 @@ export const CreateSetPage: React.FC = () => {
           disabled={setDeleted}
         />
         <Box>
-          {set.card_num && set.card_num > 3 ? (
+          {set.name ? (
             <>
+              {set.card_num > 3 ? (
+                <>
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    onClick={handleQuizMe}
+                    sx={{ marginTop: 1, marginRight: 2 }}
+                    disabled={setDeleted}
+                  >
+                    Quiz Me
+                  </Button>
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    onClick={handleLLM}
+                    sx={{ marginTop: 1, marginRight: 2 }}
+                    disabled={
+                      setDeleted || (set.card_num && set.card_num > 10)
+                        ? true
+                        : false
+                    }
+                  >
+                    LLM
+                  </Button>
+                </>
+              ) : (
+                ''
+              )}
               <Button
                 variant='contained'
                 color='primary'
-                onClick={handleQuizMe}
                 sx={{ marginTop: 1, marginRight: 2 }}
+                onClick={() => setIsImportModalOpen(true)}
                 disabled={setDeleted}
               >
-                Quiz Me
+                Import Cards
               </Button>
               <Button
                 variant='contained'
-                color='primary'
-                onClick={handleLLM}
-                sx={{ marginTop: 1, marginRight: 2 }}
-                disabled={
-                  setDeleted || (set.card_num && set.card_num > 10)
-                    ? true
-                    : false
-                }
+                color={confirmSetDelete ? 'error' : 'primary'}
+                onClick={handleDeleteSet}
+                sx={{ marginTop: 1 }}
+                disabled={setDeleted}
               >
-                LLM
+                {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
               </Button>
             </>
           ) : (
             ''
           )}
-          <Button
-            variant='contained'
-            color='primary'
-            sx={{ marginTop: 1, marginRight: 2 }}
-            onClick={() => setIsImportModalOpen(true)}
-            disabled={setDeleted}
-          >
-            Import Cards
-          </Button>
-
-          <Button
-            variant='contained'
-            color={confirmSetDelete ? 'error' : 'primary'}
-            onClick={handleDeleteSet}
-            sx={{ marginTop: 1 }}
-            disabled={setDeleted}
-          >
-            {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
-          </Button>
         </Box>
 
         {set.name ? (

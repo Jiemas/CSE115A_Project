@@ -56,12 +56,6 @@ const correctAnswerPrompt = (setName, front, back) => {
   return prompt;
 };
 
-/* THINGS TO DO:
-3. Add a delete LLM data endpoint (Future Sprint?)
-4. More clearly indicate in frontend when an answer option has been LLM gen
-*/
-// meta-llama/Llama-3.2-1L-Instruct:free
-
 const promptLLM = async (prompt) => {
   let completion;
   try {

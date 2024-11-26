@@ -16,7 +16,7 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
-
+// new comment
 export const NavigationBar: React.FC = () => {
   const navigate = useNavigate();
 

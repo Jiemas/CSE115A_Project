@@ -6,7 +6,6 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { CreateSetPage } from '../components/CreateSetPage';
 import { expect } from 'vitest';
 import { SetContext } from '../components/App';
-
 import { path } from '../helper';
 const URL_set = `${path}/set`;
 
@@ -184,6 +183,7 @@ it('success add another term', async () => {
   await clickButton('Add Another Term');
   await longWaitExpect('Term 2');
 });
+
 
 it('successfully updates the set name, description, and terms', async () => {
   set = { name: 'asdf', key: '12345' };

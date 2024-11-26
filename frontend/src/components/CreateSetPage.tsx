@@ -19,7 +19,8 @@ const blankSet = {
   name: '',
   description: '',
   card_num: 0,
-  key: 0,
+  key: '',
+  owner: '',
 };
 
 export const CreateSetPage: React.FC = () => {
@@ -292,14 +293,18 @@ export const CreateSetPage: React.FC = () => {
     setTerms(updatedTerms);
   };
 
+  const deleteSet = () => {
+    const accessToken = getToken();
+    callBackend('delete', `set/${set.key}`, accessToken);
+    setSet(blankSet);
+    sessionStorage.removeItem('set');
+    setSetDeleted(true);
+    setTimeout(() => navigate('/'), waitTime);
+  }
+
   const handleDeleteSet = () => {
     if (confirmSetDelete) {
-      const accessToken = getToken();
-      callBackend('delete', `set/${set.key}`, accessToken);
-      setSet(blankSet);
-      sessionStorage.removeItem('set');
-      setSetDeleted(true);
-      setTimeout(() => navigate('/'), waitTime);
+      deleteSet();
     } else {
       setConfirmSetDelete(true);
     }
@@ -312,6 +317,9 @@ export const CreateSetPage: React.FC = () => {
     if (!updatedTerms[index]['delete']) {
       updatedTerms[index]['delete'] = 1;
     } else {
+      if (set.card_num == 1) {
+        deleteSet();
+      }
       updatedTerms[index]['delete'] += 1;
       updatedTerms[index]['changed'] = true;
     }

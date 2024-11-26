@@ -92,7 +92,7 @@ export const CreateQuizPage: React.FC = () => {
     }
     return incorrectAnswers;
   };
-
+  // Where did this go?
   const getSet = () => {
     const storageSet = sessionStorage.getItem('set');
     if (!storageSet) {

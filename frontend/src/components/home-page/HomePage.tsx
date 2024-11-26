@@ -42,6 +42,11 @@ export const Home: React.FC = () => {
     updateSetThenNavigate(clicked_set);
   };
 
+  const handleCreateNewClick = (newSet: object) => {
+    sessionStorage.removeItem('set');
+    updateSetThenNavigate(newSet);
+  };
+
   React.useEffect(() => {
     const unparsedAccessToken = sessionStorage.getItem('accessToken');
     if (!unparsedAccessToken) {
@@ -89,7 +94,7 @@ export const Home: React.FC = () => {
           <Button
             variant='contained'
             color='primary'
-            onClick={() => updateSetThenNavigate({ name: '', description: '' })}
+            onClick={() => handleCreateNewClick({ name: '', description: '' })}
           >
             Create New Set
           </Button>

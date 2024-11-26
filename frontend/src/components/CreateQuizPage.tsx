@@ -21,7 +21,7 @@ export const CreateQuizPage: React.FC = () => {
     throw new Error('CreateQuizPage must be used within a SetProvider');
   }
 
-  const { set } = context;
+  const { set, setSet } = context;
   const navigate = useNavigate();
   const [terms, setTerms] = useState<
     { front: string; back: string; key: string }[] //; llm: boolean
@@ -93,10 +93,23 @@ export const CreateQuizPage: React.FC = () => {
     return incorrectAnswers;
   };
 
+  const getSet = () => {
+    const storageSet = sessionStorage.getItem('set');
+    if (!storageSet) {
+      navigate('/login');
+    }
+    const savedSet = JSON.parse(storageSet);
+    if (savedSet.name !== set.name) {
+      setSet(savedSet);
+    }
+    return savedSet;
+  };
+
   const handleSettingsConfirm = () => {
     const accessToken = getToken();
-    if (set.key) {
-      callBackend('get', `card/${set.key}`, accessToken)
+    const savedSet = getSet();
+    if (savedSet.key) {
+      callBackend('get', `card/${savedSet.key}`, accessToken)
         .then(res => {
           if (res.status === 403 || res.status === 401) {
             navigate('/login');
@@ -284,7 +297,6 @@ export const CreateQuizPage: React.FC = () => {
                     </Typography>
                     {freeResponseTerms.has(term.key) ? (
                       <TextField
-                        multiline
                         label='Your Answer'
                         variant='outlined'
                         value={selectedAnswers[term.key] || ''}
@@ -309,18 +321,14 @@ export const CreateQuizPage: React.FC = () => {
                           >
                             <Button
                               key={choiceIndex}
-                              variant='outlined'
+                              variant='contained'
                               onClick={() =>
                                 handleAnswerSelect(term.key, choice.text)
                               }
                               sx={{
                                 width: '100%',
                                 height: '100%',
-                                backgroundColor: '#FFFFFF',
-                                borderWidth: 3,
-                                borderStyle: 'solid',
-                                textTransform: 'none',
-                                borderColor:
+                                backgroundColor:
                                   showFeedback && choice.text === term.back
                                     ? 'green'
                                     : showFeedback &&
@@ -379,20 +387,20 @@ export const CreateQuizPage: React.FC = () => {
 
             <Button
               variant='contained'
-              color='success'
-              onClick={handleDisplayResults}
-              sx={{ marginTop: 3 }}
+              color='primary'
+              onClick={handleBack}
+              sx={{ marginTop: 3, marginRight: 64}}
             >
-              Display Results
+              Back to Set
             </Button>
 
             <Button
               variant='contained'
-              color='primary'
-              onClick={handleBack}
-              sx={{ marginTop: 3, marginRight: 64 }}
+              color='success'
+              onClick={handleDisplayResults}
+              sx={{ marginTop: 3, }}
             >
-              Back to Set
+              Display Results
             </Button>
           </>
         ) : null}
@@ -402,7 +410,7 @@ export const CreateQuizPage: React.FC = () => {
           <DialogTitle>Quiz Results</DialogTitle>
           <DialogContent>
             <Typography variant='h6' fontWeight='bold'>
-              {Math.round((100 * correctCount) / terms.length)}%
+              {(100 * correctCount) / terms.length}%
             </Typography>
             <Typography variant='h6'>
               You got {correctCount} out of {terms.length} correct!

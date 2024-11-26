@@ -372,6 +372,56 @@ export const CreateSetPage: React.FC = () => {
           multiline
           disabled={setDeleted}
         />
+        <Box>
+          {set.card_num && set.card_num > 3 ? (
+            <>
+              <Button
+                variant='contained'
+                color='primary'
+                onClick={handleQuizMe}
+                sx={{ marginTop: 1, marginRight: 2 }}
+                disabled={setDeleted}
+              >
+                Quiz Me
+              </Button>
+              <Button
+                variant='contained'
+                color='primary'
+                onClick={handleLLM}
+                sx={{ marginTop: 1, marginRight: 2 }}
+                disabled={
+                  setDeleted || (set.card_num && set.card_num > 10)
+                    ? true
+                    : false
+                }
+              >
+                LLM
+              </Button>
+            </>
+          ) : (
+            ''
+          )}
+          <Button
+            variant='contained'
+            color='primary'
+            sx={{ marginTop: 1, marginRight: 2 }}
+            onClick={() => setIsImportModalOpen(true)}
+            disabled={setDeleted}
+          >
+            Import Cards
+          </Button>
+
+          <Button
+            variant='contained'
+            color={confirmSetDelete ? 'error' : 'primary'}
+            onClick={handleDeleteSet}
+            sx={{ marginTop: 1 }}
+            disabled={setDeleted}
+          >
+            {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
+          </Button>
+        </Box>
+
         {set.name ? (
           ''
         ) : (
@@ -447,14 +497,7 @@ export const CreateSetPage: React.FC = () => {
 
         {set.name ? (
           <>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'left',
-                width: '100%',
-              }}
-            >
+            <Box>
               <Button
                 variant='contained'
                 color='primary'
@@ -464,91 +507,17 @@ export const CreateSetPage: React.FC = () => {
               >
                 Add Another Term
               </Button>
-              <div>
-                {/* Your existing create set form */}
-                <Button
-                  variant='contained'
-                  color='primary'
-                  sx={{ marginTop: 1 }}
-                  onClick={() => setIsImportModalOpen(true)}
-                  disabled={setDeleted}
-                >
-                  Import Cards
-                </Button>
-                <Button
-                  variant='contained'
-                  color={error ? 'error' : 'success'}
-                  onClick={handleUpdateSet}
-                  sx={{ marginTop: 1, marginLeft: 2 }}
-                  disabled={!changed || setDeleted}
-                >
-                  Update Set
-                </Button>
-              </div>
-            </Box>
-
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'right',
-                gap: 2,
-                width: '100%',
-              }}
-            >
-              {set.card_num && set.card_num > 3 ? (
-                <>
-                  <Button
-                    variant='contained'
-                    color='primary'
-                    onClick={handleQuizMe}
-                    sx={{ marginTop: 1 }}
-                    disabled={setDeleted}
-                  >
-                    Quiz Me
-                  </Button>
-                  <Button
-                    variant='contained'
-                    color='primary'
-                    onClick={handleLLM}
-                    sx={{ marginTop: 1 }}
-                    disabled={
-                      setDeleted || (set.card_num && set.card_num > 10)
-                        ? true
-                        : false
-                    }
-                  >
-                    LLM
-                  </Button>
-                </>
-              ) : (
-                ''
-              )}
+              <Button
+                variant='contained'
+                color={error ? 'error' : 'success'}
+                onClick={handleUpdateSet}
+                sx={{ marginTop: 1, marginLeft: 2 }}
+                disabled={!changed || setDeleted}
+              >
+                Update Set
+              </Button>
             </Box>
           </>
-        ) : (
-          ''
-        )}
-        {set.name ? (
-          <Box
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'right',
-              gap: 2,
-              width: '100%',
-            }}
-          >
-            <Button
-              variant='contained'
-              color={confirmSetDelete ? 'error' : 'primary'}
-              onClick={handleDeleteSet}
-              sx={{ marginTop: 1 }}
-              disabled={setDeleted}
-            >
-              {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
-            </Button>
-          </Box>
         ) : (
           ''
         )}

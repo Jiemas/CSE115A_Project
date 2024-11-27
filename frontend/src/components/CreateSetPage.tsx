@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import {
-  Box,
-  Button,
+  Box, 
   TextField,
   Typography,
   Divider,
   IconButton,
   Tooltip,
+  Button
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useNavigate } from 'react-router-dom';
 import { NavigationBar } from './home-page/NavigationBar';
-import { SetContext } from './App';
+import { SetContext } from './App'; 
 import ImportModal from './ImportModal';
 import { callBackend, waitTime } from '../helper';
 
@@ -40,7 +41,7 @@ export const CreateSetPage: React.FC = () => {
     }[]
   >([]);
   const [error, setError] = useState('');
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false); 
 
   const getToken = () => {
     let accessToken = sessionStorage.getItem('accessToken');
@@ -298,7 +299,7 @@ export const CreateSetPage: React.FC = () => {
     if (set.key) {
       callBackend('post', `llm/${set.key}`, accessToken);
     }
-  };
+  }; 
 
   return (
     <>
@@ -348,7 +349,7 @@ export const CreateSetPage: React.FC = () => {
           multiline
           disabled={setDeleted}
         />
-        <Box>
+        <Box display="flex" alignItems="center" gap={0.5}>
           {set.card_num && set.card_num > 3 ? (
             <>
               <Button
@@ -360,11 +361,11 @@ export const CreateSetPage: React.FC = () => {
               >
                 Quiz Me
               </Button>
-              <Button
+              <Button 
                 variant='contained'
                 color='primary'
                 onClick={handleLLM}
-                sx={{ marginTop: 1, marginRight: 2 }}
+                sx={{ marginTop: 1, marginRight: 0 }}
                 disabled={
                   setDeleted || (set.card_num && set.card_num > 10)
                     ? true
@@ -373,6 +374,11 @@ export const CreateSetPage: React.FC = () => {
               >
                 LLM
               </Button>
+              <Tooltip title="Instructions: This button allows AI to generate tests from your existing set. After clicking, wait 5 minutes before clicking 'Quiz Me' to generate a test."placement="top">
+                <IconButton size="small" sx={{ padding: 0 }}>
+                  <HelpOutlineIcon sx={{ fontSize: '1rem', marginRight: 2}} />
+                </IconButton>
+              </Tooltip> 
             </>
           ) : (
             ''

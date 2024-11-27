@@ -372,7 +372,7 @@ export const CreateSetPage: React.FC = () => {
                     : false
                 }
               >
-                LLM
+                AI
               </Button>
               <Tooltip
                 title="Instructions: This button allows AI to generate tests from your existing set. After clicking, wait 5 minutes before clicking 'Quiz Me' to generate a test."

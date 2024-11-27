@@ -15,6 +15,14 @@ import { SetContext } from './App';
 import ImportModal from './ImportModal';
 import { callBackend, waitTime } from '../helper';
 
+const blankSet = {
+  name: '',
+  description: '',
+  card_num: 0,
+  key: '',
+  owner: '',
+};
+
 export const CreateSetPage: React.FC = () => {
   const context = React.useContext(SetContext);
   if (!context) {
@@ -50,10 +58,25 @@ export const CreateSetPage: React.FC = () => {
     return JSON.parse(accessToken);
   };
 
+  const getSet = () => {
+    const storageSet = sessionStorage.getItem('set');
+    if (!storageSet) {
+      return set;
+    }
+    const savedSet = JSON.parse(storageSet);
+    if (savedSet.name !== set.name) {
+      setSet(savedSet);
+      setSetName(savedSet.name);
+      setSetDescription(savedSet.description);
+    }
+    return savedSet;
+  };
+
   React.useEffect(() => {
-    const accessToken = getToken();
-    if (set.name && !setDeleted && !changed) {
-      callBackend('get', `card/${set.key}`, accessToken)
+    const savedSet = getSet();
+    if (savedSet.name && !setDeleted && !changed) {
+      const accessToken = getToken();
+      callBackend('get', `card/${savedSet.key}`, accessToken)
         .then(res => {
           if (res.status == 403 || res.status == 401) {
             navigate('/login');
@@ -66,7 +89,7 @@ export const CreateSetPage: React.FC = () => {
           }
         });
     }
-  }, [terms]);
+  });
 
   const handleImport = async (text: string) => {
     setChanged(true);
@@ -112,9 +135,11 @@ export const CreateSetPage: React.FC = () => {
     }
     const setKey = await answer.json();
     new_set.key = setKey;
+    new_set.card_num = 1;
     setSetDeleted(true);
     setTimeout(async () => {
       setSet(new_set);
+      sessionStorage.setItem('set', JSON.stringify(new_set));
       await callBackend('get', `card/${new_set.key}`, accessToken)
         .then(res => res.json())
         .then(async json => {
@@ -128,7 +153,9 @@ export const CreateSetPage: React.FC = () => {
     const updated_set = {
       name: setName,
       description: setDescription,
-      card_num: terms.filter(term => term.delete < 2 || !term.delete).length,
+      card_num: terms.filter(
+        term => (term.delete < 2 || !term.delete) && !term.duplicate
+      ).length,
     };
     const answer = await callBackend(
       'put',
@@ -173,14 +200,12 @@ export const CreateSetPage: React.FC = () => {
     if (!changed) {
       return;
     }
-
+    const err409 = checkForDuplicates();
     setError('');
     if (await updateSet(accessToken)) {
       setError('Set name already used');
       return;
     }
-    const err409 = checkForDuplicates();
-
     terms.map(term => {
       if (term.changed) {
         if (term.delete < 2) {
@@ -269,12 +294,18 @@ export const CreateSetPage: React.FC = () => {
     setTerms(updatedTerms);
   };
 
+  const deleteSet = () => {
+    const accessToken = getToken();
+    callBackend('delete', `set/${set.key}`, accessToken);
+    setSet(blankSet);
+    sessionStorage.removeItem('set');
+    setSetDeleted(true);
+    setTimeout(() => navigate('/'), waitTime);
+  }
+
   const handleDeleteSet = () => {
     if (confirmSetDelete) {
-      const accessToken = getToken();
-      callBackend('delete', `set/${set.key}`, accessToken);
-      setSetDeleted(true);
-      setTimeout(() => navigate('/'), waitTime);
+      deleteSet();
     } else {
       setConfirmSetDelete(true);
     }
@@ -287,6 +318,10 @@ export const CreateSetPage: React.FC = () => {
     if (!updatedTerms[index]['delete']) {
       updatedTerms[index]['delete'] = 1;
     } else {
+      console.log(set);
+      if (set.card_num == 1) {
+        deleteSet();
+      }
       updatedTerms[index]['delete'] += 1;
       updatedTerms[index]['changed'] = true;
     }
@@ -349,53 +384,58 @@ export const CreateSetPage: React.FC = () => {
           disabled={setDeleted}
         />
         <Box>
-          {set.card_num && set.card_num > 3 ? (
+          {set.name ? (
             <>
+              {set.card_num > 3 ? (
+                <>
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    onClick={handleQuizMe}
+                    sx={{ marginTop: 1, marginRight: 2 }}
+                    disabled={setDeleted}
+                  >
+                    Quiz Me
+                  </Button>
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    onClick={handleLLM}
+                    sx={{ marginTop: 1, marginRight: 2 }}
+                    disabled={
+                      setDeleted || (set.card_num && set.card_num > 10)
+                        ? true
+                        : false
+                    }
+                  >
+                    LLM
+                  </Button>
+                </>
+              ) : (
+                ''
+              )}
               <Button
                 variant='contained'
                 color='primary'
-                onClick={handleQuizMe}
                 sx={{ marginTop: 1, marginRight: 2 }}
+                onClick={() => setIsImportModalOpen(true)}
                 disabled={setDeleted}
               >
-                Quiz Me
+                Import Cards
               </Button>
               <Button
                 variant='contained'
-                color='primary'
-                onClick={handleLLM}
-                sx={{ marginTop: 1, marginRight: 2 }}
-                disabled={
-                  setDeleted || (set.card_num && set.card_num > 10)
-                    ? true
-                    : false
-                }
+                color={confirmSetDelete ? 'error' : 'primary'}
+                onClick={handleDeleteSet}
+                sx={{ marginTop: 1 }}
+                disabled={setDeleted}
               >
-                LLM
+                {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
               </Button>
             </>
           ) : (
             ''
           )}
-          <Button
-            variant='contained'
-            color='primary'
-            sx={{ marginTop: 1, marginRight: 2 }}
-            onClick={() => setIsImportModalOpen(true)}
-            disabled={setDeleted}
-          >
-            Import Cards
-          </Button>
-
-          <Button
-            variant='contained'
-            color={confirmSetDelete ? 'error' : 'primary'}
-            onClick={handleDeleteSet}
-            sx={{ marginTop: 1 }}
-            disabled={setDeleted}
-          >
-            {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
-          </Button>
         </Box>
 
         {set.name ? (
@@ -483,7 +523,6 @@ export const CreateSetPage: React.FC = () => {
               >
                 Add Another Term
               </Button>
-
               <Button
                 variant='contained'
                 color={error ? 'error' : 'success'}

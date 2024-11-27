@@ -22,6 +22,7 @@ let setArray = [
     key: '.',
   },
 ];
+const blankArray = JSON.parse(JSON.stringify(setArray));
 
 export const Home: React.FC = () => {
   const { setSet } = React.useContext(SetContext);
@@ -42,6 +43,11 @@ export const Home: React.FC = () => {
     updateSetThenNavigate(clicked_set);
   };
 
+  const handleCreateNewClick = (newSet: object) => {
+    sessionStorage.removeItem('set');
+    updateSetThenNavigate(newSet);
+  };
+
   React.useEffect(() => {
     const unparsedAccessToken = sessionStorage.getItem('accessToken');
     if (!unparsedAccessToken) {
@@ -53,6 +59,9 @@ export const Home: React.FC = () => {
       .then(res => {
         if (res.status == 403 || res.status == 401) {
           navigate('/login');
+        }
+        if (res.status == 404) {
+          return blankArray;
         }
         return res.json();
       })
@@ -89,33 +98,37 @@ export const Home: React.FC = () => {
           <Button
             variant='contained'
             color='primary'
-            onClick={() => updateSetThenNavigate({ name: '', description: '' })}
+            onClick={() => handleCreateNewClick({ name: '', description: '' })}
           >
             Create New Set
           </Button>
         </Stack>
         <Grid container spacing={2}>
-          {arraySet.map(set => (
-            <Grid item xs={12} sm={6} md={4} key={set.key}>
-              <Button
-                onClick={() => handleSetClick(set)}
-                sx={{
-                  textTransform: 'none',
-                  width: '100%',
-                }}
-              >
-                <Card sx={{ minHeight: 150, width: '100%' }}>
-                  <CardContent>
-                    <Typography variant='h5'>{set.name}</Typography>
-                    <Typography variant='body2'>{set.description}</Typography>
-                    <Typography variant='body2' color='textSecondary'>
-                      Cards: {set.card_num}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Button>
-            </Grid>
-          ))}
+          {arraySet.map(set =>
+            set.name == '.' && set.card_num == 0 ? (
+              ''
+            ) : (
+              <Grid item xs={12} sm={6} md={4} key={set.key}>
+                <Button
+                  onClick={() => handleSetClick(set)}
+                  sx={{
+                    textTransform: 'none',
+                    width: '100%',
+                  }}
+                >
+                  <Card sx={{ minHeight: 150, width: '100%' }}>
+                    <CardContent>
+                      <Typography variant='h5'>{set.name}</Typography>
+                      <Typography variant='body2'>{set.description}</Typography>
+                      <Typography variant='body2' color='textSecondary'>
+                        Cards: {set.card_num}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Button>
+              </Grid>
+            )
+          )}
         </Grid>
       </Box>
     </Box>

@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import {
   Box,
-  Button,
   TextField,
   Typography,
   Divider,
   IconButton,
   Tooltip,
+  Button,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useNavigate } from 'react-router-dom';
 import { NavigationBar } from './home-page/NavigationBar';
 import { SetContext } from './App';
@@ -383,8 +384,8 @@ export const CreateSetPage: React.FC = () => {
           multiline
           disabled={setDeleted}
         />
-        <Box>
-          {set.name ? (
+        <Box display='flex' alignItems='center' gap={0.5}>
+          {set.card_num ? (
             <>
               {set.card_num > 3 ? (
                 <>
@@ -397,19 +398,24 @@ export const CreateSetPage: React.FC = () => {
                   >
                     Quiz Me
                   </Button>
-                  <Button
-                    variant='contained'
-                    color='primary'
-                    onClick={handleLLM}
-                    sx={{ marginTop: 1, marginRight: 2 }}
-                    disabled={
-                      setDeleted || (set.card_num && set.card_num > 10)
-                        ? true
-                        : false
-                    }
+                  <Tooltip
+                    title="This button allows AI to generate tests from your existing set. After clicking, wait 5 minutes before clicking 'Quiz Me' to generate a test."
+                    placement='top'
                   >
-                    LLM
-                  </Button>
+                    <Button
+                      variant='contained'
+                      color='primary'
+                      onClick={handleLLM}
+                      sx={{ marginTop: 1, marginRight: 2 }}
+                      disabled={
+                        setDeleted || (set.card_num && set.card_num > 10)
+                          ? true
+                          : false
+                      }
+                    >
+                      AI
+                    </Button>
+                  </Tooltip>
                 </>
               ) : (
                 ''

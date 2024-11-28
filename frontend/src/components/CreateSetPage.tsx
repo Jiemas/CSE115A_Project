@@ -385,7 +385,7 @@ export const CreateSetPage: React.FC = () => {
           disabled={setDeleted}
         />
         <Box display='flex' alignItems='center' gap={0.5}>
-          {set.card_num && set.card_num > 3 ? (
+          {set.card_num ? (
             <>
               {set.card_num > 3 ? (
                 <>
@@ -398,19 +398,24 @@ export const CreateSetPage: React.FC = () => {
                   >
                     Quiz Me
                   </Button>
-                  <Button
-                    variant='contained'
-                    color='primary'
-                    onClick={handleLLM}
-                    sx={{ marginTop: 1, marginRight: 2 }}
-                    disabled={
-                      setDeleted || (set.card_num && set.card_num > 10)
-                        ? true
-                        : false
-                    }
+                  <Tooltip
+                    title="This button allows AI to generate tests from your existing set. After clicking, wait 5 minutes before clicking 'Quiz Me' to generate a test."
+                    placement='top'
                   >
-                    LLM
-                  </Button>
+                    <Button
+                      variant='contained'
+                      color='primary'
+                      onClick={handleLLM}
+                      sx={{ marginTop: 1, marginRight: 2 }}
+                      disabled={
+                        setDeleted || (set.card_num && set.card_num > 10)
+                          ? true
+                          : false
+                      }
+                    >
+                      AI
+                    </Button>
+                  </Tooltip>
                 </>
               ) : (
                 ''
@@ -426,33 +431,13 @@ export const CreateSetPage: React.FC = () => {
               </Button>
               <Button
                 variant='contained'
-                color='primary'
-                onClick={handleLLM}
-                sx={{ marginTop: 1, marginRight: 0 }}
-                disabled={
-                  setDeleted || (set.card_num && set.card_num > 10)
-                    ? true
-                    : false
-                }
-              >
-                AI
-
                 color={confirmSetDelete ? 'error' : 'primary'}
                 onClick={handleDeleteSet}
                 sx={{ marginTop: 1 }}
                 disabled={setDeleted}
               >
                 {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
-
               </Button>
-              <Tooltip
-                title="Instructions: This button allows AI to generate tests from your existing set. After clicking, wait 5 minutes before clicking 'Quiz Me' to generate a test."
-                placement='top'
-              >
-                <IconButton size='small' sx={{ padding: 0 }}>
-                  <HelpOutlineIcon sx={{ fontSize: '1rem', marginRight: 2 }} />
-                </IconButton>
-              </Tooltip>
             </>
           ) : (
             ''

@@ -23,6 +23,19 @@ const isSetNameDuplicate = async (setName, userKey) => {
   return false;
 };
 
+// Function to grab the last card in array's order
+const mostRecentOrder = async (setId, res) => {
+  const cards = await db.getAllCards(setId);
+  if (cards == null) {
+    res.status(404).send();
+    return;
+  }
+  const lastCard = cards[cards.length - 1];
+  const order = lastCard.order;
+  return order;
+};
+
+
 // Called by PUT '/v0/set' (Create Set)
 exports.add = async (req, res) => {
   if (await isSetNameDuplicate(req.body.name, req.user.key, res)) {
@@ -89,15 +102,20 @@ exports.import = async (req, res) => {
     const lines = cards.split('\n');
     const newCards = {};
 
+    // Grab the most recent order in existing set
+    let counter = await mostRecentOrder(setId, res);
+
     // Create a card for each line
     for (const line of lines) {
       const [term, definition] = line.split('\t');
       if (term && definition) {
+        counter += 1; // added this
         const card = {
           key: crypto.randomUUID(),
           front: term.trim(),
           back: definition.trim(),
           starred: false,
+          order: counter, // added this
         };
         newCards[card.key] = card;
       }

@@ -47,7 +47,7 @@ exports.addSet = async (newObj, setId) => {
   const firstCardId = crypto.randomUUID();
   const cardObj = {};
   cardObj[firstCardId] = {
-    back: '', front: '', key: firstCardId, starred: false,
+    back: '', front: '', key: firstCardId, starred: false, order: 1,
   };
   const setObj = {};
   setObj[setId] = cardObj;
@@ -80,7 +80,9 @@ exports.addCard = async (newObj, setId) => {
 exports.getAllCards = async (setId) => {
   const cards = await callDatabase('GET', `card/${setId}.json`);
   // If cards is not null, return array of card objects. Otherwise, return null
-  return cards ? Object.entries(cards).map((elem) => elem[1]) : null;
+  // Sorting the cards so that the database returns the cards in numerical order
+  return cards ? Object.entries(cards).map((elem) =>
+    elem[1]).sort((a, b) => a.order - b.order) : null;
 };
 
 exports.updateCard = async (cardBody, setId, cardId) => {

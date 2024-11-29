@@ -38,31 +38,10 @@ const mostRecentOrder = async (setId, res) => {
 
 // --- HELPER FUNCTION FOR SH1 TASK 4 ---
 // --- Called by card.update() function ---
-const canChangeOrder = async (setId, cardId, newOrder, res) => {
+const canChangeOrder = async (newOrder, res) => {
   // Grab the array of cards
-  const cards = await db.getAllCards(setId);
-  if (!cards) {
-    res.status(404).send();
-    return;
-  }
-
-  // Check the length of the array before updating order
-  if (cards.length > 1) {
-    // Grab the min and max order in the array rn
-    const first = cards[0].order;
-    const last = cards[cards.length - 1].order;
-
-    // console.log('first order: ' + first);
-    // console.log('last order: ' + last);
-    // console.log('newOrder: ' + newOrder);
-
-    // Check if the newOrder is in range of the current orders
-    if ((newOrder >= first) && (newOrder <= last)) {
-      db.updateOrder(setId, cardId, newOrder);
-      return true;
-    }
-  }
-  res.status(404).send('Order not in range, or array length is <= 1');
+  if (newOrder > 0) return true;
+  res.status(409).send('Order not in range, or array length is <= 1');
   return false;
 };
 
@@ -123,12 +102,10 @@ exports.update = async (req, res) => {
   const setId = req.params.setId;
   const cardId = req.query.cardId;
 
+  const currCard = await isCardIdValid(setId, cardId, res);
+  if (!currCard) return;
   if (! (await isSetIdValidAndAllowed(setId, req.user.key, res))) return;
   if (await isDuplicateCard(req.body.front, setId, cardId, res)) return;
-
-  // Checks validity of cardId
-  // was supposed to be above checking duplicate
-  if (!(await isCardIdValid(setId, cardId, res))) return;
 
   // Updates data of specified card
   req.body.key = cardId;
@@ -137,9 +114,10 @@ exports.update = async (req, res) => {
   const newOrder = req.body.order;
 
   // Update card order if user made changes to order
-  const currCard = await db.getCard_id(setId, cardId);
-  if (newOrder != currCard.order) {
-    if (! (await canChangeOrder(setId, cardId, newOrder, res))) return;
+  if (newOrder && newOrder != currCard.order) {
+    if (! (await canChangeOrder(newOrder, res))) return;
+  } else if (!newOrder && currCard.order) {
+    req.body.order = currCard.order;
   }
   // Update the card body
   db.updateCard(req.body, setId, cardId);

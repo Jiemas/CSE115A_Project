@@ -445,7 +445,7 @@ components:
     # properties: front, back, starred, order, key, correct, wrong
     Card:
       type: object
-      maxProperties: 8
+      maxProperties: 7
       properties:
         front:
           type: string
@@ -455,8 +455,6 @@ components:
           type: boolean
         key:
           type: string
-        order:        # added property for ordering the cards
-          type: integer
         # direction:
         #   type: string
       required:
@@ -464,14 +462,13 @@ components:
         - back
         - starred
         - key
-        - order
   
     # adding this for card update, this is so we can only edit the front, back, or starred
     # but still have a key property to save the existing card id
     # front, back, starred, key, order, correct, wrong, direction
     noKeyCard:
       type: object
-      maxProperties: 8
+      maxProperties: 7
       properties:
         front:
           type: string
@@ -479,17 +476,12 @@ components:
           type: string
         starred:
           type: boolean
-        order:
-          type: integer
-        # direction:
-        #   type: string
         key: 
           type: string
       required:
         - front
         - back
         - starred
-        - order
 
     newCard:
       type: object

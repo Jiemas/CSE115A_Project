@@ -89,12 +89,6 @@ exports.updateCard = async (cardBody, setId, cardId) => {
   await callDatabase('PUT', `card/${setId}/${cardId}.json`, cardBody);
 };
 
-// New db function to only update a card order
-exports.updateOrder = async (setId, cardId, newOrder) => {
-  const newData = {order: newOrder};
-  await callDatabase('PUT', `card/${setId}/${cardId}.json`, newData);
-};
-
 exports.overwriteCards = async (cardBody, setId) => {
   await callDatabase('PUT', `card/${setId}.json`, cardBody);
 };

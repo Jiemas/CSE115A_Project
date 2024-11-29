@@ -23,6 +23,49 @@ const isDuplicateCard = async (front, setId, cardId, res) => {
   return false;
 };
 
+// Helper function to grab the last card's order in the array
+const mostRecentOrder = async (setId, res) => {
+  const cards = await db.getAllCards(setId);
+  let order = 0;
+  // if cards array is empty, set order to 0
+  if (cards) {
+    const lastCard = cards[cards.length - 1];
+    // console.log('last card.order: ' + lastCard.order);
+    order = lastCard.order;
+  }
+  return order;
+};
+
+// --- HELPER FUNCTION FOR SH1 TASK 4 ---
+// --- Called by card.update() function ---
+const canChangeOrder = async (setId, cardId, newOrder, res) => {
+  // Grab the array of cards
+  const cards = await db.getAllCards(setId);
+  if (!cards) {
+    res.status(404).send();
+    return;
+  }
+
+  // Check the length of the array before updating order
+  if (cards.length > 1) {
+    // Grab the min and max order in the array rn
+    const first = cards[0].order;
+    const last = cards[cards.length - 1].order;
+
+    // console.log('first order: ' + first);
+    // console.log('last order: ' + last);
+    // console.log('newOrder: ' + newOrder);
+
+    // Check if the newOrder is in range of the current orders
+    if ((newOrder >= first) && (newOrder <= last)) {
+      db.updateOrder(setId, cardId, newOrder);
+      return true;
+    }
+  }
+  res.status(404).send('Order not in range, or array length is <= 1');
+  return false;
+};
+
 // Called by PUT '/v0/card/:setId' (Create Card)
 exports.add = async (req, res) => {
   // Gets set id from request parameter
@@ -30,6 +73,14 @@ exports.add = async (req, res) => {
 
   if (! (await isSetIdValidAndAllowed(setId, req.user.key, res))) return;
   if (await isDuplicateCard(req.body.front, setId, null, res)) return;
+
+  // Grab the last card's order
+  const prevOrder = await mostRecentOrder(setId, res);
+  const newOrder = prevOrder + 1;
+
+  // Assigning order to new card
+  req.body.order = newOrder;
+  // req.body.direction = '';
 
   // Sets up data for new card and adds it to db
   req.body.key = crypto.randomUUID();
@@ -81,6 +132,16 @@ exports.update = async (req, res) => {
 
   // Updates data of specified card
   req.body.key = cardId;
+
+  // Get the new order to update card with
+  const newOrder = req.body.order;
+
+  // Update card order if user made changes to order
+  const currCard = await db.getCard_id(setId, cardId);
+  if (newOrder != currCard.order) {
+    if (! (await canChangeOrder(setId, cardId, newOrder, res))) return;
+  }
+  // Update the card body
   db.updateCard(req.body, setId, cardId);
   res.status(201).send(req.body);
 };

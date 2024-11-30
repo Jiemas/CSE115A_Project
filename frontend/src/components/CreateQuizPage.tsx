@@ -10,11 +10,13 @@ import {
   DialogActions,
   FormControlLabel,
   Switch,
+  IconButton,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { SetContext } from './App';
 import { NavigationBar } from './home-page/NavigationBar';
 import { callBackend } from '../helper';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 export const CreateQuizPage: React.FC = () => {
   const context = useContext(SetContext);
   if (!context) {
@@ -210,6 +212,12 @@ export const CreateQuizPage: React.FC = () => {
     navigate('/create-set');
   };
 
+  const back = (
+    <IconButton color='primary' onClick={handleBack} sx={{ marginTop: 1 }}>
+      <ArrowBackIcon />
+    </IconButton>
+  );
+
   const correctCount = terms.reduce((count, term) => {
     const userAnswer = selectedAnswers[term.key] || '';
     const isCorrect = freeResponseTerms.has(term.key)
@@ -221,6 +229,7 @@ export const CreateQuizPage: React.FC = () => {
   return (
     <>
       <NavigationBar />
+      {back}
       <Box
         sx={{
           padding: 2,
@@ -359,7 +368,7 @@ export const CreateQuizPage: React.FC = () => {
                                 },
                               }}
                             >
-                              {choice.text} {choice.isLLM && '(LLM)'}
+                              {choice.text} {choice.isLLM && '(AI)'}
                             </Button>
                           </Box>
                         ))}
@@ -389,24 +398,22 @@ export const CreateQuizPage: React.FC = () => {
             ) : (
               <Typography>Loading terms...</Typography>
             )}
-
-            <Button
-              variant='contained'
-              color='success'
-              onClick={handleDisplayResults}
-              sx={{ marginTop: 3 }}
+            <Box
+              display='flex'
+              justifyContent='space-between'
+              alignItems='center'
+              width='100%'
             >
-              Display Results
-            </Button>
-
-            <Button
-              variant='contained'
-              color='primary'
-              onClick={handleBack}
-              sx={{ marginTop: 3, marginRight: 64 }}
-            >
-              Back to Set
-            </Button>
+              {back}
+              <Button
+                variant='contained'
+                color='success'
+                onClick={handleDisplayResults}
+                sx={{ marginTop: 3 }}
+              >
+                Display Results
+              </Button>
+            </Box>
           </>
         ) : null}
 

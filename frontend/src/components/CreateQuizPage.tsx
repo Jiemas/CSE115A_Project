@@ -212,6 +212,12 @@ export const CreateQuizPage: React.FC = () => {
     navigate('/create-set');
   };
 
+  const back = (
+    <IconButton color='primary' onClick={handleBack} sx={{ marginTop: 1 }}>
+      <ArrowBackIcon />
+    </IconButton>
+  );
+
   const correctCount = terms.reduce((count, term) => {
     const userAnswer = selectedAnswers[term.key] || '';
     const isCorrect = freeResponseTerms.has(term.key)
@@ -223,6 +229,7 @@ export const CreateQuizPage: React.FC = () => {
   return (
     <>
       <NavigationBar />
+      {back}
       <Box
         sx={{
           padding: 2,
@@ -391,26 +398,22 @@ export const CreateQuizPage: React.FC = () => {
             ) : (
               <Typography>Loading terms...</Typography>
             )}
-            <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
-            <IconButton
-              variant='contained'
-              color='primary'
-              onClick={handleBack}
-              sx={{ marginTop: 3 }}
+            <Box
+              display='flex'
+              justifyContent='space-between'
+              alignItems='center'
+              width='100%'
             >
-              <ArrowBackIcon />
-            </IconButton>
-            <Button
-              variant='contained'
-              color='success'
-              onClick={handleDisplayResults}
-              sx={{ marginTop: 3 }}
-            >
-              Display Results
-            </Button>
+              {back}
+              <Button
+                variant='contained'
+                color='success'
+                onClick={handleDisplayResults}
+                sx={{ marginTop: 3 }}
+              >
+                Display Results
+              </Button>
             </Box>
-
-            
           </>
         ) : null}
 

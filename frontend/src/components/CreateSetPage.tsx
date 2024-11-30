@@ -339,12 +339,19 @@ export const CreateSetPage: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate('/create-set');
+    navigate('/');
   };
+
+  const back = (
+    <IconButton color='primary' onClick={handleBack} sx={{ marginTop: 1 }}>
+      <ArrowBackIcon />
+    </IconButton>
+  );
 
   return (
     <>
       <NavigationBar />
+      {back}
       <Box
         sx={{
           display: 'flex',
@@ -539,17 +546,12 @@ export const CreateSetPage: React.FC = () => {
 
         {set.name ? (
           <>
-            
-            <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
-              <IconButton
-                variant='contained'
-                color='primary'
-                onClick={handleBack}
-                sx={{ marginTop: 1 }}
-              >
-                <ArrowBackIcon />
-              </IconButton>
-
+            <Box
+              display='flex'
+              justifyContent='space-between'
+              alignItems='center'
+              width='100%'
+            >
               <Button
                 variant='contained'
                 color='primary'
@@ -562,17 +564,17 @@ export const CreateSetPage: React.FC = () => {
 
               <Box marginLeft={'auto'} display={'flex'} gap={2}>
 
-              <Button
-                variant='contained'
-                color={error ? 'error' : 'success'}
-                onClick={handleUpdateSet}
-                sx={{ marginTop: 1 }}
-                disabled={!changed || setDeleted}
-              >
-                Update Set
-              </Button>
+                <Button
+                  variant='contained'
+                  color={error ? 'error' : 'success'}
+                  onClick={handleUpdateSet}
+                  sx={{ marginTop: 1 }}
+                  disabled={!changed || setDeleted}
+                >
+                  Update Set
+                </Button>
 
-              <Button
+                <Button
                   variant='contained'
                   color={confirmSetDelete ? 'error' : 'primary'}
                   onClick={handleDeleteSet}
@@ -581,13 +583,14 @@ export const CreateSetPage: React.FC = () => {
                 >
                   {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
                 </Button>
-                </Box> 
+              </Box>
             </Box>
           </>
         ) : (
           ''
         )}
       </Box>
+      {back}
       <ImportModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}

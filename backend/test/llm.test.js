@@ -78,6 +78,7 @@ test('LLM, valid token, valid set, expect 201',
       .send({description: 'this is a test', name: 'llmTest1'})
       .then(async (data) => {
         key = data.body;
+        console.log(key);
         await sleep(600).then(async () => {
           await request.post(`/v0/llm/${key}`)
             .set('Authorization', `Bearer ${accessToken}`)

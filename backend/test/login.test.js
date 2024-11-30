@@ -153,4 +153,3 @@ test('account database cleanup', async () => {
   await request.delete(`${path}/${accountKey}`)
     .expect(200);
 });
-

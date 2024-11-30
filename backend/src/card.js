@@ -1,4 +1,4 @@
-const db = require('./db');
+const db = require('./db').dbFunctions;
 const crypto = require('crypto');
 
 const isSetIdValidAndAllowed = async (setId, userKey, res) => {
@@ -30,7 +30,6 @@ const mostRecentOrder = async (setId, res) => {
   // if cards array is empty, set order to 0
   if (cards) {
     const lastCard = cards[cards.length - 1];
-    // console.log('last card.order: ' + lastCard.order);
     order = lastCard.order;
   }
   return order;
@@ -101,10 +100,9 @@ exports.update = async (req, res) => {
   // Gets data from request parameters
   const setId = req.params.setId;
   const cardId = req.query.cardId;
-
+  if (! (await isSetIdValidAndAllowed(setId, req.user.key, res))) return;
   const currCard = await isCardIdValid(setId, cardId, res);
   if (!currCard) return;
-  if (! (await isSetIdValidAndAllowed(setId, req.user.key, res))) return;
   if (await isDuplicateCard(req.body.front, setId, cardId, res)) return;
 
   // Updates data of specified card

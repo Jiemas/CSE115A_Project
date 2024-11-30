@@ -15,6 +15,8 @@ import { NavigationBar } from './home-page/NavigationBar';
 import { SetContext } from './App';
 import ImportModal from './ImportModal';
 import { callBackend, waitTime } from '../helper';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
 
 const blankSet = {
   name: '',
@@ -302,7 +304,7 @@ export const CreateSetPage: React.FC = () => {
     sessionStorage.removeItem('set');
     setSetDeleted(true);
     setTimeout(() => navigate('/'), waitTime);
-  }
+  };
 
   const handleDeleteSet = () => {
     if (confirmSetDelete) {
@@ -334,6 +336,10 @@ export const CreateSetPage: React.FC = () => {
     if (set.key) {
       callBackend('post', `llm/${set.key}`, accessToken);
     }
+  };
+
+  const handleBack = () => {
+    navigate('/create-set');
   };
 
   return (
@@ -384,60 +390,74 @@ export const CreateSetPage: React.FC = () => {
           multiline
           disabled={setDeleted}
         />
-        <Box display='flex' alignItems='center' gap={0.5}>
+        <Box display='flex' alignItems='center' width='100%' marginTop={1}>
           {set.card_num ? (
             <>
-              {set.card_num > 3 ? (
-                <>
-                  <Button
-                    variant='contained'
-                    color='primary'
-                    onClick={handleQuizMe}
-                    sx={{ marginTop: 1, marginRight: 2 }}
-                    disabled={setDeleted}
-                  >
-                    Quiz Me
-                  </Button>
-                  <Tooltip
-                    title="This button allows AI to generate tests from your existing set. After clicking, wait 5 minutes before clicking 'Quiz Me' to generate a test."
-                    placement='top'
-                  >
+              <Box display='flex' alignItems='center' gap={2}>
+                {set.card_num > 3 ? (
+                  <>
                     <Button
                       variant='contained'
                       color='primary'
-                      onClick={handleLLM}
+                      onClick={handleQuizMe}
                       sx={{ marginTop: 1, marginRight: 2 }}
-                      disabled={
-                        setDeleted || (set.card_num && set.card_num > 10)
-                          ? true
-                          : false
-                      }
+                      disabled={setDeleted}
                     >
-                      AI
+                      Quiz Me
                     </Button>
-                  </Tooltip>
-                </>
-              ) : (
-                ''
-              )}
-              <Button
-                variant='contained'
-                color='primary'
-                sx={{ marginTop: 1, marginRight: 2 }}
-                onClick={() => setIsImportModalOpen(true)}
-                disabled={setDeleted}
-              >
-                Import Cards
-              </Button>
-              <Button
-                variant='contained'
-                color={confirmSetDelete ? 'error' : 'primary'}
-                onClick={handleDeleteSet}
-                sx={{ marginTop: 1 }}
-                disabled={setDeleted}
-              >
-                {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
-              </Button>
+                    <Tooltip
+                      title="This button allows AI to generate tests from your existing set. After clicking, wait 5 minutes before clicking 'Quiz Me' to generate a test."
+                      placement='top'
+                    >
+                      <Button
+                        variant='contained'
+                        color='primary'
+                        onClick={handleLLM}
+                        sx={{ marginTop: 1, marginRight: 2 }}
+                        disabled={
+                          setDeleted || (set.card_num && set.card_num > 10)
+                            ? true
+                            : false
+                        }
+                      >
+                        AI
+                      </Button>
+                    </Tooltip>
+                  </>
+                ) : (
+                  ''
+                )}
+                <Button
+                  variant='contained'
+                  color='primary'
+                  sx={{ marginTop: 1, marginRight: 2 }}
+                  onClick={() => setIsImportModalOpen(true)}
+                  disabled={setDeleted}
+                >
+                  Import Cards
+                </Button>
+              </Box>
+
+              <Box marginLeft={'auto'} display={'flex'} gap={2}>
+                <Button
+                  variant='contained'
+                  color={error ? 'error' : 'success'}
+                  onClick={handleUpdateSet}
+                  sx={{ marginTop: 1, marginLeft: 25 }}
+                  disabled={!changed || setDeleted}
+                >
+                  Update Set
+                </Button>
+                <Button
+                  variant='contained'
+                  color={confirmSetDelete ? 'error' : 'primary'}
+                  onClick={handleDeleteSet}
+                  sx={{ marginTop: 1, marginLeft: 'auto' }}
+                  disabled={setDeleted}
+                >
+                  {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
+                </Button>
+              </Box>
             </>
           ) : (
             ''
@@ -519,7 +539,17 @@ export const CreateSetPage: React.FC = () => {
 
         {set.name ? (
           <>
-            <Box>
+            
+            <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
+              <IconButton
+                variant='contained'
+                color='primary'
+                onClick={handleBack}
+                sx={{ marginTop: 1 }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+
               <Button
                 variant='contained'
                 color='primary'
@@ -529,15 +559,29 @@ export const CreateSetPage: React.FC = () => {
               >
                 Add Another Term
               </Button>
+
+              <Box marginLeft={'auto'} display={'flex'} gap={2}>
+
               <Button
                 variant='contained'
                 color={error ? 'error' : 'success'}
                 onClick={handleUpdateSet}
-                sx={{ marginTop: 1, marginLeft: 2 }}
+                sx={{ marginTop: 1 }}
                 disabled={!changed || setDeleted}
               >
                 Update Set
               </Button>
+
+              <Button
+                  variant='contained'
+                  color={confirmSetDelete ? 'error' : 'primary'}
+                  onClick={handleDeleteSet}
+                  sx={{ marginTop: 1 }}
+                  disabled={setDeleted}
+                >
+                  {confirmSetDelete ? 'Confirm Delete?' : 'Delete Set'}
+                </Button>
+                </Box> 
             </Box>
           </>
         ) : (

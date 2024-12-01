@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const db = require('./db');
+const db = require('./db').dbFunctions;
 
 const getExistingUser = async (email, bool, res) => {
   const user = await db.getUser(email);

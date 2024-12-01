@@ -119,3 +119,22 @@ exports.addLLM = async (setId, cardId, llmData, responseType) => {
   llmObj[responseType] = llmData;
   await callDatabase('PATCH', `card/${setId}/${cardId}.json`, llmObj);
 };
+
+exports.dbFunctions = {
+  getAllSets: this.getAllSets,
+  getSet_name: this.getSet_name,
+  getSet_id: this.getSet_id,
+  addSet: this.addSet,
+  deleteSet: this.deleteSet,
+  getCard_front: this.getCard_front,
+  getCard_id: this.getCard_id,
+  addCard: this.addCard,
+  getAllCards: this.getAllCards,
+  updateCard: this.updateCard,
+  overwriteCards: this.overwriteCards,
+  deleteCard: this.deleteCard,
+  getUser: this.getUser,
+  addUser: this.addUser,
+  deleteUser: this.deleteUser,
+  addLLM: this.addLLM,
+};

@@ -52,13 +52,15 @@ exports.add = async (req, res) => {
   if (! (await isSetIdValidAndAllowed(setId, req.user.key, res))) return;
   if (await isDuplicateCard(req.body.front, setId, null, res)) return;
 
-  // Grab the last card's order
-  const prevOrder = await mostRecentOrder(setId, res);
-  const newOrder = prevOrder + 1;
+  if (!req.body.order) {
+    // Grab the last card's order
+    const prevOrder = await mostRecentOrder(setId, res);
+    const newOrder = prevOrder + 1;
 
-  // Assigning order to new card
-  req.body.order = newOrder;
-  // req.body.direction = '';
+    // Assigning order to new card
+    req.body.order = newOrder;
+    // req.body.direction = '';
+  }
 
   // Sets up data for new card and adds it to db
   req.body.key = crypto.randomUUID();

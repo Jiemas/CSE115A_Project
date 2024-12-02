@@ -169,7 +169,7 @@ let key = 0;
 test('PUT new, expect 201, valid request', async () => {
   db.getSet_id = () => ({owner: 1234});
   db.getCard_front = () => false;
-  db.addcard = () => {};
+  db.addCard = () => {};
   await request.put(path)
     .set('Authorization', `Bearer ${accessToken}`)
     .send({front: 'test card', back: 'back description', starred: false})

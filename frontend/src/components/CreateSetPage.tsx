@@ -9,7 +9,6 @@ import {
   Button,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useNavigate } from 'react-router-dom';
@@ -18,7 +17,6 @@ import { SetContext } from './App';
 import ImportModal from './ImportModal';
 import { callBackend, waitTime } from '../helper';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
 
 const blankSet = {
   name: '',
@@ -211,13 +209,15 @@ export const CreateSetPage: React.FC = () => {
       setError('Set name already used');
       return;
     }
-    terms.map(term => {
+    terms.map((term, index) => {
+      console.log(index);
       if (term.changed) {
         if (term.delete < 2) {
           const newCard = {
             front: term.front,
             back: term.back,
             starred: term.starred,
+            order: index + 1,
           };
           if (term.key) {
             callBackend(
@@ -324,7 +324,12 @@ export const CreateSetPage: React.FC = () => {
       updatedTerms[index]['delete'] = 1;
     } else {
       console.log(set);
-      if (set.card_num == 1) {
+      if (
+        set.card_num == 1 &&
+        terms.filter(
+          term => (term.delete < 2 || !term.delete) && !term.duplicate
+        ).length < 2
+      ) {
         deleteSet();
       }
       updatedTerms[index]['delete'] += 1;
@@ -343,20 +348,19 @@ export const CreateSetPage: React.FC = () => {
   const handleMoveUp = (index: number) => {
     if (index > 0) {
       setChanged(true);
-      const updatedTerms = [...terms];
+      const updatedTerms = JSON.parse(JSON.stringify(terms));
       [updatedTerms[index], updatedTerms[index - 1]] = [
         updatedTerms[index - 1],
         updatedTerms[index],
       ];
-      // Swap order property
-      [updatedTerms[index].order, updatedTerms[index - 1].order] = [
-        updatedTerms[index - 1].order,
-        updatedTerms[index].order,
-      ];
+      updatedTerms[index].changed = true;
+      updatedTerms[index - 1].changed = true;
+      updatedTerms[index].delete = 0;
+      updatedTerms[index - 1].delete = 0;
       setTerms(updatedTerms);
     }
   };
-  
+
   const handleMoveDown = (index: number) => {
     if (index < terms.length - 1) {
       setChanged(true);
@@ -365,15 +369,13 @@ export const CreateSetPage: React.FC = () => {
         updatedTerms[index + 1],
         updatedTerms[index],
       ];
-      // Swap order property
-      [updatedTerms[index].order, updatedTerms[index + 1].order] = [
-        updatedTerms[index + 1].order,
-        updatedTerms[index].order,
-      ];
+      updatedTerms[index].changed = true;
+      updatedTerms[index + 1].changed = true;
+      updatedTerms[index].delete = 0;
+      updatedTerms[index + 1].delete = 0;
       setTerms(updatedTerms);
     }
   };
-  
 
   const handleBack = () => {
     navigate('/');
@@ -575,28 +577,28 @@ export const CreateSetPage: React.FC = () => {
                   </IconButton>
                 </span>
               </Tooltip>
-              <Tooltip title="Move Up">
-              <span>
-                <IconButton
-                  color="primary"
-                  onClick={() => handleMoveUp(index)}
-                  disabled={index === 0}
-                >
-                  <ArrowUpwardIcon />
-                </IconButton>
-              </span>
-            </Tooltip>
-            <Tooltip title="Move Down">
-              <span>
-                <IconButton
-                  color="primary"
-                  onClick={() => handleMoveDown(index)}
-                  disabled={index === terms.length - 1}
-                >
-                  <ArrowDownwardIcon />
-                </IconButton>
-              </span>
-            </Tooltip>
+              <Tooltip title='Move Up'>
+                <span>
+                  <IconButton
+                    color='primary'
+                    onClick={() => handleMoveUp(index)}
+                    disabled={index === 0}
+                  >
+                    <ArrowUpwardIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title='Move Down'>
+                <span>
+                  <IconButton
+                    color='primary'
+                    onClick={() => handleMoveDown(index)}
+                    disabled={index === terms.length - 1}
+                  >
+                    <ArrowDownwardIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
             </Box>
           ) : (
             ''

@@ -122,7 +122,6 @@ const pushToQueue = async (card, setId, type) => {
 
 exports.llm_queue = async (req, res) => {
   const setId = req.params.setId;
-  console.log(setId, req.user.key);
   if (! (await isSetIdValidAndAllowed(setId, req.user.key, res))) return;
   const cards = await db.getAllCards(setId);
   let requestsAdded = 0;

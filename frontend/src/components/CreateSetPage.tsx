@@ -10,6 +10,8 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useNavigate } from 'react-router-dom';
 import { NavigationBar } from './home-page/NavigationBar';
 import { SetContext } from './App';
@@ -338,6 +340,41 @@ export const CreateSetPage: React.FC = () => {
     }
   };
 
+  const handleMoveUp = (index: number) => {
+    if (index > 0) {
+      setChanged(true);
+      const updatedTerms = [...terms];
+      [updatedTerms[index], updatedTerms[index - 1]] = [
+        updatedTerms[index - 1],
+        updatedTerms[index],
+      ];
+      // Swap order property
+      [updatedTerms[index].order, updatedTerms[index - 1].order] = [
+        updatedTerms[index - 1].order,
+        updatedTerms[index].order,
+      ];
+      setTerms(updatedTerms);
+    }
+  };
+  
+  const handleMoveDown = (index: number) => {
+    if (index < terms.length - 1) {
+      setChanged(true);
+      const updatedTerms = [...terms];
+      [updatedTerms[index], updatedTerms[index + 1]] = [
+        updatedTerms[index + 1],
+        updatedTerms[index],
+      ];
+      // Swap order property
+      [updatedTerms[index].order, updatedTerms[index + 1].order] = [
+        updatedTerms[index + 1].order,
+        updatedTerms[index].order,
+      ];
+      setTerms(updatedTerms);
+    }
+  };
+  
+
   const handleBack = () => {
     navigate('/');
   };
@@ -538,6 +575,28 @@ export const CreateSetPage: React.FC = () => {
                   </IconButton>
                 </span>
               </Tooltip>
+              <Tooltip title="Move Up">
+              <span>
+                <IconButton
+                  color="primary"
+                  onClick={() => handleMoveUp(index)}
+                  disabled={index === 0}
+                >
+                  <ArrowUpwardIcon />
+                </IconButton>
+              </span>
+            </Tooltip>
+            <Tooltip title="Move Down">
+              <span>
+                <IconButton
+                  color="primary"
+                  onClick={() => handleMoveDown(index)}
+                  disabled={index === terms.length - 1}
+                >
+                  <ArrowDownwardIcon />
+                </IconButton>
+              </span>
+            </Tooltip>
             </Box>
           ) : (
             ''

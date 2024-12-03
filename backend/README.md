@@ -6,7 +6,7 @@ Set-Up/Installation
 3. In this directory, run `pnpm install`
 4. You are good to go!
 
-To start the local server: `pnpm start`
+To start the local server: `pnpm lstart`
 
 To execute tests: `pnpm test`
 

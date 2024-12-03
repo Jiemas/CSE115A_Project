@@ -10,11 +10,14 @@ info:
   title: CSE115A Rapid Review Backend
 
 servers:
-  - url: http://localhost:3010/v0
+  - url: http://localhost:3001/v0
+  - url: https://cse115a-project.onrender.com/v0
 
 paths:
   /set:
     get:
+      security:
+        - bearerAuth: []
       description: Returns all sets as array of strings
       responses:
         200:
@@ -30,6 +33,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     put:
+      security:
+        - bearerAuth: []
       description: Adds a new set to the table
       requestBody:
         description: New set as object
@@ -53,6 +58,8 @@ paths:
                 $ref: '#/components/schemas/Error'            
   /set/{id}:
     put:
+      security:
+        - bearerAuth: []
       description: Updates specified set with new values
       requestBody:
         description: New data as set object
@@ -80,6 +87,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error' 
     delete:
+      security:
+        - bearerAuth: []
       description: Deletes specified set
       parameters:
         - name: id
@@ -99,8 +108,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error' 
-  /card/{set_id}:
+  /card/{setId}:
     put:
+      security:
+        - bearerAuth: []
       description: Adds a new card to the table
       requestBody:
         description: New card as object
@@ -110,7 +121,7 @@ paths:
             schema:
               $ref: '#/components/schemas/newCard'
       parameters:
-        - name: set_id
+        - name: setId
           in: path
           description: id of the set card will be added into
           required: True
@@ -123,6 +134,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/keyString'
+        404:
+          description: Set not found
         default:
           description: Unexpected Error
           content:
@@ -130,9 +143,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'     
     get:
+      security:
+        - bearerAuth: []
       description: Returns all cards in specified set
       parameters:
-        - name: set_id
+        - name: setId
           in: path
           description: id of the set from which cards will be retrieved
           required: True
@@ -145,22 +160,208 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/cardArray'
+        404:
+          description: Set not found
         default:
           description: Unexpected Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'   
-  /llm:
-    get:
-      description: Testing for llm
+    post:
+      security:
+        - bearerAuth: []
+      description: Updates card in the specified set
+      # needs a request body so we can change the card's data
+      requestBody:
+        description: Editing existing front and/or back of a card
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/noKeyCard'
+      parameters:
+        - name: setId
+          in: path
+          description: id of the set card to be updated
+          required: True
+          schema:
+            type: string
+        - name: cardId
+          in: query
+          description: id of the card to be updated
+          required: True
+          schema:
+            type: string
       responses:
-        200:
-          description: Test Response
+        201:
+          description: Card updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/keyString'
+                $ref: '#/components/schemas/Card'
+        404:
+          description: Set and/or card not found
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
+    delete: 
+      security:
+        - bearerAuth: []
+      description: Deletes card in specified set
+      parameters:  
+        - name: setId
+          in: path
+          description: id of the set from which cards will be deleted
+          required: True
+          schema:
+            type: string
+        - name: cardId
+          in: query
+          description: id of the card which will be deleted
+          required: True
+          schema:
+            type: string
+      responses:
+        200:
+          description: Card deleted
+        404:
+          description: Set and/or card not found
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
+  /login:
+    post:
+      description: Login
+      requestBody:
+        description: Email and password
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        200:
+          description: Credentials Correct
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          description: Invalid email or password
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      description: Adds a new account to database
+      requestBody:
+        description: New account as object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        201:
+          description: Account added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/keyString' # Purely for testing purposes
+        401:
+          description: Unauthorized
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /login/{id}:
+    delete:
+      description: FOR TESTING CLEANUP, deletes account
+      parameters:  
+        - name: id
+          in: path
+          description: id of the account that will be deleted
+          required: True
+          schema:
+            type: string
+      responses:
+        200:
+          description: Account deleted
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'   
+
+  /import/{setId}:
+    post:
+      security:
+        - bearerAuth: []
+      description: Imports a set of cards into the specified set
+      requestBody:
+        description: Array of cards to be imported
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      parameters:
+        - name: setId
+          in: path
+          description: id of the set to import cards into
+          required: True
+          schema:
+            type: string
+      responses:
+        200:
+          description: Cards imported
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  count:
+                    type: object
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /llm/{setId}:
+    post:
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: setId
+          in: path
+          description: id of the set to generate answers for
+          required: True
+          schema:
+            type: string
+      description: Generate answers for cards in set
+      responses:
+        201:
+          description: Request to generate answers succeeded
+          content:
+            application/json:
+              schema:
+                type: integer
         default:
           description: Unexpected Error
           content:
@@ -170,7 +371,6 @@ paths:
 
 components:
   schemas:
-
     setArray:
       type: array
       items:
@@ -215,7 +415,7 @@ components:
     
     noKeySet:
       type: object
-      maxProperties: 4
+      maxProperties: 3
       properties:
         card_num:
           type: integer
@@ -223,34 +423,29 @@ components:
           type: string
         name:
           type: string
-        owner:
-          type: string
         key:
           type: string
       required:
         - card_num
         - description
         - name
-        - owner
     
     newSet:
       type: object
-      maxProperties: 3
+      maxProperties: 2
       properties:
         description:
           type: string
         name:
           type: string
-        owner:
-          type: string
       required:
         - description
         - name
-        - owner
 
+    # properties: front, back, starred, order, key, correct, wrong
     Card:
       type: object
-      maxProperties: 4
+      maxProperties: 7
       properties:
         front:
           type: string
@@ -260,15 +455,37 @@ components:
           type: boolean
         key:
           type: string
+        # direction:
+        #   type: string
       required:
         - front
         - back
         - starred
         - key
+  
+    # adding this for card update, this is so we can only edit the front, back, or starred
+    # but still have a key property to save the existing card id
+    # front, back, starred, key, order, correct, wrong, direction
+    noKeyCard:
+      type: object
+      maxProperties: 7
+      properties:
+        front:
+          type: string
+        back:
+          type: string
+        starred:
+          type: boolean
+        key: 
+          type: string
+      required:
+        - front
+        - back
+        - starred
 
     newCard:
       type: object
-      maxProperties: 3
+      maxProperties: 6
       properties:
         front:
           type: string
@@ -283,3 +500,31 @@ components:
 
     keyString:
       type: string
+
+    Credentials:
+      type: object
+      maxProperties: 2
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    User:
+      type: object
+      maxProperties: 1
+      properties:
+        accessToken:
+          type: string
+      required:
+        - accessToken
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

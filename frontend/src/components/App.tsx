@@ -1,12 +1,37 @@
-import React from 'react';
+import * as React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material';
 import { Home } from './home-page/HomePage';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from '../auth/AuthContext';
 import { LoginPage } from './LoginPage';
 import { CreateSetPage } from './CreateSetPage';
+import { CreateQuizPage } from './CreateQuizPage';
 
-export const App: React.FC = ({}) => {
+interface SetItem {
+  card_num: number;
+  description: string;
+  name: string;
+  owner: string;
+  key: string;
+}
+
+interface SetContextType {
+  set: SetItem;
+  setSet: React.Dispatch<React.SetStateAction<SetItem>>;
+}
+
+export const SetContext = React.createContext<SetContextType | undefined>(
+  undefined
+);
+
+const App: React.FC = ({}) => {
+  const [set, setSet] = React.useState<SetItem>({
+    card_num: 0,
+    description: '',
+    name: '',
+    owner: '',
+    key: '',
+  });
+
   const theme = createTheme({
     palette: {
       primary: {
@@ -20,15 +45,18 @@ export const App: React.FC = ({}) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <AuthProvider>
+      <SetContext.Provider value={{ set, setSet }}>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/create-set" element={<CreateSetPage />} />
+            <Route path='/' element={<Home />} />
+            <Route path='/login' element={<LoginPage />} />
+            <Route path='/create-set' element={<CreateSetPage />} />
+            <Route path='/quiz/' element={<CreateQuizPage />} />
           </Routes>
         </BrowserRouter>
-      </AuthProvider>
+      </SetContext.Provider>
     </ThemeProvider>
   );
 };
+
+export default App;

@@ -1,77 +1,140 @@
-const crypto = require('crypto')
+const crypto = require('crypto');
 
-exports.getAllSets = async () => {
-    const answer = await fetch(
-        'https://rapid-review-4255a-default-rtdb.firebaseio.com/set.json?orderBy="owner"&equalTo="global"',
-        {method: 'GET'});
-    const json = await answer.json();
-    return Object.entries(json).map((elem) => elem[1]);
+const rootPath = 'https://rapid-review-4255a-default-rtdb.firebaseio.com';
+
+const callDatabase = async (method, pathExtension, requestBody=null) => {
+  const fetchObject = {
+    method: `${method}`,
+  };
+  if (requestBody) {
+    fetchObject['body'] = JSON.stringify(requestBody);
+    fetchObject['headers'] = {'Content-Type': 'application/json'};
+  }
+  const completePath = `${rootPath}/${pathExtension}`;
+  return (await fetch(completePath, fetchObject)).json();
 };
 
+exports.getAllSets = async (userKey) => {
+  const path = `set.json?orderBy="owner"&equalTo="${userKey}"`;
+  const sets = await callDatabase('get', path);
+
+  // If response is empty, return null. Otherwise, return array of set objects
+  return JSON.stringify(sets) == JSON.stringify({}) ? null :
+    Object.entries(sets).map((elem) => elem[1]);
+};
+
+// BUG ADDING NEW SET CHECKS ALL SETS NAME, EVEN IF USER DOESNT OWN THE SET
 exports.getSet_name = async (name) => {
-    const answer = await fetch(
-        'https://rapid-review-4255a-default-rtdb.firebaseio.com/set.json?orderBy="name"&equalTo="' + name +'"',
-        {method: 'GET'});
-    const duplicate = await answer.json();
-    return Object.entries(duplicate).map((elem) => elem[1]);
-}
+  const path = `set.json?orderBy="name"&equalTo="${name}"`;
+  const set = await callDatabase('get', path);
+  return set ? Object.entries(set).map((elem) => elem[1]) : null;
+};
 
 exports.getSet_id = async (id) => {
-    const answer = await fetch(
-        'https://rapid-review-4255a-default-rtdb.firebaseio.com/set/' + id + '.json',
-        {method: 'GET'});
-    const duplicate = await answer.json();
-    if (duplicate == null) {
-        return null;
-    }
-    return Object.entries(duplicate).map((elem) => elem[1]);
-}
+  const set = await callDatabase('get', `set/${id}.json`);
+  return set;
+};
 
-exports.addSet = async (new_obj, set_id) => {
-    await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/set.json',
-        {method: 'PATCH',
-        body: JSON.stringify(new_obj), headers: {'Content-Type': 'application/json'}});
+exports.addSet = async (newObj, setId) => {
+  await callDatabase('PATCH', 'set.json', newObj);
 
-    if (set_id == null) {
-        return;
-    }
+  // If no setId provided, just return
+  if (setId == null) {
+    return;
+  }
 
-    first_card_id = crypto.randomUUID();
-    card_obj = {};
-    card_obj[first_card_id] = {back: 'Put definition here', front: 'Put term here', key: first_card_id, starred: false};
-    set_obj = {};
-    set_obj[set_id] = card_obj;
-    const answer = await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card.json',
-        {method: 'PATCH',
-        body: JSON.stringify(set_obj), headers: {'Content-Type': 'application/json'}});
-}
+  // If code reaches point, this means we are adding a brand new set
+  const firstCardId = crypto.randomUUID();
+  const cardObj = {};
+  cardObj[firstCardId] = {
+    back: '', front: '', key: firstCardId, starred: false, order: 1,
+  };
+  const setObj = {};
+  setObj[setId] = cardObj;
+  await callDatabase('PATCH', 'card.json', setObj);
+};
 
 exports.deleteSet = async (id) => {
-    // curl -X DELETE 'https://rapid-review-4255a-default-rtdb.firebaseio.com/set/fourth_set.json'
-    await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/set/' + id + '.json',
-        {method: 'DELETE'});
-    await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + id + '.json',
-        {method: 'DELETE'});
-}
+  callDatabase('DELETE', `set/${id}.json`);
+  callDatabase('DELETE', `card/${id}.json`);
+};
 
-exports.getCard_front = async (front, set_id) => {
-    const answer = await fetch(
-        'https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id + '.json',
-        {method: 'GET'});
-    const json = await answer.json();
-    return Object.entries(json).map((elem) => elem[1]).find((elem) => elem.front == front);
-}
+exports.getCard_front = async (front, setId) => {
+  const cards = await callDatabase('GET', `card/${setId}.json`);
+  // If cards is not empty, find and return card with specified front
+  // If cards is empty, return null
+  return cards ? Object.entries(cards).map((elem) => elem[1])
+    .find((elem) => elem.front == front) : null;
+};
 
-exports.addCard = async (new_obj, set_id) => {
-    await fetch('https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id +'.json',
-        {method: 'PATCH',
-        body: JSON.stringify(new_obj), headers: {'Content-Type': 'application/json'}})
-}
+exports.getCard_id = async (setId, cardId) => {
+  const card = await callDatabase('GET', `card/${setId}/${cardId}.json`);
+  // If card is not null, return card object. Otherwise, return null
+  return card ? card : null;
+};
 
-exports.getAllCards = async (set_id) => {
-    const answer = await fetch(
-        'https://rapid-review-4255a-default-rtdb.firebaseio.com/card/' + set_id + '.json',
-        {method: 'GET'});
-    const json = await answer.json();
-    return Object.entries(json).map((elem) => elem[1]);
+exports.addCard = async (newObj, setId) => {
+  await callDatabase('PATCH', `card/${setId}.json`, newObj);
+};
+
+exports.getAllCards = async (setId) => {
+  const cards = await callDatabase('GET', `card/${setId}.json`);
+  // If cards is not null, return array of card objects. Otherwise, return null
+  // Sorting the cards so that the database returns the cards in numerical order
+  return cards ? Object.entries(cards).map((elem) =>
+    elem[1]).sort((a, b) => a.order - b.order) : null;
+};
+
+exports.updateCard = async (cardBody, setId, cardId) => {
+  await callDatabase('PUT', `card/${setId}/${cardId}.json`, cardBody);
+};
+
+exports.overwriteCards = async (cardBody, setId) => {
+  await callDatabase('PUT', `card/${setId}.json`, cardBody);
+};
+
+exports.deleteCard = async (setId, cardId) => {
+  await callDatabase('DELETE', `card/${setId}/${cardId}.json`);
+};
+
+exports.getUser = async (email) => {
+  const path = `user.json?orderBy="email"&equalTo="${email}"`;
+  const users = await callDatabase('GET', path);
+
+  // If users is empty, return null. Otherwise, return user object
+  return JSON.stringify(users) == JSON.stringify({}) ? null :
+    Object.entries(users).map((elem) => elem[1])[0];
+};
+
+exports.addUser = async (user) => {
+  await callDatabase('PATCH', 'user.json', user);
+};
+
+exports.deleteUser = async (key) => {
+  await callDatabase('DELETE', `user/${key}.json`);
+};
+
+exports.addLLM = async (setId, cardId, llmData, responseType) => {
+  const llmObj = {};
+  llmObj[responseType] = llmData;
+  await callDatabase('PATCH', `card/${setId}/${cardId}.json`, llmObj);
+};
+
+exports.dbFunctions = {
+  getAllSets: this.getAllSets,
+  getSet_name: this.getSet_name,
+  getSet_id: this.getSet_id,
+  addSet: this.addSet,
+  deleteSet: this.deleteSet,
+  getCard_front: this.getCard_front,
+  getCard_id: this.getCard_id,
+  addCard: this.addCard,
+  getAllCards: this.getAllCards,
+  updateCard: this.updateCard,
+  overwriteCards: this.overwriteCards,
+  deleteCard: this.deleteCard,
+  getUser: this.getUser,
+  addUser: this.addUser,
+  deleteUser: this.deleteUser,
+  addLLM: this.addLLM,
 };

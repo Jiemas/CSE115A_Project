@@ -13,22 +13,17 @@ import {
   ListItemText,
   ListItemIcon,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu'; 
-import FilterListIcon from '@mui/icons-material/FilterList';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { useAuth, UserRole } from '../../auth/AuthContext';
+import MenuIcon from '@mui/icons-material/Menu';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useNavigate } from 'react-router-dom';
 
 export const NavigationBar: React.FC = () => {
-  const { user } = useAuth();
-  const isAdmin = user && user.role === UserRole.Admin;
+  const navigate = useNavigate();
 
-  const pageIcons = [ 
-    <FilterListIcon />,
-    <AccountCircleIcon />,
-  ];
-  const pageLabels = ['Search', 'Account Info'];
+  const pageIcons = [<LogoutIcon />];
+  const pageLabels = ['Logout'];
 
-  const adminOptions = [true, false, false];
+  const adminOptions = [false];
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
@@ -44,8 +39,15 @@ export const NavigationBar: React.FC = () => {
       setDrawerOpen(open);
     };
 
+  const handleLogout = () => {
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('set');
+    navigate('/login');
+  };
+
   const handleClick = () => {
-    console.log('Button Clicked.');
+    sessionStorage.removeItem('set');
+    navigate('/');
   };
 
   const listMenuOptions = () => (
@@ -56,8 +58,8 @@ export const NavigationBar: React.FC = () => {
     >
       <List>
         {pageIcons.map((icon, index) =>
-          isAdmin || !adminOptions[index] ? (
-            <ListItem button key={index}>
+          !adminOptions[index] ? (
+            <ListItem button key={index} onClick={handleLogout}>
               <ListItemIcon sx={{ minWidth: 'auto', marginRight: '8px' }}>
                 {icon}
               </ListItemIcon>
@@ -70,7 +72,7 @@ export const NavigationBar: React.FC = () => {
   );
 
   return (
-    <AppBar position="static">
+    <AppBar position='static'>
       <Toolbar
         sx={{
           display: 'flex',
@@ -87,18 +89,18 @@ export const NavigationBar: React.FC = () => {
             borderRadius: '4px',
           }}
         >
-          <Typography variant="h5">Rapid Review</Typography>
+          <Typography variant='h5'>Rapid Review</Typography>
         </ButtonBase>
         <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
           <IconButton
-            size="small"
+            size='small'
             onClick={toggleDrawer(true)}
-            color="inherit"
+            color='inherit'
             sx={{ mr: 2 }}
           >
             <MenuIcon />
           </IconButton>
-          <Drawer anchor="top" open={drawerOpen} onClose={toggleDrawer(false)}>
+          <Drawer anchor='top' open={drawerOpen} onClose={toggleDrawer(false)}>
             {listMenuOptions()}
           </Drawer>
         </Box>
@@ -108,18 +110,13 @@ export const NavigationBar: React.FC = () => {
             justifyContent: 'center',
           }}
         >
-          {pageIcons.map((icon, index) =>
-            isAdmin || !adminOptions[index] ? (
-              <Button
-                key={index}
-                onClick={handleClick}
-                startIcon={icon}
-                sx={{ color: 'white', marginRight: 2 }}
-              >
-                {pageLabels[index]}
-              </Button>
-            ) : null
-          )}
+          <Button
+            onClick={handleLogout}
+            sx={{ color: 'white', marginRight: 2 }}
+          >
+            Logout
+            <LogoutIcon />
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>

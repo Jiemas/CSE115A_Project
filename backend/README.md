@@ -10,3 +10,11 @@ To start the local server: `pnpm start`
 
 To execute tests: `pnpm test`
 
+To run lint code checking: `pnpm lint`
+
+NEW REQUIREMENT:
+- Create file `.env` in backend directory (this one)
+- In the first line put `SECRET=`
+- In the second line put `API_KEY=`
+- In the third line put `HOST_NAME=`
+- For the values after the equals, contact Jiemas

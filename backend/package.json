@@ -6,18 +6,27 @@
   "license": "UNLICENSED",
   "repository": "none",
   "devDependencies": {
+    "eslint": "8.57.0",
+    "eslint-config-google": "*",
     "jest": "*",
     "nodemon": "*",
     "supertest": "*"
   },
   "dependencies": {
+    "bcrypt": "*",
+    "bcryptjs": "^2.4.3",
     "body-parser": "*",
+    "bull": "*",
+    "cors": "^2.8.5",
     "dotenv": "*",
     "express": "*",
     "express-openapi-validator": "*",
     "js-yaml": "*",
-    "swagger-ui-express": "*",
-    "openai": "*"
+    "jsonwebtoken": "*",
+    "openai": "*",
+    "pm2": "^5.4.2",
+    "redis": "^4.7.0",
+    "swagger-ui-express": "*"
   },
   "jest": {
     "testTimeout": 60000,
@@ -25,9 +34,27 @@
       "**/?(*.)+(spec|test).[jt]s?(x)"
     ]
   },
-  "scripts": {
-    "start": "nodemon src/server.js",
-    "test": "jest --testTimeout=10000 --runInBand --coverage --verbose --forceExit --detectOpenHandles"
+  "eslintConfig": {
+    "extends": [
+      "google"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 15
+    },
+    "rules": {
+      "indent": [
+        "warn",
+        2
+      ]
+    },
+    "ignorePatterns": [
+      "coverage/**"
+    ]
   },
-  "packageManager": "pnpm@7.30.0+sha512.e9251dad6499e2abd0e2e05583bb269da6d528e16b4fb0e04b3d8d7d5886e789d18a2e0e0c1dfde6a987a6b062bf95817650bf8d96019fdf5f49f9b320c23759"
+  "scripts": {
+    "lstart": "redis-server & nodemon src/server.js",
+    "start": "nodemon src/server.js",
+    "test": "jest --testTimeout=10000 --runInBand --coverage --verbose --forceExit --detectOpenHandles",
+    "lint": "eslint . --no-inline-config --max-warnings 0"
+  }
 }

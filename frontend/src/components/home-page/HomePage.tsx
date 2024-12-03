@@ -1,52 +1,77 @@
 import React from 'react';
 import { NavigationBar } from './NavigationBar';
 import { useNavigate } from 'react-router-dom';
-import { Box, Card, CardContent, Typography, Grid, Button, Stack } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Button,
+  Stack,
+} from '@mui/material';
+import { SetContext } from '../App';
+import { callBackend } from '../../helper';
 
-// hardcode fake data 
-const setArray = [
+let setArray = [
   {
-    card_num: 50,
-    description: 'Algebra, Geometry, and more',
-    name: 'Math',
-    owner: 'User123',
-    key: 'set1',
+    card_num: 0,
+    description: '.',
+    name: '.',
+    owner: '.',
+    key: '.',
   },
-  {
-    card_num: 50,
-    description: 'Algebra, Geometry, and more',
-    name: 'Math',
-    owner: 'User123',
-    key: 'set1',
-  },
-  {
-    card_num: 50,
-    description: 'Algebra, Geometry, and more',
-    name: 'Math',
-    owner: 'User123',
-    key: 'set1',
-  },
-  {
-    card_num: 50,
-    description: 'Algebra, Geometry, and more',
-    name: 'Math',
-    owner: 'User123',
-    key: 'set1',
-  }
 ];
+const blankArray = JSON.parse(JSON.stringify(setArray));
 
 export const Home: React.FC = () => {
+  const { setSet } = React.useContext(SetContext);
+  const [arraySet, setArraySet] = React.useState(setArray);
+
   const navigate = useNavigate();
-  const handleSetClick = (setName: string) => {
-    console.log(`Clicked on set: ${setName}`); 
-  };
-  const handleCreateSet = () => {
+
+  const updateSetThenNavigate = (newSet: object) => {
+    setSet(newSet);
     navigate('/create-set');
   };
 
-  const handleImportSet = () => {
-    console.log('Import Set button clicked'); 
+  const handleSetClick = (clicked_set: object) => {
+    if (clicked_set.key == '.') {
+      return;
+    }
+    sessionStorage.setItem('set', JSON.stringify(clicked_set));
+    updateSetThenNavigate(clicked_set);
   };
+
+  const handleCreateNewClick = (newSet: object) => {
+    sessionStorage.removeItem('set');
+    updateSetThenNavigate(newSet);
+  };
+
+  React.useEffect(() => {
+    const unparsedAccessToken = sessionStorage.getItem('accessToken');
+    if (!unparsedAccessToken) {
+      navigate('/login');
+    }
+    const accessToken = JSON.parse(unparsedAccessToken);
+
+    callBackend('get', 'set', accessToken)
+      .then(res => {
+        if (res.status == 403 || res.status == 401) {
+          navigate('/login');
+        }
+        if (res.status == 404) {
+          return blankArray;
+        }
+        return res.json();
+      })
+      .then(json => {
+        if (JSON.stringify(setArray) != JSON.stringify(json)) {
+          setArraySet(json);
+          setArray = arraySet;
+        }
+      });
+  });
 
   return (
     <Box
@@ -57,7 +82,7 @@ export const Home: React.FC = () => {
         gap: 0.5,
       }}
     >
-      <NavigationBar /> 
+      <NavigationBar />
       <Box
         sx={{
           display: 'flex',
@@ -66,47 +91,44 @@ export const Home: React.FC = () => {
           padding: 2,
         }}
       >
-        <Typography variant="h4" gutterBottom>
-          My Flashcards 
+        <Typography variant='h4' gutterBottom>
+          My Flashcards
         </Typography>
-        <Stack direction="row" spacing={2} sx={{ marginBottom: 4 }}>
+        <Stack direction='row' spacing={2} sx={{ marginBottom: 4 }}>
           <Button
-            variant="contained"
-            color="primary"
-            onClick={handleCreateSet}
+            variant='contained'
+            color='primary'
+            onClick={() => handleCreateNewClick({ name: '', description: '' })}
           >
             Create New Set
-          </Button> 
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleImportSet}
-          >
-            Import Set
-          </Button> 
+          </Button>
         </Stack>
         <Grid container spacing={2}>
-          {setArray.map((set) => (
-            <Grid item xs={12} sm={6} md={4} key={set.key}>
-              <Button
-                onClick={() => handleSetClick(set.name)}
-                sx={{
-                  textTransform: 'none',  
-                  width: '100%',
-                }}
-              >
-                <Card sx={{ minHeight: 150, width: '100%' }}>
-                  <CardContent>
-                    <Typography variant="h5">{set.name}</Typography>
-                    <Typography variant="body2">{set.description}</Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      Cards: {set.card_num} | Owner: {set.owner}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Button>
-            </Grid>
-          ))}
+          {arraySet.map(set =>
+            set.name == '.' && set.card_num == 0 ? (
+              ''
+            ) : (
+              <Grid item xs={12} sm={6} md={4} key={set.key}>
+                <Button
+                  onClick={() => handleSetClick(set)}
+                  sx={{
+                    textTransform: 'none',
+                    width: '100%',
+                  }}
+                >
+                  <Card sx={{ minHeight: 150, width: '100%' }}>
+                    <CardContent>
+                      <Typography variant='h5'>{set.name}</Typography>
+                      <Typography variant='body2'>{set.description}</Typography>
+                      <Typography variant='body2' color='textSecondary'>
+                        Cards: {set.card_num}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Button>
+              </Grid>
+            )
+          )}
         </Grid>
       </Box>
     </Box>
